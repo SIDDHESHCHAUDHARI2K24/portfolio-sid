@@ -26,7 +26,7 @@ export default function IntroPlayer({ wordIndex }: IntroPlayerProps) {
                 : { opacity: 0, y: 20 }
             }
             transition={{ duration: 0.35, ease }}
-            className="font-display text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight text-text"
+            className="font-display text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight text-foreground"
           >
             {word}
           </motion.span>
