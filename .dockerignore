@@ -1,0 +1,20 @@
+# Keep context lean: only backend/ and admin/ are needed in the image.
+.git
+**/node_modules
+**/dist
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+.env*
+*.md
+frontend/
+docs/
+development_plan/
+overall_context/
+scripts/
+graphify-out/
+docker-compose.yml
+opencode.json
+skills-lock.json

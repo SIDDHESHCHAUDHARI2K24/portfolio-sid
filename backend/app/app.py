@@ -1,7 +1,10 @@
 """FastAPI application factory."""
 
-from fastapi import APIRouter, FastAPI
+from pathlib import Path
+
+from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from app.core.config import get_settings
 
@@ -36,4 +39,21 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     register_routers(app)
+
+    static_dir = Path(settings.admin_static_dir)
+    if static_dir.is_dir():
+        static_root = static_dir.resolve()
+
+        # Registered AFTER all routers so explicit /api/* routes win. Serves the
+        # built admin SPA: real files as-is, everything else falls back to
+        # index.html so client-side routing survives a hard refresh.
+        @app.get("/{full_path:path}", include_in_schema=False)
+        async def spa_catchall(full_path: str) -> FileResponse:
+            if full_path == "api" or full_path.startswith("api/"):
+                raise HTTPException(status_code=404)
+            candidate = (static_root / full_path).resolve()
+            if candidate.is_file() and candidate.is_relative_to(static_root):
+                return FileResponse(candidate)
+            return FileResponse(static_root / "index.html")
+
     return app

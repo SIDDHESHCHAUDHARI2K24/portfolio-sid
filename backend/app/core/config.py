@@ -5,6 +5,7 @@ e.g. ``database_url`` <- ``DATABASE_URL``. See ``.env.example``.
 """
 
 from functools import lru_cache
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -14,6 +15,9 @@ class Settings(BaseSettings):
 
     environment: str = "development"
     database_url: str = "postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio"
+
+    storage_kind: Literal["s3", "local"] = "s3"
+    local_storage_dir: str = ".storage"
 
     r2_endpoint: str | None = None
     r2_access_key_id: str | None = None
@@ -38,6 +42,8 @@ class Settings(BaseSettings):
 
     revalidation_secret: str | None = None
     next_public_base_url: str = "http://localhost:3000"
+
+    admin_static_dir: str = "static"
 
 
 @lru_cache
