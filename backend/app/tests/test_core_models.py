@@ -71,9 +71,7 @@ async def test_public_filter(session: AsyncSession) -> None:
     now = datetime.now(UTC)
     draft = TestEntry(status=PublishStatus.DRAFT)
     published = TestEntry(status=PublishStatus.PUBLISHED, published_at=now)
-    scheduled_past = TestEntry(
-        status=PublishStatus.SCHEDULED, publish_at=now - timedelta(hours=1)
-    )
+    scheduled_past = TestEntry(status=PublishStatus.SCHEDULED, publish_at=now - timedelta(hours=1))
     scheduled_future = TestEntry(
         status=PublishStatus.SCHEDULED, publish_at=now + timedelta(hours=1)
     )
@@ -81,8 +79,10 @@ async def test_public_filter(session: AsyncSession) -> None:
     await session.commit()
 
     visible = (
-        await session.execute(select(TestEntry.id).where(public_filter(TestEntry)))
-    ).scalars().all()
+        (await session.execute(select(TestEntry.id).where(public_filter(TestEntry))))
+        .scalars()
+        .all()
+    )
     visible_ids = set(visible)
 
     assert published.id in visible_ids

@@ -15,6 +15,7 @@ metadata = Base.metadata
 # Feature model imports append below, one line per feature, alphabetical:
 # from app.features.<name>.models import ...
 from app.features.auth.models import LoginAttempt, OtpChallenge  # noqa: E402
+from app.features.relevance.models import AudienceTagMap  # noqa: E402
 
 _PUBLISHABLES: list[tuple[type[Any], str]] = []
 
@@ -36,6 +37,7 @@ def publishables() -> list[tuple[type[Any], str]]:
 
 
 __all__ = [
+    "AudienceTagMap",
     "Base",
     "LoginAttempt",
     "OtpChallenge",

@@ -39,13 +39,17 @@ async def run_once(factory: async_sessionmaker[AsyncSession]) -> tuple[int, list
     async with factory() as session:
         for model, tag in publishables():
             due = (
-                await session.execute(
-                    select(model).where(
-                        model.status == PublishStatus.SCHEDULED,
-                        model.publish_at <= now,
+                (
+                    await session.execute(
+                        select(model).where(
+                            model.status == PublishStatus.SCHEDULED,
+                            model.publish_at <= now,
+                        )
                     )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
             for row in due:
                 row.status = PublishStatus.PUBLISHED
                 row.published_at = now

@@ -41,9 +41,7 @@ class FakeAsyncClient:
         json: Any = None,
         headers: dict[str, str] | None = None,
     ) -> FakeResponse:
-        FakeAsyncClient.requests.append(
-            {"url": url, "json": json, "headers": headers or {}}
-        )
+        FakeAsyncClient.requests.append({"url": url, "json": json, "headers": headers or {}})
         if FakeAsyncClient.raise_exc is not None:
             raise FakeAsyncClient.raise_exc
         return FakeResponse(FakeAsyncClient.status_code)

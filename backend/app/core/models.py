@@ -91,9 +91,7 @@ class TopicTag(UUIDMixin, TimestampMixin, Base):
     """
 
     __tablename__ = "topic_tags"
-    __table_args__ = (
-        CheckConstraint("slug = lower(slug)", name="ck_topic_tags_slug_lowercase"),
-    )
+    __table_args__ = (CheckConstraint("slug = lower(slug)", name="ck_topic_tags_slug_lowercase"),)
 
     slug: Mapped[str] = mapped_column(String(100), nullable=False, unique=True, index=True)
     label: Mapped[str] = mapped_column(String(200), nullable=False)

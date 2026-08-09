@@ -36,20 +36,14 @@ async def assert_public_query_excludes_drafts(session: AsyncSession, model: Any)
     """
     now = datetime.now(UTC)
     draft = model(status=PublishStatus.DRAFT)
-    scheduled_future = model(
-        status=PublishStatus.SCHEDULED, publish_at=now + timedelta(hours=1)
-    )
+    scheduled_future = model(status=PublishStatus.SCHEDULED, publish_at=now + timedelta(hours=1))
     published = model(status=PublishStatus.PUBLISHED, published_at=now)
-    scheduled_due = model(
-        status=PublishStatus.SCHEDULED, publish_at=now - timedelta(hours=1)
-    )
+    scheduled_due = model(status=PublishStatus.SCHEDULED, publish_at=now - timedelta(hours=1))
     session.add_all([draft, scheduled_future, published, scheduled_due])
     await session.commit()
 
     visible = set(
-        (
-            await session.execute(select(model.id).where(public_filter(model)))
-        ).scalars().all()
+        (await session.execute(select(model.id).where(public_filter(model)))).scalars().all()
     )
 
     assert published.id in visible

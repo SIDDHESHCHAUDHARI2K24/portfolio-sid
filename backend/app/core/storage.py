@@ -85,9 +85,10 @@ class S3Storage(StorageAdapter):
             self._client.head_object(Bucket=self._settings.r2_bucket, Key=key)
         except ClientError as exc:
             error = exc.response.get("Error", {})
-            if error.get("Code") in {"404", "NotFound", "NoSuchKey"} or exc.response.get(
-                "ResponseMetadata", {}
-            ).get("HTTPStatusCode") == 404:
+            if (
+                error.get("Code") in {"404", "NotFound", "NoSuchKey"}
+                or exc.response.get("ResponseMetadata", {}).get("HTTPStatusCode") == 404
+            ):
                 return False
             raise
         return True

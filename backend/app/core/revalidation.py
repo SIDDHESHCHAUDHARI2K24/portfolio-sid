@@ -37,8 +37,6 @@ async def revalidate(tags: Sequence[str]) -> None:
         logger.error("revalidation request failed: tags=%s", tag_list, exc_info=True)
         return
     if response.status_code != 200:
-        logger.error(
-            "revalidation rejected: tags=%s status=%s", tag_list, response.status_code
-        )
+        logger.error("revalidation rejected: tags=%s status=%s", tag_list, response.status_code)
         return
     logger.info("revalidated tags=%s", tag_list)

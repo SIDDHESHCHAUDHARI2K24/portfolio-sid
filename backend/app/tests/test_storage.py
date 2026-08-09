@@ -88,9 +88,7 @@ def fresh_storage_caches() -> Iterator[None]:
     storage_module.get_storage.cache_clear()
 
 
-def test_get_storage_local(
-    fresh_storage_caches: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_get_storage_local(fresh_storage_caches: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("STORAGE_KIND", "local")
     assert isinstance(get_storage(), LocalDiskStorage)
 

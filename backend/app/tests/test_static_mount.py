@@ -70,9 +70,7 @@ async def test_no_static_dir_keeps_api_only(
     monkeypatch.setenv("ADMIN_STATIC_DIR", str(tmp_path / "missing"))
     get_settings.cache_clear()
     try:
-        async with httpx.AsyncClient(
-            transport=httpx.ASGITransport(app=create_app())
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app())) as client:
             health = await client.get("http://test/api/v1/health")
             root = await client.get("http://test/")
         assert health.status_code == 200

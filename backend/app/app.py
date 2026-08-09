@@ -11,6 +11,8 @@ from app.core.config import get_settings
 from app.features.auth.endpoints.router import admin_router, limiter
 from app.features.auth.endpoints.router import router as auth_router
 from app.features.auth.service import AuthError
+from app.features.relevance.endpoints.router import admin_router as relevance_admin_router
+from app.features.relevance.endpoints.router import public_router as relevance_public_router
 
 api_v1 = APIRouter(prefix="/api/v1")
 
@@ -25,6 +27,8 @@ def register_routers(app: FastAPI) -> None:
     # Feature routers append below, one include_router per feature, alphabetical.
     app.include_router(auth_router)
     app.include_router(admin_router)
+    app.include_router(relevance_public_router)
+    app.include_router(relevance_admin_router)
 
 
 async def _auth_error_handler(request: Request, exc: Exception) -> JSONResponse:
