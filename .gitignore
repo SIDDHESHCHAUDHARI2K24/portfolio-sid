@@ -1,0 +1,35 @@
+# secrets & local config
+.env
+.env.*
+!.env.example
+opencode.json
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# node
+node_modules/
+.next/
+dist/
+.turbo/
+*.tsbuildinfo
+
+# databases & dumps
+*.db
+*.sqlite
+*.sql
+
+# tooling indexes
+.codegraph/
+graphify-out/cost.json
+graphify-out/cache/
+
+# os/editor
+.DS_Store
+.idea/
+.vscode/
