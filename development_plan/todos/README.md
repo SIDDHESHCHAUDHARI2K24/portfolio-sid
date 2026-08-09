@@ -19,32 +19,32 @@
 ### Wave 0 — bootstrap
 | ID | Title | Exec | Deps | Status |
 |---|---|---|---|---|
-| TD-00 | Repo init + git hygiene + secrets guardrails | agent | — | [ ] |
-| TD-01 | Agent tooling: caveman, graphify, codegraph, superpowers | agent | TD-00 | [ ] |
-| TD-02 | Canonical docs set + conventions + pointer files | agent | TD-00 | [ ] |
-| TD-M1 | Verify Cloudflare zone active; record renewal/WHOIS | user | — | [ ] |
+| TD-00 | Repo init + git hygiene + secrets guardrails | agent | — | [x] |
+| TD-01 | Agent tooling: caveman, graphify, codegraph, superpowers | agent | TD-00 | [x] |
+| TD-02 | Canonical docs set + conventions + pointer files | agent | TD-00 | [x] |
+| TD-M1 | Verify Cloudflare zone active; record renewal/WHOIS | user | — | [~] domain bought + NS delegated; zone-Active check + renewal record pending |
 
 ### Wave 1 — scaffolds (fully parallel)
 | ID | Title | Exec | Deps | Status |
 |---|---|---|---|---|
-| TD-03 | Backend scaffold: uv + FastAPI factory + core/ | agent | TD-00 | [ ] |
-| TD-04 | Next.js scaffold + overlay invariant + noindex default | agent | TD-00 | [ ] |
-| TD-05 | Admin SPA scaffold (Vite+React+TS) | agent | TD-00 | [ ] |
-| TD-06 | Docker Compose: Postgres 16 + MinIO + bucket init | agent | TD-00 | [ ] |
+| TD-03 | Backend scaffold: uv + FastAPI factory + core/ | agent | TD-00 | [x] |
+| TD-04 | Next.js scaffold + overlay invariant + noindex default | agent | TD-00 | [x] |
+| TD-05 | Admin SPA scaffold (Vite+React+TS) | agent | TD-00 | [x] |
+| TD-06 | Docker Compose: Postgres 16 + MinIO + bucket init | agent | TD-00 | [x] |
 | TD-M2 | R2 bucket + Turnstile widget + Web Analytics | user | TD-M1 | [ ] |
 
 ### Wave 2 — backend core
 | ID | Title | Exec | Deps | Status |
 |---|---|---|---|---|
-| TD-07 | Async Alembic + models registry | agent | TD-03, TD-06 | [ ] |
-| TD-08 | StorageAdapter (R2/MinIO, content-hashed keys) | agent | TD-03, TD-06, TD-M2 | [ ] |
-| TD-09 | Multi-stage backend Dockerfile (admin+API one container) | agent | TD-03, TD-05 | [ ] |
+| TD-07 | Async Alembic + models registry | agent | TD-03, TD-06 | [x] |
+| TD-08 | StorageAdapter (R2/MinIO, content-hashed keys) | agent | TD-03, TD-06, TD-M2 | [x] MinIO/local verified; R2 creds pending TD-M2 |
+| TD-09 | Multi-stage backend Dockerfile (admin+API one container) | agent | TD-03, TD-05 | [x] |
 | TD-M3 | Resend domain verify: SPF/DKIM/DMARC | user | TD-M1 | [ ] |
 
 ### Wave 3 — design
 | ID | Title | Exec | Deps | Status |
 |---|---|---|---|---|
-| TD-10 | Stitch MCP (env expansion) + DESIGN.md export (+openpencil optional) | paired | TD-00 | [ ] |
+| TD-10 | Stitch MCP (env expansion) + DESIGN.md export (+openpencil optional) | paired | TD-00 | [~] .mcp.json committed (${STITCH_API_KEY}); design pass pending |
 | TD-11 | Design tokens → Tailwind/shadcn both apps | agent | TD-10, TD-04, TD-05 | [ ] |
 
 ### Wave 4 — CI/CD + infra deploy
@@ -53,7 +53,7 @@
 | TD-12 | CI: ruff/mypy/ESLint/tsc + unit tests (codegraph-scoped) | agent | TD-03..05, TD-01 | [ ] |
 | TD-13 | CI: OpenAPI drift + Alembic single-head | agent | TD-12, TD-07 | [ ] |
 | TD-14 | react-doctor install+baseline+PR gate; Playwright E2E; SSR curl check in CI | agent | TD-12, TD-09 | [ ] |
-| TD-M4 | Railway: Postgres + backend/frontend/cron services | paired | TD-09, TD-M2 | [ ] |
+| TD-M4 | Railway: Postgres + backend/frontend/cron services | paired | TD-09, TD-M2 | [~] railway CLI logged in; services not provisioned |
 | TD-M5 | Railway auto-deploy OFF + RAILWAY_TOKEN env secret | user | TD-M4 | [ ] |
 | TD-M6 | Cloudflare Tunnel + Access (env-gated, single hostname) | paired | TD-M1, TD-M4 | [ ] |
 | TD-15 | Deploy workflow + production environment approval | agent | TD-M5, TD-14 | [ ] |
@@ -63,10 +63,10 @@
 ### Wave 5 — P1 data/auth (TD-17/18/19 parallel after TD-16)
 | ID | Title | Exec | Deps | Status |
 |---|---|---|---|---|
-| TD-16 | Core data: base/mixins, Audience, TopicTag, Publishable, registry+migration | agent | TD-07 | [ ] |
-| TD-17 | Admin auth: Argon2, OTP, Resend, session, lockout, Access JWT | agent | TD-16, TD-M3 | [ ] |
-| TD-18 | Relevance engine: map table, pure resolver, endpoint, Postgres tests | agent | TD-16 | [ ] |
-| TD-19 | Publishing: revalidate route, triggers, scheduler cron, public_filter | agent | TD-16, TD-04 | [ ] |
+| TD-16 | Core data: base/mixins, Audience, TopicTag, Publishable, registry+migration | agent | TD-07 | [x] |
+| TD-17 | Admin auth: Argon2, OTP, Resend, session, lockout, Access JWT | agent | TD-16, TD-M3 | [x] live Resend send pending TD-M3 |
+| TD-18 | Relevance engine: map table, pure resolver, endpoint, Postgres tests | agent | TD-16 | [x] |
+| TD-19 | Publishing: revalidate route, triggers, scheduler cron, public_filter | agent | TD-16, TD-04 | [x] |
 
 ### Wave 6 — spine
 | ID | Title | Exec | Deps | Status |
