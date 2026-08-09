@@ -1,5 +1,7 @@
 """Relevance request/response schemas."""
 
+from uuid import UUID
+
 from pydantic import BaseModel, field_validator
 
 from app.core.enums import Audience
@@ -19,3 +21,18 @@ class AdminMapUpdate(BaseModel):
         if unknown:
             raise ValueError(f"unknown audience values: {', '.join(unknown)}")
         return mapping
+
+
+class TagOut(BaseModel):
+    id: UUID
+    slug: str
+    label: str
+
+
+class TagCreate(BaseModel):
+    slug: str
+    label: str
+
+
+class TagUpdate(BaseModel):
+    label: str | None = None

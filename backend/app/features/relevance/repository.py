@@ -75,3 +75,59 @@ async def replace_map(session: AsyncSession, mapping: dict[str, list[str]]) -> N
         for audience, tags in mapping.items()
         for slug in sorted(set(tags))
     )
+
+
+async def list_tags(session: AsyncSession) -> Sequence[TopicTag]:
+    return (
+        (await session.execute(select(TopicTag).order_by(TopicTag.slug)))
+        .scalars()
+        .all()
+    )
+
+
+async def create_tag(session: AsyncSession, slug: str, label: str) -> TopicTag:
+    tag = TopicTag(slug=slug, label=label)
+    session.add(tag)
+    await session.flush()
+    return tag
+
+
+async def get_tag(session: AsyncSession, tag_id: uuid.UUID) -> TopicTag | None:
+    return await session.get(TopicTag, tag_id)
+
+
+async def rename_tag(session: AsyncSession, tag_id: uuid.UUID, label: str) -> TopicTag | None:
+    tag = await session.get(TopicTag, tag_id)
+    if tag is None:
+        return None
+    tag.label = label
+    await session.flush()
+    return tag
+
+
+async def delete_tag(session: AsyncSession, tag_id: uuid.UUID) -> bool:
+    tag = await session.get(TopicTag, tag_id)
+    if tag is None:
+        return False
+    await session.delete(tag)
+    await session.flush()
+    return True
+
+
+async def tag_in_use(session: AsyncSession, tag_id: uuid.UUID) -> bool:
+    from sqlalchemy import text as sa_text
+    row = (
+        await session.execute(
+            sa_text("SELECT 1 FROM audience_tag_map WHERE topic_tag_id = :tid LIMIT 1"),
+            {"tid": tag_id},
+        )
+    ).first()
+    if row is not None:
+        return True
+    row = (
+        await session.execute(
+            sa_text("SELECT 1 FROM timeline_topic_tags WHERE topic_tag_id = :tid LIMIT 1"),
+            {"tid": tag_id},
+        )
+    ).first()
+    return row is not None

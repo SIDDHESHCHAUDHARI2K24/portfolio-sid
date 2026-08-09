@@ -76,3 +76,47 @@ Secrets live only in Railway env vars, GitHub `production` environment secrets, 
 
 ## Contention protocol (Phase 2)
 Five files are shared across the six parallel tracks: `models_registry.py`, `app.py` router block, the Alembic chain, `frontend/lib/tiles.ts`, `frontend/lib/cacheTags.ts`. Registries use sentinel append-zones, alphabetical insertion, keep-both-canonical-order conflict resolution. Merge queue: Track A first, then completion order, one merge at a time; after each merge remaining branches rebase + regenerate. Full machinery: `scripts/regen_migration.sh`, `scripts/check_registries.py` (TD-24).
+
+## Tile contract (Phase 1 / TD-22)
+
+The homepage renders a grid of *tiles* below the per-audience overview intro. Every Phase 2 content feature contributes one tile as the final sub-task of its own track. The contract lives in `frontend/lib/tiles.ts`.
+
+### Interface
+
+```typescript
+export interface Tile {
+  id: string;          // stable identifier, e.g. "timeline", "books"
+  title: string;       // display title
+  summary: string;     // one-paragraph plain-text or short markdown
+  href: string;        // link target
+  audiences: string[]; // which audience segments see this tile (empty = all)
+  priority: number;    // higher = earlier in the grid
+  isEmpty: boolean;    // set true to omit this tile entirely
+}
+```
+
+### Rules
+
+- **Omission, not dimming.** A tile irrelevant to the current audience is absent from the grid (`isEmpty` or filtered by `audiences`). Unlike timeline entries, tiles are never dimmed.
+- **Server-render the full grid.** The homepage ships all tile data in one static payload; audience filtering is client-side only.
+- **Empty tile.** When a feature has no published content, its tile factory returns `isEmpty: true`. The grid omits it without a gap.
+- **Priority ordering.** Higher `priority` tiles appear first. Timeline defaults to `20`, other features adjust relative to that baseline.
+
+### Worked example: TimelineTile
+
+`frontend/components/tiles/TimelineTile.tsx`:
+
+```typescript
+export function buildTimelineTile(entries: Entry[]): Tile {
+  if (entries.length === 0) {
+    return { id: "timeline", title: "", summary: "", href: "/timeline",
+             audiences: [], priority: 20, isEmpty: true };
+  }
+  const latest = entries[0];
+  return { id: "timeline", title: "Timeline",
+           summary: latest.summary ?? `${latest.title} at ${latest.organisation}`,
+           href: "/timeline", audiences: [], priority: 20, isEmpty: false };
+}
+```
+
+A Phase 2 feature (e.g. Books) would create `frontend/components/tiles/BooksTile.tsx` exporting a `buildBooksTile(entries: Book[]): Tile` function, add it to the homepage data fetch, and append the tile to the grid array.

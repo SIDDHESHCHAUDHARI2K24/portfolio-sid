@@ -5,12 +5,15 @@ bool out, no ORM objects, no database access. It is mirrored exactly in
 ``frontend/src/lib/relevance.ts`` — keep the signature and body identical.
 """
 
+import uuid
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import cache_tags
 from app.core.enums import Audience
 from app.core.revalidation import revalidate
 from app.features.relevance import repository
+from app.features.relevance.schemas import TagCreate, TagOut, TagUpdate
 
 
 def is_relevant(
@@ -38,3 +41,37 @@ async def update_map(session: AsyncSession, mapping: dict[str, list[str]]) -> di
     await session.commit()
     await revalidate([cache_tags.RELEVANCE])
     return await get_map_payload(session)
+
+
+async def list_tags(session: AsyncSession) -> list[TagOut]:
+    tags = await repository.list_tags(session)
+    return [TagOut(id=t.id, slug=t.slug, label=t.label) for t in tags]
+
+
+async def create_tag(session: AsyncSession, body: TagCreate) -> TagOut:
+    tag = await repository.create_tag(session, body.slug, body.label)
+    await session.commit()
+    await revalidate([cache_tags.RELEVANCE])
+    return TagOut(id=tag.id, slug=tag.slug, label=tag.label)
+
+
+async def rename_tag(session: AsyncSession, tag_id: uuid.UUID, body: TagUpdate) -> TagOut:
+    label = body.label
+    if label is None:
+        raise ValueError("label is required")
+    tag = await repository.rename_tag(session, tag_id, label)
+    if tag is None:
+        raise ValueError("Tag not found")
+    await session.commit()
+    await revalidate([cache_tags.RELEVANCE])
+    return TagOut(id=tag.id, slug=tag.slug, label=tag.label)
+
+
+async def delete_tag(session: AsyncSession, tag_id: uuid.UUID) -> None:
+    if await repository.tag_in_use(session, tag_id):
+        raise ValueError("Tag is in use by content entries or the relevance map")
+    ok = await repository.delete_tag(session, tag_id)
+    if not ok:
+        raise ValueError("Tag not found")
+    await session.commit()
+    await revalidate([cache_tags.RELEVANCE])

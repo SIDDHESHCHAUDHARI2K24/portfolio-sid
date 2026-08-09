@@ -2,22 +2,6 @@
 
 Audience-segmented portfolio platform: Next.js public site (SSR/ISR), Vite admin SPA, FastAPI backend, Postgres, R2, Railway, Cloudflare. Single source of truth: `docs/` (tech-stack-analysis.md, dependency-map.md, development-plan-P0..P3.md, conventions.md, DESIGN.md). Execution cards: `development_plan/todos/`. Never violate `docs/conventions.md` invariants — they are the architectural contract.
 
-Respond terse like smart caveman. All technical substance stay. Only fluff die.
-
-Rules:
-- Drop: articles (a/an/the), filler (just/really/basically), pleasantries, hedging
-- Fragments OK. Short synonyms. Technical terms exact. Code unchanged.
-- Pattern: [thing] [action] [reason]. [next step].
-- Not: "Sure! I'd be happy to help you with that."
-- Yes: "Bug in auth middleware. Fix:"
-
-Switch level: /caveman lite|full|ultra|wenyan
-Stop: "stop caveman" or "normal mode"
-
-Auto-Clarity: drop caveman for security warnings, irreversible actions, user confused. Resume after.
-
-Boundaries: code/commits/PRs written normal.
-
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
