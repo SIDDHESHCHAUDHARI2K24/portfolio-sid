@@ -29,7 +29,8 @@ async def api_v1_health() -> dict[str, str]:
 
 def register_routers(app: FastAPI) -> None:
     app.include_router(api_v1)
-    # Feature routers append below, one include_router per feature, alphabetical.
+    # === APPEND-ZONE-START: feature router registration ===
+    # Add new feature routers below, in alphabetical feature-name order, never reorder
     app.include_router(auth_router)
     app.include_router(admin_router)
     app.include_router(overview_public_router)
@@ -39,6 +40,7 @@ def register_routers(app: FastAPI) -> None:
     app.include_router(timeline_public_router)
     app.include_router(timeline_admin_router)
     app.include_router(tag_admin_router)
+    # === APPEND-ZONE-END: feature router registration ===
 
 
 async def _auth_error_handler(request: Request, exc: Exception) -> JSONResponse:

@@ -6,6 +6,10 @@
  * filtered client-side by audience relevance. Omission, not dimming.
  */
 
+// === APPEND-ZONE-START: tile registrations ===
+// Add new tiles below, alphabetical by id, never reorder
+// === APPEND-ZONE-END: tile registrations ===
+
 export interface Tile {
   id: string;
   title: string;

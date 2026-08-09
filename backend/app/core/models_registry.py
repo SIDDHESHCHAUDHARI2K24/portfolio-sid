@@ -13,12 +13,13 @@ from app.core.models import Base, TopicTag
 
 metadata = Base.metadata
 
-# Feature model imports append below, one line per feature, alphabetical:
-# from app.features.<name>.models import ...
+# === APPEND-ZONE-START: feature model imports ===
+# Add new feature model imports below, alphabetical, never reorder existing lines
 from app.features.auth.models import LoginAttempt, OtpChallenge  # noqa: E402
 from app.features.overview.models import OverviewIntro  # noqa: E402
 from app.features.relevance.models import AudienceTagMap  # noqa: E402
 from app.features.timeline.models import TimelineEntry  # noqa: E402
+# === APPEND-ZONE-END: feature model imports ===
 
 _PUBLISHABLES: list[tuple[type[Any], str]] = []
 
@@ -52,6 +53,8 @@ __all__ = [
     "register_publishable",
 ]
 
-# Feature publishable registrations append below, one per feature, alphabetical:
+# === APPEND-ZONE-START: feature publishable registrations ===
+# Add new feature publishable registrations below, alphabetical, never reorder
 register_publishable(OverviewIntro, OVERVIEW)
 register_publishable(TimelineEntry, TIMELINE)
+# === APPEND-ZONE-END: feature publishable registrations ===
