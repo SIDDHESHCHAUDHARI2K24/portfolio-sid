@@ -8,7 +8,7 @@ empty migration.
 
 from typing import Any
 
-from app.core.cache_tags import OVERVIEW, TIMELINE
+from app.core.cache_tags import OVERVIEW, PROJECTS, TIMELINE
 from app.core.models import Base, TopicTag
 
 metadata = Base.metadata
@@ -17,8 +17,10 @@ metadata = Base.metadata
 # Add new feature model imports below, alphabetical, never reorder existing lines
 from app.features.auth.models import LoginAttempt, OtpChallenge  # noqa: E402
 from app.features.overview.models import OverviewIntro  # noqa: E402
+from app.features.projects.models import Project, ProjectAttachment  # noqa: E402
 from app.features.relevance.models import AudienceTagMap  # noqa: E402
 from app.features.timeline.models import TimelineEntry  # noqa: E402
+
 # === APPEND-ZONE-END: feature model imports ===
 
 _PUBLISHABLES: list[tuple[type[Any], str]] = []
@@ -46,6 +48,8 @@ __all__ = [
     "LoginAttempt",
     "OtpChallenge",
     "OverviewIntro",
+    "Project",
+    "ProjectAttachment",
     "TimelineEntry",
     "TopicTag",
     "metadata",
@@ -56,5 +60,6 @@ __all__ = [
 # === APPEND-ZONE-START: feature publishable registrations ===
 # Add new feature publishable registrations below, alphabetical, never reorder
 register_publishable(OverviewIntro, OVERVIEW)
+register_publishable(Project, PROJECTS)
 register_publishable(TimelineEntry, TIMELINE)
 # === APPEND-ZONE-END: feature publishable registrations ===

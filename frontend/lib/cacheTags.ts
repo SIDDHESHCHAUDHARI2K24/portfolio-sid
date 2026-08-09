@@ -9,8 +9,9 @@
 // Add new cache tags below, alphabetical, never reorder
 export const CACHE_TAGS = {
   overview: "overview",
-  timeline: "timeline",
+  projects: "projects",
   relevance: "relevance",
+  timeline: "timeline",
 } as const;
 // === APPEND-ZONE-END: cache tag constants ===
 

@@ -6,7 +6,8 @@ mismatched tag means revalidation silently does nothing.
 """
 
 OVERVIEW = "overview"
-TIMELINE = "timeline"
+PROJECTS = "projects"
 RELEVANCE = "relevance"
+TIMELINE = "timeline"
 
-ALL_TAGS: tuple[str, ...] = (OVERVIEW, TIMELINE, RELEVANCE)
+ALL_TAGS: tuple[str, ...] = (OVERVIEW, PROJECTS, RELEVANCE, TIMELINE)
