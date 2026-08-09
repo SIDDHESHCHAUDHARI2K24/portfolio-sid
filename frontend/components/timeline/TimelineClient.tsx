@@ -33,6 +33,30 @@ export default function TimelineClient({ entries, tagMap }: Props) {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash.startsWith("#entry-")) {
+        setSelectedTags(new Set());
+        const id = window.location.hash.slice(1);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const el = document.getElementById(id);
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "center" });
+              el.classList.add("ring-2", "ring-primary", "rounded");
+              setTimeout(() => {
+                el.classList.remove("ring-2", "ring-primary", "rounded");
+              }, 2000);
+            }
+          });
+        });
+      }
+    };
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, []);
+
   const tagMapNormalized: Record<string, Set<string>> = useMemo(() => {
     const map: Record<string, Set<string>> = {};
     for (const [key, slugs] of Object.entries(tagMap)) {
@@ -85,6 +109,7 @@ export default function TimelineClient({ entries, tagMap }: Props) {
           return (
             <article
               key={entry.id}
+              id={`entry-${entry.id}`}
               className={`relative transition-opacity ${
                 relevant ? "opacity-100" : "opacity-50"
               }`}

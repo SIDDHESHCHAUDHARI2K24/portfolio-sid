@@ -8,6 +8,7 @@
 
 // === APPEND-ZONE-START: tile registrations ===
 // Add new tiles below, alphabetical by id, never reorder
+// "projects" tile — registered in frontend/components/tiles/ProjectsTile.tsx
 // === APPEND-ZONE-END: tile registrations ===
 
 export interface Tile {

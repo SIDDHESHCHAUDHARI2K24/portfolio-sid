@@ -5,39 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { PlusIcon, PencilIcon, Trash2Icon } from 'lucide-react'
-
-interface TagRef {
-  id: string
-  slug: string
-  label: string
-}
-
-interface AttachmentRef {
-  id: string
-  kind: string
-  label: string
-  sort_order: number
-  url: string
-}
-
-interface Project {
-  id: string
-  title: string
-  slug: string
-  summary: string | null
-  description: string | null
-  video_url: string | null
-  timeline_entry_id: string | null
-  sort_order: number
-  status: string
-  publish_at: string | null
-  published_at: string | null
-  audience_override: string[] | null
-  topic_tags: TagRef[]
-  attachments: AttachmentRef[]
-  created_at: string
-  updated_at: string
-}
+import type { Project } from './types'
 
 const statusColors: Record<string, 'default' | 'secondary' | 'outline'> = {
   draft: 'secondary',

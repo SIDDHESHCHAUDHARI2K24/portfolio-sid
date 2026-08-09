@@ -6,7 +6,7 @@ from datetime import UTC, datetime, timedelta
 import httpx
 import pytest
 import pytest_asyncio
-from sqlalchemy import text
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from app.core import email
@@ -311,3 +311,114 @@ async def test_project_persists_without_timeline_entry(
 
     public_resp = await client.get(f"http://test/api/v1/projects/{data['slug']}")
     assert public_resp.status_code == 200
+
+
+# ---------------------------------------------------------------------------
+# attachment metadata CRUD tests
+# ---------------------------------------------------------------------------
+
+
+async def test_attachment_metadata_roundtrip(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_projects_tables: None,
+    clean_auth_tables: None,
+    admin_settings: Settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.features.projects.models import ProjectAttachment, ProjectAttachmentKind
+
+    await _login(client, monkeypatch)
+
+    create_resp = await client.post(
+        "http://test/api/v1/admin/projects",
+        json={
+            "title": "Project with Attachments",
+            "slug": "project-with-attachments",
+            "status": "published",
+        },
+    )
+    assert create_resp.status_code == 201
+    project_id = create_resp.json()["id"]
+
+    attachment = ProjectAttachment(
+        project_id=project_id,
+        kind=ProjectAttachmentKind.PDF,
+        storage_key="resume.pdf",
+        label="Resume",
+        sort_order=0,
+    )
+    session.add(attachment)
+    await session.commit()
+
+    get_resp = await client.get(f"http://test/api/v1/admin/projects/{project_id}")
+    assert get_resp.status_code == 200
+    data = get_resp.json()
+    assert len(data["attachments"]) == 1
+    att = data["attachments"][0]
+    assert att["kind"] == "pdf"
+    assert att["label"] == "Resume"
+    assert "url" in att
+    assert isinstance(att["url"], str) and len(att["url"]) > 0
+
+    public_resp = await client.get("http://test/api/v1/projects/project-with-attachments")
+    assert public_resp.status_code == 200
+    public_data = public_resp.json()
+    assert len(public_data["attachments"]) == 1
+    assert "url" in public_data["attachments"][0]
+    assert isinstance(public_data["attachments"][0]["url"], str)
+
+    delete_resp = await client.delete(f"http://test/api/v1/admin/projects/{project_id}")
+    assert delete_resp.status_code == 204
+
+    get_after = await client.get(f"http://test/api/v1/admin/projects/{project_id}")
+    assert get_after.status_code == 404
+
+    remaining = (
+        await session.scalars(
+            select(ProjectAttachment).where(ProjectAttachment.project_id == project_id)
+        )
+    ).all()
+    assert len(remaining) == 0
+
+
+async def test_project_update_preserves_attachments(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_projects_tables: None,
+    clean_auth_tables: None,
+    admin_settings: Settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.features.projects.models import ProjectAttachment, ProjectAttachmentKind
+
+    await _login(client, monkeypatch)
+
+    create_resp = await client.post(
+        "http://test/api/v1/admin/projects",
+        json={
+            "title": "Update Attachments Project",
+            "slug": "update-attachments-project",
+        },
+    )
+    assert create_resp.status_code == 201
+    project_id = create_resp.json()["id"]
+
+    attachment = ProjectAttachment(
+        project_id=project_id,
+        kind=ProjectAttachmentKind.IMAGE,
+        storage_key="screenshot.png",
+        label="Screenshot",
+        sort_order=1,
+    )
+    session.add(attachment)
+    await session.commit()
+
+    update_resp = await client.patch(
+        f"http://test/api/v1/admin/projects/{project_id}",
+        json={"title": "Updated Title"},
+    )
+    assert update_resp.status_code == 200
+    data = update_resp.json()
+    assert len(data["attachments"]) == 1
+    assert data["attachments"][0]["label"] == "Screenshot"

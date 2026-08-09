@@ -1,4 +1,4 @@
-interface TagRef {
+export interface TagRef {
   id: string;
   slug: string;
   label: string;

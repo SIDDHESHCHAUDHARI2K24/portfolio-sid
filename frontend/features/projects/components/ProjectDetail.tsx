@@ -5,25 +5,12 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
-import { useEffect } from "react";
 
 interface Props {
   project: Project;
 }
 
 export default function ProjectDetail({ project }: Props) {
-  useEffect(() => {
-    if (project.timeline_entry_id && window.location.hash) {
-      const el = document.getElementById(window.location.hash.slice(1));
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-        el.classList.add("ring-2", "ring-primary", "rounded");
-        setTimeout(() => {
-          el.classList.remove("ring-2", "ring-primary", "rounded");
-        }, 2000);
-      }
-    }
-  }, [project.timeline_entry_id]);
 
   const videoId = project.video_url
     ? extractYouTubeId(project.video_url)

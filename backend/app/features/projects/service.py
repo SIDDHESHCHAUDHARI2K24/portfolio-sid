@@ -15,6 +15,8 @@ from app.features.projects.models import Project, ProjectAttachment
 
 
 def _attachment_to_dict(att: ProjectAttachment) -> dict[str, object]:
+    from app.core.storage import get_storage
+
     kind = att.kind.value if hasattr(att.kind, "value") else str(att.kind)
     return {
         "id": att.id,
@@ -22,6 +24,7 @@ def _attachment_to_dict(att: ProjectAttachment) -> dict[str, object]:
         "label": att.label,
         "sort_order": att.sort_order,
         "storage_key": att.storage_key,
+        "url": get_storage().get_url(att.storage_key),
         "project_id": att.project_id,
     }
 
@@ -89,9 +92,7 @@ async def _resolve_tags(session: AsyncSession, slugs: list[str]) -> list[UUID]:
     return [t.id for t in tags]
 
 
-async def create_dict(
-    session: AsyncSession, data: object, attachment_urls: dict[str, str] | None = None
-) -> dict[str, object]:
+async def create_dict(session: AsyncSession, data: object) -> dict[str, object]:
     from app.features.projects.schemas import ProjectCreate
 
     assert isinstance(data, ProjectCreate)
