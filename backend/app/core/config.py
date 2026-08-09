@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     r2_public_base_url: str | None = None
 
     resend_api_key: str | None = None
+    resend_from: str = "portfolio@siddhesh-chaudhari.com"
     admin_email: str | None = None
 
     turnstile_secret_key: str | None = None

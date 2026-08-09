@@ -2,11 +2,15 @@
 
 from pathlib import Path
 
-from fastapi import APIRouter, FastAPI, HTTPException
+from fastapi import APIRouter, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
+from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
+from app.features.auth.router import admin_router, limiter
+from app.features.auth.router import router as auth_router
+from app.features.auth.service import AuthError
 
 api_v1 = APIRouter(prefix="/api/v1")
 
@@ -19,11 +23,27 @@ async def api_v1_health() -> dict[str, str]:
 def register_routers(app: FastAPI) -> None:
     app.include_router(api_v1)
     # Feature routers append below, one include_router per feature, alphabetical.
+    app.include_router(auth_router)
+    app.include_router(admin_router)
+
+
+async def _auth_error_handler(request: Request, exc: Exception) -> JSONResponse:
+    assert isinstance(exc, AuthError)
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+
+async def _rate_limit_handler(request: Request, exc: Exception) -> JSONResponse:
+    assert isinstance(exc, RateLimitExceeded)
+    return JSONResponse(status_code=429, content={"detail": f"Rate limit exceeded: {exc.detail}"})
 
 
 def create_app() -> FastAPI:
     settings = get_settings()
     app = FastAPI(title="portfolio-sid API")
+
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
+    app.add_exception_handler(AuthError, _auth_error_handler)
 
     # Empty allow_origins = no cross-origin access (same-origin only).
     app.add_middleware(
