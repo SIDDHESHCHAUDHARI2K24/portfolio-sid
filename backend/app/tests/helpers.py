@@ -17,6 +17,8 @@ from app.core.enums import PublishStatus
 from app.core.models import Base, PublishableMixin, TimestampMixin, UUIDMixin
 from app.core.queries import public_filter
 
+TEST_ADMIN_PASSWORD = "correct-horse-battery-staple-test"
+
 
 class TestPublishable(UUIDMixin, TimestampMixin, PublishableMixin, Base):
     """Scratch publishable model for scheduler and leak-guard tests."""

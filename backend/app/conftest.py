@@ -24,10 +24,10 @@ from app.core import models_registry
 from app.core.config import Settings, get_settings
 from app.core.database import get_session
 from app.core.security import hash_password
-from app.features.auth.router import limiter
+from app.features.auth.endpoints.router import limiter
+from app.tests.helpers import TEST_ADMIN_PASSWORD
 
 TEST_DB_NAME = "portfolio_test"
-TEST_ADMIN_PASSWORD = "correct-horse-battery-staple-test"
 
 
 def _base_url() -> URL:

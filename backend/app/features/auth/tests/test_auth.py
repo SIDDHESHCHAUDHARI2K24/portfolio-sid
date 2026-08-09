@@ -20,7 +20,7 @@ from app.core.config import Settings, get_settings
 from app.core.session import COOKIE_NAME, create_session_token
 from app.features.auth import service
 from app.features.auth.models import OTP_MAX_ATTEMPTS, LoginAttempt, OtpChallenge
-from app.tests.conftest import TEST_ADMIN_PASSWORD
+from app.tests.helpers import TEST_ADMIN_PASSWORD
 
 LOGIN_URL = "http://test/api/v1/auth/login"
 VERIFY_URL = "http://test/api/v1/auth/verify"

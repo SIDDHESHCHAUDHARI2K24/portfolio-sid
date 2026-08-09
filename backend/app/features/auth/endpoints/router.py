@@ -12,6 +12,7 @@ from app.core.deps import admin_auth
 from app.core.session import clear_session_cookie, set_session_cookie
 from app.features.auth import service
 from app.features.auth.schemas import LoginRequest, VerifyRequest
+from app.features.auth.utils import client_ip
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -21,14 +22,10 @@ admin_router = APIRouter(prefix="/api/v1/admin", tags=["admin"], dependencies=ad
 DbSession = Annotated[AsyncSession, Depends(get_session)]
 
 
-def _client_ip(request: Request) -> str:
-    return request.client.host if request.client else "unknown"
-
-
 @router.post("/auth/login")
 @limiter.limit("5/minute")
 async def login(request: Request, body: LoginRequest, session: DbSession) -> dict[str, str]:
-    detail = await service.request_otp(session, body.password, _client_ip(request))
+    detail = await service.request_otp(session, body.password, client_ip(request))
     return {"detail": detail}
 
 
@@ -40,7 +37,7 @@ async def verify(
     response: Response,
     session: DbSession,
 ) -> dict[str, str]:
-    token = await service.verify_otp(session, body.code, _client_ip(request))
+    token = await service.verify_otp(session, body.code, client_ip(request))
     set_session_cookie(response, token)
     return {"status": "ok"}
 

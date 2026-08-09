@@ -8,8 +8,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
-from app.features.auth.router import admin_router, limiter
-from app.features.auth.router import router as auth_router
+from app.features.auth.endpoints.router import admin_router, limiter
+from app.features.auth.endpoints.router import router as auth_router
 from app.features.auth.service import AuthError
 
 api_v1 = APIRouter(prefix="/api/v1")

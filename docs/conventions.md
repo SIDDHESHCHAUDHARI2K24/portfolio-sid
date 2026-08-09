@@ -21,7 +21,20 @@ Calling `cookies()` in an RSC opts the route into dynamic rendering and silently
 Headline/body genuinely differ per audience: server-render the `default` row into HTML, ship all six rows in the payload, client swaps on hydration. A missing default row is forbidden (seed enforces it).
 
 ### 5. Feature-sliced backend
-`backend/app/features/<name>/` — one dir per feature (models, schemas, repository, service, router). Feature slices never import each other. `app/core/` is the only shared surface. Only `core/storage.py` imports boto3. Repository layer never imports FastAPI.
+`backend/app/features/<name>/` — one dir per feature, self-contained:
+
+```
+features/<name>/
+├── endpoints/      # APIRouter modules (one per sub-feature if large)
+├── tests/          # feature tests (global fixtures from app/conftest.py)
+├── models.py       # ORM models
+├── schemas.py      # Pydantic request/response schemas
+├── repository.py   # queries (never imports FastAPI)
+├── service.py      # orchestration (revalidation triggers, validation)
+└── utils.py        # feature-local helpers
+```
+
+Feature slices never import each other. `app/core/` is the only shared surface. Only `core/storage.py` imports boto3. Repository layer never imports FastAPI. Frontend mirrors the pattern: `frontend/features/<name>/` (components, hooks, lib) with thin `app/` routes; admin: `admin/src/features/<name>/` (components, api, hooks) plus shared field components in `admin/src/components/fields/`.
 
 ### 6. Models registry
 Every feature's models module is imported in `app/core/models_registry.py`; Alembic env imports the registry. Adding a feature = adding one import line (append, alphabetical, never reorder others). A forgotten line produces a silently empty migration — `scripts/check_registries.py` enforces it in CI.
