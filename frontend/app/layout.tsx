@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CategoryProvider } from "@/components/CategoryProvider";
+import { IntroOverlay } from "@/components/intro";
+import { AudioProvider } from "@/components/audio";
 import HUD from "@/components/hud/HUD";
 import { buildRootMetadata } from "@/lib/metadata";
 
@@ -25,8 +27,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <CategoryProvider>
-          {children}
-          <HUD />
+          <AudioProvider>
+            <IntroOverlay />
+            {children}
+            <HUD />
+          </AudioProvider>
         </CategoryProvider>
       </body>
     </html>
