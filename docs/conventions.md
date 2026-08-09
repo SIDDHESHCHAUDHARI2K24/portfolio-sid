@@ -57,6 +57,12 @@ Tag names live in one source (`frontend/lib/cacheTags.ts` + backend constant) â€
 ### 12. Design tokens only
 Colours come from CSS custom properties/Tailwind token references in both apps. No hex literals, no `rgb(`, no default Tailwind palette classes (`bg-slate-800` etc.) in component code. Phase 3 re-skin must be a token swap.
 
+### Guard rule (lint/review)
+No hex color literal (`#[0-9a-fA-F]{3,8}`) or `rgb(` call may appear in component
+code outside the two token-definition files (`frontend/app/globals.css`,
+`admin/src/index.css`). Check: `git grep -nE "#[0-9a-fA-F]{6}" -- frontend/ admin/`
+(excluding the two token files and config files).
+
 ### 13. Noindex until launch
 `NEXT_PUBLIC_INDEXABLE` defaults to `false`; the Railway hostname must never be indexed. Flip only in TD-36 after every route is verified on the custom domain.
 
