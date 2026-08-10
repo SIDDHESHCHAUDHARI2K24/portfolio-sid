@@ -27,11 +27,13 @@ metadata = Base.metadata
 from app.features.auth.models import LoginAttempt, OtpChallenge  # noqa: E402
 from app.features.certifications.models import Certification  # noqa: E402
 from app.features.collections.models import CollectionItem  # noqa: E402
+from app.features.forms.models import FormSubmission  # noqa: E402
 from app.features.overview.models import OverviewIntro  # noqa: E402
 from app.features.posts.models import Post  # noqa: E402
 from app.features.projects.models import Project, ProjectAttachment  # noqa: E402
 from app.features.prose.models import ProsePage  # noqa: E402
 from app.features.relevance.models import AudienceTagMap  # noqa: E402
+from app.features.resumes.models import Resume  # noqa: E402
 from app.features.skills.models import Skill  # noqa: E402
 from app.features.thesis.models import Thesis  # noqa: E402
 from app.features.timeline.models import TimelineEntry  # noqa: E402
@@ -62,6 +64,7 @@ __all__ = [
     "Base",
     "Certification",
     "CollectionItem",
+    "FormSubmission",
     "LoginAttempt",
     "OtpChallenge",
     "OverviewIntro",
@@ -69,6 +72,7 @@ __all__ = [
     "Project",
     "ProjectAttachment",
     "ProsePage",
+    "Resume",
     "Skill",
     "Thesis",
     "TimelineEntry",

@@ -10,6 +10,8 @@
 // Add new tiles below, alphabetical by id, never reorder
 // "anime_manga" tile — registered in frontend/components/tiles/AnimeMangaTile.tsx
 // "books" tile — registered in frontend/components/tiles/BooksTile.tsx
+// "contact" tile — registered in frontend/components/tiles/ContactTile.tsx
+// "dealflow" tile — registered in frontend/components/tiles/DealflowTile.tsx
 // "hobbies" tile — registered in frontend/components/tiles/ProseTiles.tsx
 // "investor_intro" tile — registered in frontend/components/tiles/ProseTiles.tsx
 // "work_views" tile — registered in frontend/components/tiles/ProseTiles.tsx

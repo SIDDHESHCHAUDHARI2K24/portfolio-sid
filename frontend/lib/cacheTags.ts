@@ -10,11 +10,13 @@
 export const CACHE_TAGS = {
   certifications: "certifications",
   collections: "collections",
+  forms: "forms",
   overview: "overview",
   posts: "posts",
   projects: "projects",
   prose: "prose",
   relevance: "relevance",
+  resumes: "resumes",
   skills: "skills",
   thesis: "thesis",
   timeline: "timeline",

@@ -15,6 +15,8 @@ from app.features.certifications.endpoints.router import admin_router as certs_a
 from app.features.certifications.endpoints.router import public_router as certs_public_router
 from app.features.collections.endpoints.router import admin_router as collections_admin_router
 from app.features.collections.endpoints.router import public_router as collections_public_router
+from app.features.forms.endpoints.router import admin_router as forms_admin_router
+from app.features.forms.endpoints.router import public_router as forms_public_router
 from app.features.overview.endpoints.router import admin_router as overview_admin_router
 from app.features.overview.endpoints.router import public_router as overview_public_router
 from app.features.posts.endpoints.router import admin_router as posts_admin_router
@@ -26,6 +28,8 @@ from app.features.prose.endpoints.router import public_router as prose_public_ro
 from app.features.relevance.endpoints.router import admin_router as relevance_admin_router
 from app.features.relevance.endpoints.router import public_router as relevance_public_router
 from app.features.relevance.endpoints.router import tag_admin_router
+from app.features.resumes.endpoints.router import admin_router as resumes_admin_router
+from app.features.resumes.endpoints.router import public_router as resumes_public_router
 from app.features.skills.endpoints.router import admin_router as skills_admin_router
 from app.features.skills.endpoints.router import public_router as skills_public_router
 from app.features.thesis.endpoints.router import admin_router as thesis_admin_router
@@ -51,6 +55,8 @@ def register_routers(app: FastAPI) -> None:
     app.include_router(certs_admin_router)
     app.include_router(collections_public_router)
     app.include_router(collections_admin_router)
+    app.include_router(forms_public_router)
+    app.include_router(forms_admin_router)
     app.include_router(overview_public_router)
     app.include_router(overview_admin_router)
     app.include_router(posts_public_router)
@@ -61,6 +67,8 @@ def register_routers(app: FastAPI) -> None:
     app.include_router(prose_admin_router)
     app.include_router(relevance_public_router)
     app.include_router(relevance_admin_router)
+    app.include_router(resumes_public_router)
+    app.include_router(resumes_admin_router)
     app.include_router(skills_public_router)
     app.include_router(skills_admin_router)
     app.include_router(thesis_public_router)

@@ -16,6 +16,7 @@ import CollectionsList from '@/routes/collections/CollectionsList'
 import CollectionsForm from '@/routes/collections/CollectionsForm'
 import ProseList from '@/routes/prose/ProseList'
 import ProseForm from '@/routes/prose/ProseForm'
+import FormsList from '@/routes/forms/FormsList'
 import TagMapMatrix from '@/routes/TagMapMatrix'
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
         <Route path="/prose" element={<ProseList />} />
         <Route path="/prose/new" element={<ProseForm />} />
         <Route path="/prose/:id/edit" element={<ProseForm />} />
+        <Route path="/forms" element={<FormsList />} />
         <Route path="/tag-map" element={<TagMapMatrix />} />
       </Route>
 
