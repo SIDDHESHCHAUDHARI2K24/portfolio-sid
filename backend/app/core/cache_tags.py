@@ -5,9 +5,11 @@ One source for backend tag literals. TypeScript twin:
 mismatched tag means revalidation silently does nothing.
 """
 
+CERTS = "certifications"
 OVERVIEW = "overview"
 PROJECTS = "projects"
 RELEVANCE = "relevance"
+SKILLS = "skills"
 TIMELINE = "timeline"
 
-ALL_TAGS: tuple[str, ...] = (OVERVIEW, PROJECTS, RELEVANCE, TIMELINE)
+ALL_TAGS: tuple[str, ...] = (CERTS, OVERVIEW, PROJECTS, RELEVANCE, SKILLS, TIMELINE)

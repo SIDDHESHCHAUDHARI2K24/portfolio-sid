@@ -11,6 +11,8 @@ from app.core.config import get_settings
 from app.features.auth.endpoints.router import admin_router, limiter
 from app.features.auth.endpoints.router import router as auth_router
 from app.features.auth.service import AuthError
+from app.features.certifications.endpoints.router import admin_router as certs_admin_router
+from app.features.certifications.endpoints.router import public_router as certs_public_router
 from app.features.overview.endpoints.router import admin_router as overview_admin_router
 from app.features.overview.endpoints.router import public_router as overview_public_router
 from app.features.projects.endpoints.router import admin_router as projects_admin_router
@@ -18,6 +20,8 @@ from app.features.projects.endpoints.router import public_router as projects_pub
 from app.features.relevance.endpoints.router import admin_router as relevance_admin_router
 from app.features.relevance.endpoints.router import public_router as relevance_public_router
 from app.features.relevance.endpoints.router import tag_admin_router
+from app.features.skills.endpoints.router import admin_router as skills_admin_router
+from app.features.skills.endpoints.router import public_router as skills_public_router
 from app.features.timeline.endpoints.router import admin_router as timeline_admin_router
 from app.features.timeline.endpoints.router import public_router as timeline_public_router
 
@@ -35,12 +39,16 @@ def register_routers(app: FastAPI) -> None:
     # Add new feature routers below, in alphabetical feature-name order, never reorder
     app.include_router(auth_router)
     app.include_router(admin_router)
+    app.include_router(certs_public_router)
+    app.include_router(certs_admin_router)
     app.include_router(overview_public_router)
     app.include_router(overview_admin_router)
     app.include_router(projects_public_router)
     app.include_router(projects_admin_router)
     app.include_router(relevance_public_router)
     app.include_router(relevance_admin_router)
+    app.include_router(skills_public_router)
+    app.include_router(skills_admin_router)
     app.include_router(timeline_public_router)
     app.include_router(timeline_admin_router)
     app.include_router(tag_admin_router)
