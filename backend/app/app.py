@@ -13,12 +13,16 @@ from app.features.auth.endpoints.router import router as auth_router
 from app.features.auth.service import AuthError
 from app.features.certifications.endpoints.router import admin_router as certs_admin_router
 from app.features.certifications.endpoints.router import public_router as certs_public_router
+from app.features.collections.endpoints.router import admin_router as collections_admin_router
+from app.features.collections.endpoints.router import public_router as collections_public_router
 from app.features.overview.endpoints.router import admin_router as overview_admin_router
 from app.features.overview.endpoints.router import public_router as overview_public_router
 from app.features.posts.endpoints.router import admin_router as posts_admin_router
 from app.features.posts.endpoints.router import public_router as posts_public_router
 from app.features.projects.endpoints.router import admin_router as projects_admin_router
 from app.features.projects.endpoints.router import public_router as projects_public_router
+from app.features.prose.endpoints.router import admin_router as prose_admin_router
+from app.features.prose.endpoints.router import public_router as prose_public_router
 from app.features.relevance.endpoints.router import admin_router as relevance_admin_router
 from app.features.relevance.endpoints.router import public_router as relevance_public_router
 from app.features.relevance.endpoints.router import tag_admin_router
@@ -45,12 +49,16 @@ def register_routers(app: FastAPI) -> None:
     app.include_router(admin_router)
     app.include_router(certs_public_router)
     app.include_router(certs_admin_router)
+    app.include_router(collections_public_router)
+    app.include_router(collections_admin_router)
     app.include_router(overview_public_router)
     app.include_router(overview_admin_router)
     app.include_router(posts_public_router)
     app.include_router(posts_admin_router)
     app.include_router(projects_public_router)
     app.include_router(projects_admin_router)
+    app.include_router(prose_public_router)
+    app.include_router(prose_admin_router)
     app.include_router(relevance_public_router)
     app.include_router(relevance_admin_router)
     app.include_router(skills_public_router)

@@ -6,12 +6,25 @@ mismatched tag means revalidation silently does nothing.
 """
 
 CERTS = "certifications"
+COLLECTIONS = "collections"
 OVERVIEW = "overview"
 PROJECTS = "projects"
+PROSE = "prose"
 RELEVANCE = "relevance"
 SKILLS = "skills"
 POSTS = "posts"
 THESIS = "thesis"
 TIMELINE = "timeline"
 
-ALL_TAGS: tuple[str, ...] = (CERTS, OVERVIEW, POSTS, PROJECTS, RELEVANCE, SKILLS, THESIS, TIMELINE)
+ALL_TAGS: tuple[str, ...] = (
+    CERTS,
+    COLLECTIONS,
+    OVERVIEW,
+    POSTS,
+    PROJECTS,
+    PROSE,
+    RELEVANCE,
+    SKILLS,
+    THESIS,
+    TIMELINE,
+)

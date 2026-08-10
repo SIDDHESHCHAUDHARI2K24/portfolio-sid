@@ -9,9 +9,11 @@
 // Add new cache tags below, alphabetical, never reorder
 export const CACHE_TAGS = {
   certifications: "certifications",
+  collections: "collections",
   overview: "overview",
   posts: "posts",
   projects: "projects",
+  prose: "prose",
   relevance: "relevance",
   skills: "skills",
   thesis: "thesis",

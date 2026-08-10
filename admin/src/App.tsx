@@ -12,6 +12,10 @@ import SkillsList from '@/routes/skills/SkillsList'
 import SkillsForm from '@/routes/skills/SkillsForm'
 import CertsList from '@/routes/certs/CertsList'
 import CertsForm from '@/routes/certs/CertsForm'
+import CollectionsList from '@/routes/collections/CollectionsList'
+import CollectionsForm from '@/routes/collections/CollectionsForm'
+import ProseList from '@/routes/prose/ProseList'
+import ProseForm from '@/routes/prose/ProseForm'
 import TagMapMatrix from '@/routes/TagMapMatrix'
 
 function App() {
@@ -40,6 +44,12 @@ function App() {
         <Route path="/certs" element={<CertsList />} />
         <Route path="/certs/new" element={<CertsForm />} />
         <Route path="/certs/:id/edit" element={<CertsForm />} />
+        <Route path="/collections" element={<CollectionsList />} />
+        <Route path="/collections/new" element={<CollectionsForm />} />
+        <Route path="/collections/:id/edit" element={<CollectionsForm />} />
+        <Route path="/prose" element={<ProseList />} />
+        <Route path="/prose/new" element={<ProseForm />} />
+        <Route path="/prose/:id/edit" element={<ProseForm />} />
         <Route path="/tag-map" element={<TagMapMatrix />} />
       </Route>
 
