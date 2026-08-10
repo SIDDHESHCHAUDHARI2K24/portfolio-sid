@@ -8,7 +8,7 @@ empty migration.
 
 from typing import Any
 
-from app.core.cache_tags import CERTS, OVERVIEW, PROJECTS, TIMELINE
+from app.core.cache_tags import CERTS, OVERVIEW, POSTS, PROJECTS, THESIS, TIMELINE
 from app.core.models import Base, TopicTag
 
 metadata = Base.metadata
@@ -18,9 +18,11 @@ metadata = Base.metadata
 from app.features.auth.models import LoginAttempt, OtpChallenge  # noqa: E402
 from app.features.certifications.models import Certification  # noqa: E402
 from app.features.overview.models import OverviewIntro  # noqa: E402
+from app.features.posts.models import Post  # noqa: E402
 from app.features.projects.models import Project, ProjectAttachment  # noqa: E402
 from app.features.relevance.models import AudienceTagMap  # noqa: E402
 from app.features.skills.models import Skill  # noqa: E402
+from app.features.thesis.models import Thesis  # noqa: E402
 from app.features.timeline.models import TimelineEntry  # noqa: E402
 
 # === APPEND-ZONE-END: feature model imports ===
@@ -51,9 +53,11 @@ __all__ = [
     "LoginAttempt",
     "OtpChallenge",
     "OverviewIntro",
+    "Post",
     "Project",
     "ProjectAttachment",
     "Skill",
+    "Thesis",
     "TimelineEntry",
     "TopicTag",
     "metadata",
@@ -65,6 +69,8 @@ __all__ = [
 # Add new feature publishable registrations below, alphabetical, never reorder
 register_publishable(Certification, CERTS)
 register_publishable(OverviewIntro, OVERVIEW)
+register_publishable(Post, POSTS)
 register_publishable(Project, PROJECTS)
+register_publishable(Thesis, THESIS)
 register_publishable(TimelineEntry, TIMELINE)
 # === APPEND-ZONE-END: feature publishable registrations ===

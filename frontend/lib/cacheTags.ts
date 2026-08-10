@@ -10,9 +10,11 @@
 export const CACHE_TAGS = {
   certifications: "certifications",
   overview: "overview",
+  posts: "posts",
   projects: "projects",
   relevance: "relevance",
   skills: "skills",
+  thesis: "thesis",
   timeline: "timeline",
 } as const;
 // === APPEND-ZONE-END: cache tag constants ===

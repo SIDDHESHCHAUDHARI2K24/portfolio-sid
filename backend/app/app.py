@@ -15,6 +15,8 @@ from app.features.certifications.endpoints.router import admin_router as certs_a
 from app.features.certifications.endpoints.router import public_router as certs_public_router
 from app.features.overview.endpoints.router import admin_router as overview_admin_router
 from app.features.overview.endpoints.router import public_router as overview_public_router
+from app.features.posts.endpoints.router import admin_router as posts_admin_router
+from app.features.posts.endpoints.router import public_router as posts_public_router
 from app.features.projects.endpoints.router import admin_router as projects_admin_router
 from app.features.projects.endpoints.router import public_router as projects_public_router
 from app.features.relevance.endpoints.router import admin_router as relevance_admin_router
@@ -22,6 +24,8 @@ from app.features.relevance.endpoints.router import public_router as relevance_p
 from app.features.relevance.endpoints.router import tag_admin_router
 from app.features.skills.endpoints.router import admin_router as skills_admin_router
 from app.features.skills.endpoints.router import public_router as skills_public_router
+from app.features.thesis.endpoints.router import admin_router as thesis_admin_router
+from app.features.thesis.endpoints.router import public_router as thesis_public_router
 from app.features.timeline.endpoints.router import admin_router as timeline_admin_router
 from app.features.timeline.endpoints.router import public_router as timeline_public_router
 
@@ -43,12 +47,16 @@ def register_routers(app: FastAPI) -> None:
     app.include_router(certs_admin_router)
     app.include_router(overview_public_router)
     app.include_router(overview_admin_router)
+    app.include_router(posts_public_router)
+    app.include_router(posts_admin_router)
     app.include_router(projects_public_router)
     app.include_router(projects_admin_router)
     app.include_router(relevance_public_router)
     app.include_router(relevance_admin_router)
     app.include_router(skills_public_router)
     app.include_router(skills_admin_router)
+    app.include_router(thesis_public_router)
+    app.include_router(thesis_admin_router)
     app.include_router(timeline_public_router)
     app.include_router(timeline_admin_router)
     app.include_router(tag_admin_router)

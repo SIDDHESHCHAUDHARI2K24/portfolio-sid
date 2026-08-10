@@ -106,6 +106,77 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/certifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Public */
+        get: operations["list_public_api_v1_certifications_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/certifications/{cert_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Public */
+        get: operations["get_public_api_v1_certifications__cert_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/certifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Admin */
+        get: operations["list_admin_api_v1_admin_certifications_get"];
+        put?: never;
+        /** Create */
+        post: operations["create_api_v1_admin_certifications_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/certifications/{cert_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin */
+        get: operations["get_admin_api_v1_admin_certifications__cert_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete */
+        delete: operations["delete_api_v1_admin_certifications__cert_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update */
+        patch: operations["update_api_v1_admin_certifications__cert_id__patch"];
+        trace?: never;
+    };
     "/api/v1/overview": {
         parameters: {
             query?: never;
@@ -175,6 +246,77 @@ export interface paths {
         head?: never;
         /** Update */
         patch: operations["update_api_v1_admin_overview__intro_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Public */
+        get: operations["list_public_api_v1_posts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts/{post_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Public */
+        get: operations["get_public_api_v1_posts__post_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Admin */
+        get: operations["list_admin_api_v1_admin_posts_get"];
+        put?: never;
+        /** Create */
+        post: operations["create_api_v1_admin_posts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/posts/{post_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin */
+        get: operations["get_admin_api_v1_admin_posts__post_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete */
+        delete: operations["delete_api_v1_admin_posts__post_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update */
+        patch: operations["update_api_v1_admin_posts__post_id__patch"];
         trace?: never;
     };
     "/api/v1/projects": {
@@ -288,6 +430,131 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/skills": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Public */
+        get: operations["list_public_api_v1_skills_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/skills": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Admin */
+        get: operations["list_admin_api_v1_admin_skills_get"];
+        put?: never;
+        /** Create */
+        post: operations["create_api_v1_admin_skills_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/skills/{skill_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin */
+        get: operations["get_admin_api_v1_admin_skills__skill_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete */
+        delete: operations["delete_api_v1_admin_skills__skill_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update */
+        patch: operations["update_api_v1_admin_skills__skill_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/thesis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Public */
+        get: operations["list_public_api_v1_thesis_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/thesis/{thesis_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Public */
+        get: operations["get_public_api_v1_thesis__thesis_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/thesis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Admin */
+        get: operations["list_admin_api_v1_admin_thesis_get"];
+        put?: never;
+        /** Create */
+        post: operations["create_api_v1_admin_thesis_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/thesis/{thesis_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin */
+        get: operations["get_admin_api_v1_admin_thesis__thesis_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete */
+        delete: operations["delete_api_v1_admin_thesis__thesis_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update */
+        patch: operations["update_api_v1_admin_thesis__thesis_id__patch"];
         trace?: never;
     };
     "/api/v1/timeline": {
@@ -424,6 +691,172 @@ export interface components {
             /** Url */
             url: string;
         };
+        /** CertificationAdmin */
+        CertificationAdmin: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Issuer */
+            issuer: string;
+            /** Kind */
+            kind: string;
+            /**
+             * Issued Date
+             * Format: date
+             */
+            issued_date: string;
+            /** Expires Date */
+            expires_date: string | null;
+            /** Credential Url */
+            credential_url: string | null;
+            /** File Key */
+            file_key: string | null;
+            /** File Type */
+            file_type: string | null;
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Topic Tags
+             * @default []
+             */
+            topic_tags: components["schemas"]["TagRef"][];
+            /** Status */
+            status: string;
+            /** Publish At */
+            publish_at: string | null;
+            /** Published At */
+            published_at: string | null;
+            /** Audience Override */
+            audience_override: string[] | null;
+        };
+        /** CertificationCreate */
+        CertificationCreate: {
+            /** Title */
+            title: string;
+            /** Issuer */
+            issuer: string;
+            /** Kind */
+            kind: string;
+            /**
+             * Issued Date
+             * Format: date
+             */
+            issued_date: string;
+            /** Expires Date */
+            expires_date?: string | null;
+            /** Credential Url */
+            credential_url?: string | null;
+            /** File Key */
+            file_key?: string | null;
+            /** File Type */
+            file_type?: string | null;
+            /**
+             * Tag Slugs
+             * @default []
+             */
+            tag_slugs: string[];
+            /** Audience Override */
+            audience_override?: string[] | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Status
+             * @default draft
+             */
+            status: string;
+            /** Publish At */
+            publish_at?: string | null;
+        };
+        /** CertificationPublic */
+        CertificationPublic: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Issuer */
+            issuer: string;
+            /** Kind */
+            kind: string;
+            /**
+             * Issued Date
+             * Format: date
+             */
+            issued_date: string;
+            /** Expires Date */
+            expires_date: string | null;
+            /** Credential Url */
+            credential_url: string | null;
+            /** File Key */
+            file_key: string | null;
+            /** File Type */
+            file_type: string | null;
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Topic Tags
+             * @default []
+             */
+            topic_tags: components["schemas"]["TagRef"][];
+        };
+        /** CertificationUpdate */
+        CertificationUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Issuer */
+            issuer?: string | null;
+            /** Kind */
+            kind?: string | null;
+            /** Issued Date */
+            issued_date?: string | null;
+            /** Expires Date */
+            expires_date?: string | null;
+            /** Credential Url */
+            credential_url?: string | null;
+            /** File Key */
+            file_key?: string | null;
+            /** File Type */
+            file_type?: string | null;
+            /** Tag Slugs */
+            tag_slugs?: string[] | null;
+            /** Audience Override */
+            audience_override?: string[] | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Status */
+            status?: string | null;
+            /** Publish At */
+            publish_at?: string | null;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -540,6 +973,152 @@ export interface components {
             cta_label?: string | null;
             /** Cta Url */
             cta_url?: string | null;
+            /** Status */
+            status?: string | null;
+            /** Publish At */
+            publish_at?: string | null;
+        };
+        /** PostAdmin */
+        PostAdmin: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string | null;
+            /** Url */
+            url: string;
+            /** Platform */
+            platform: string;
+            /** Published Date */
+            published_date: string | null;
+            /** Collections */
+            collections: string[];
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Topic Tags
+             * @default []
+             */
+            topic_tags: components["schemas"]["TagRef"][];
+            /** Audience Override */
+            audience_override?: string[] | null;
+            /** Status */
+            status: string;
+            /** Publish At */
+            publish_at: string | null;
+            /** Published At */
+            published_at: string | null;
+        };
+        /** PostCreate */
+        PostCreate: {
+            /** Title */
+            title: string;
+            /** Summary */
+            summary?: string | null;
+            /** Url */
+            url: string;
+            /** Platform */
+            platform: string;
+            /** Published Date */
+            published_date?: string | null;
+            /**
+             * Collections
+             * @default []
+             */
+            collections: string[];
+            /**
+             * Tag Slugs
+             * @default []
+             */
+            tag_slugs: string[];
+            /** Audience Override */
+            audience_override?: string[] | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Status
+             * @default draft
+             */
+            status: string;
+            /** Publish At */
+            publish_at?: string | null;
+        };
+        /** PostPublic */
+        PostPublic: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string | null;
+            /** Url */
+            url: string;
+            /** Platform */
+            platform: string;
+            /** Published Date */
+            published_date: string | null;
+            /** Collections */
+            collections: string[];
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Topic Tags
+             * @default []
+             */
+            topic_tags: components["schemas"]["TagRef"][];
+            /** Audience Override */
+            audience_override?: string[] | null;
+        };
+        /** PostUpdate */
+        PostUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Summary */
+            summary?: string | null;
+            /** Url */
+            url?: string | null;
+            /** Platform */
+            platform?: string | null;
+            /** Published Date */
+            published_date?: string | null;
+            /** Collections */
+            collections?: string[] | null;
+            /** Tag Slugs */
+            tag_slugs?: string[] | null;
+            /** Audience Override */
+            audience_override?: string[] | null;
+            /** Sort Order */
+            sort_order?: number | null;
             /** Status */
             status?: string | null;
             /** Publish At */
@@ -689,6 +1268,99 @@ export interface components {
             /** Publish At */
             publish_at?: string | null;
         };
+        /** SkillAdmin */
+        SkillAdmin: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Section */
+            section: string;
+            /** Subsection */
+            subsection: string | null;
+            /** Icon Slug */
+            icon_slug: string | null;
+            /** Icon Key */
+            icon_key: string | null;
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** SkillCreate */
+        SkillCreate: {
+            /** Name */
+            name: string;
+            /** Section */
+            section: string;
+            /** Subsection */
+            subsection?: string | null;
+            /** Icon Slug */
+            icon_slug?: string | null;
+            /** Icon Key */
+            icon_key?: string | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+        };
+        /** SkillPublic */
+        SkillPublic: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Section */
+            section: string;
+            /** Subsection */
+            subsection: string | null;
+            /** Icon Slug */
+            icon_slug: string | null;
+            /** Icon Key */
+            icon_key: string | null;
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** SkillUpdate */
+        SkillUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Section */
+            section?: string | null;
+            /** Subsection */
+            subsection?: string | null;
+            /** Icon Slug */
+            icon_slug?: string | null;
+            /** Icon Key */
+            icon_key?: string | null;
+            /** Sort Order */
+            sort_order?: number | null;
+        };
         /** TagCreate */
         TagCreate: {
             /** Slug */
@@ -724,6 +1396,142 @@ export interface components {
         TagUpdate: {
             /** Label */
             label?: string | null;
+        };
+        /** ThesisAdmin */
+        ThesisAdmin: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string | null;
+            /** Drive Url */
+            drive_url: string;
+            /**
+             * Published Date
+             * Format: date
+             */
+            published_date: string;
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Topic Tags
+             * @default []
+             */
+            topic_tags: components["schemas"]["TagRef"][];
+            /** Audience Override */
+            audience_override?: string[] | null;
+            /** Status */
+            status: string;
+            /** Publish At */
+            publish_at: string | null;
+            /** Published At */
+            published_at: string | null;
+        };
+        /** ThesisCreate */
+        ThesisCreate: {
+            /** Title */
+            title: string;
+            /** Summary */
+            summary?: string | null;
+            /** Drive Url */
+            drive_url: string;
+            /**
+             * Published Date
+             * Format: date
+             */
+            published_date: string;
+            /**
+             * Tag Slugs
+             * @default []
+             */
+            tag_slugs: string[];
+            /** Audience Override */
+            audience_override?: string[] | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Status
+             * @default draft
+             */
+            status: string;
+            /** Publish At */
+            publish_at?: string | null;
+        };
+        /** ThesisPublic */
+        ThesisPublic: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string | null;
+            /** Drive Url */
+            drive_url: string;
+            /**
+             * Published Date
+             * Format: date
+             */
+            published_date: string;
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Topic Tags
+             * @default []
+             */
+            topic_tags: components["schemas"]["TagRef"][];
+            /** Audience Override */
+            audience_override?: string[] | null;
+        };
+        /** ThesisUpdate */
+        ThesisUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Summary */
+            summary?: string | null;
+            /** Drive Url */
+            drive_url?: string | null;
+            /** Published Date */
+            published_date?: string | null;
+            /** Tag Slugs */
+            tag_slugs?: string[] | null;
+            /** Audience Override */
+            audience_override?: string[] | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Status */
+            status?: string | null;
+            /** Publish At */
+            publish_at?: string | null;
         };
         /** TimelineEntryAdmin */
         TimelineEntryAdmin: {
@@ -1080,6 +1888,205 @@ export interface operations {
             };
         };
     };
+    list_public_api_v1_certifications_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificationPublic"][];
+                };
+            };
+        };
+    };
+    get_public_api_v1_certifications__cert_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cert_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificationPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_admin_api_v1_admin_certifications_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificationAdmin"][];
+                };
+            };
+        };
+    };
+    create_api_v1_admin_certifications_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CertificationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificationAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_api_v1_admin_certifications__cert_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cert_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificationAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_api_v1_admin_certifications__cert_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cert_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_api_v1_admin_certifications__cert_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cert_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CertificationUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificationAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_public_api_v1_overview_get: {
         parameters: {
             query?: never;
@@ -1266,6 +2273,216 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OverviewIntroAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_public_api_v1_posts_get: {
+        parameters: {
+            query?: {
+                collection?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostPublic"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_public_api_v1_posts__post_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_admin_api_v1_admin_posts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostAdmin"][];
+                };
+            };
+        };
+    };
+    create_api_v1_admin_posts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PostCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_api_v1_admin_posts__post_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_api_v1_admin_posts__post_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_api_v1_admin_posts__post_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PostUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostAdmin"];
                 };
             };
             /** @description Validation Error */
@@ -1544,6 +2761,373 @@ export interface operations {
                     "application/json": {
                         [key: string]: string[];
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_public_api_v1_skills_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SkillPublic"][];
+                };
+            };
+        };
+    };
+    list_admin_api_v1_admin_skills_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SkillAdmin"][];
+                };
+            };
+        };
+    };
+    create_api_v1_admin_skills_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SkillCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SkillAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_api_v1_admin_skills__skill_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SkillAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_api_v1_admin_skills__skill_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_api_v1_admin_skills__skill_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SkillUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SkillAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_public_api_v1_thesis_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThesisPublic"][];
+                };
+            };
+        };
+    };
+    get_public_api_v1_thesis__thesis_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                thesis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThesisPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_admin_api_v1_admin_thesis_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThesisAdmin"][];
+                };
+            };
+        };
+    };
+    create_api_v1_admin_thesis_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThesisCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThesisAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_api_v1_admin_thesis__thesis_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                thesis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThesisAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_api_v1_admin_thesis__thesis_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                thesis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_api_v1_admin_thesis__thesis_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                thesis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThesisUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThesisAdmin"];
                 };
             };
             /** @description Validation Error */

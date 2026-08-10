@@ -10,6 +10,8 @@ OVERVIEW = "overview"
 PROJECTS = "projects"
 RELEVANCE = "relevance"
 SKILLS = "skills"
+POSTS = "posts"
+THESIS = "thesis"
 TIMELINE = "timeline"
 
-ALL_TAGS: tuple[str, ...] = (CERTS, OVERVIEW, PROJECTS, RELEVANCE, SKILLS, TIMELINE)
+ALL_TAGS: tuple[str, ...] = (CERTS, OVERVIEW, POSTS, PROJECTS, RELEVANCE, SKILLS, THESIS, TIMELINE)
