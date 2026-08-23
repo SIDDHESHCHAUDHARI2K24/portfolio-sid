@@ -13,7 +13,7 @@ describe("tileArrangement (TD-31 card contract)", () => {
 
   it("places contact directly below the main tile (first) for every audience", () => {
     for (const audience of AUDIENCES) {
-      expect(tileArrangement[audience][0]).toBe("contact");
+      expect(tileArrangement[audience][0]).toBe("deliberate-break");
     }
   });
 
