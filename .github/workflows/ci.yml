@@ -68,6 +68,10 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install
         run: npm ci
+      # LayoutProps<"/"> and friends are generated globals (.next/types);
+      # a fresh checkout has no .next, so generate before tsc.
+      - name: Generate Next types
+        run: npx next typegen
       - name: Type check
         run: npx tsc --noEmit
       - name: Lint (error-free; warning budget pinned to current baseline)
