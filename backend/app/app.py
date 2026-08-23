@@ -49,6 +49,12 @@ async def api_v1_health() -> dict[str, str]:
 
 
 def register_routers(app: FastAPI) -> None:
+    """Wire the /api/v1 prefix and every feature router into ``app``.
+
+    Feature registration happens inside the APPEND-ZONE sentinels —
+    ``scripts/check_registries.py`` verifies every feature router in
+    ``features/*/endpoints/router.py`` appears here.
+    """
     app.include_router(api_v1)
     # === APPEND-ZONE-START: feature router registration ===
     # Add new feature routers below, in alphabetical feature-name order, never reorder
@@ -94,6 +100,14 @@ async def _rate_limit_handler(request: Request, exc: Exception) -> JSONResponse:
 
 
 def create_app() -> FastAPI:
+    """Composition root: error tracking, rate limiting, CORS, crawler logging,
+    feature routers, and the admin SPA catch-all in one place.
+
+    Ordering matters: the SPA catch-all registers LAST so explicit ``/api/*``
+    routes always win; it serves the built admin from ``admin_static_dir``
+    when present (single-container deploy) with index.html fallback for
+    client-side routing.
+    """
     settings = get_settings()
     init_glitchtip(settings.glitchtip_dsn, environment=settings.environment)
     app = FastAPI(title="portfolio-sid API")
