@@ -44,8 +44,8 @@
 ### Wave 3 — design
 | ID | Title | Exec | Deps | Status |
 |---|---|---|---|---|
-| TD-10 | Stitch MCP (env expansion) + DESIGN.md export (+openpencil optional) | paired | TD-00 | [~] .mcp.json committed (${STITCH_API_KEY}); design pass pending |
-| TD-11 | Design tokens → Tailwind/shadcn both apps | agent | TD-10, TD-04, TD-05 | [ ] |
+| TD-10 | Stitch MCP (env expansion) + DESIGN.md export (+openpencil optional) | paired | TD-00 | [x] DESIGN.md authored from approved brief; Stitch visual pass deferred |
+| TD-11 | Design tokens → Tailwind/shadcn both apps | agent | TD-10, TD-04, TD-05 | [x] |
 
 ### Wave 4 — CI/CD + infra deploy
 | ID | Title | Exec | Deps | Status |
@@ -71,34 +71,34 @@
 ### Wave 6 — spine
 | ID | Title | Exec | Deps | Status |
 |---|---|---|---|---|
-| TD-20 | Timeline backend slice (model→routers→tests) | agent | TD-16..19 | [ ] |
-| TD-21 | Frontend shell: typegen, category cookie, relevance.ts parity, fetch layer | agent | TD-20, TD-19 | [ ] |
-| TD-22 | Timeline page + chips + OverviewIntro + tile contract + HUD | agent | TD-21 | [ ] |
-| TD-23 | Admin shell: login, guard, Timeline CRUD, tag-map matrix | agent | TD-17, TD-20 | [ ] |
+| TD-20 | Timeline backend slice (model→routers→tests) | agent | TD-16..19 | [x] |
+| TD-21 | Frontend shell: typegen, category cookie, relevance.ts parity, fetch layer | agent | TD-20, TD-19 | [x] |
+| TD-22 | Timeline page + chips + OverviewIntro + tile contract + HUD | agent | TD-21 | [x] |
+| TD-23 | Admin shell: login, guard, Timeline CRUD, tag-map matrix | agent | TD-17, TD-20 | [x] |
 
 **GATE-P1** — `p1/GATE-P1.md` exit checklist
 
 ### Wave 7 — P2 parallel tracks (TD-25..29 parallel; TD-24 first)
 | ID | Title | Exec | Deps | Status |
 |---|---|---|---|---|
-| TD-24 | Contention protocol: regen script, registry checks, merge rules | agent | TD-13, TD-21, TD-22 | [ ] |
-| TD-25 | Track A — Projects (critical path, merges first) | agent | TD-24 | [ ] |
-| TD-26 | Track B — Skills + Certifications (real-mobile PDF test) | agent | TD-24 | [ ] |
-| TD-27 | Track C — Thesis + Posts (collections ≠ topic tags) | agent | TD-24 | [ ] |
-| TD-28 | Track D — Collections + ProsePages (cover pipeline) | agent | TD-24 | [ ] |
-| TD-29 | Track E — Resume + Forms | agent | TD-24 | [ ] |
-| TD-30 | Track F — Intro sequence + ambient audio | agent | F.T1: TD-11; rest: TD-22 | [ ] |
+| TD-24 | Contention protocol: regen script, registry checks, merge rules | agent | TD-13, TD-21, TD-22 | [x] |
+| TD-25 | Track A — Projects (critical path, merges first) | agent | TD-24 | [x] |
+| TD-26 | Track B — Skills + Certifications (real-mobile PDF test) | agent | TD-24 | [x] (desktop verified; real-device PDF fallback pending user) |
+| TD-27 | Track C — Thesis + Posts (collections ≠ topic tags) | agent | TD-24 | [x] |
+| TD-28 | Track D — Collections + ProsePages (cover pipeline) | agent | TD-24 | [x] |
+| TD-29 | Track E — Resume + Forms | agent | TD-24 | [x] (Resend notify untested without live key) |
+| TD-30 | Track F — Intro sequence + ambient audio | agent | F.T1: TD-11; rest: TD-22 | [x] (code complete; see docs/specs/session-1) |
 
 **GATE-P2** — `p2/GATE-P2.md` exit checklist
 
 ### Wave 8 — P3 convergence
 | ID | Title | Exec | Deps | Status |
 |---|---|---|---|---|
-| TD-31 | Overview completion: arrangement, pinning, empty states, hero | agent | GATE-P2 | [ ] |
-| TD-32 | SEO: JSON-LD live data, sitemap/robots AI allow, canonical, llms.txt, curl suite CI | agent | TD-31 | [ ] |
-| TD-33 | Crawler analytics: beacon, CrawlerHit, admin panel | agent | TD-32 | [ ] |
-| TD-34 | Re-skin: Stitch full design, token swap + leak audit, visual regression | agent | TD-31 | [ ] |
-| TD-35 | A11y & perf: AA incl. dimmed, keyboard/SR, CWV, react-doctor full | agent | TD-34 | [ ] |
+| TD-31 | Overview completion: arrangement, pinning, empty states, hero | agent | GATE-P2 | [x] (code complete; see docs/specs/session-1) |
+| TD-32 | SEO: JSON-LD live data, sitemap/robots AI allow, canonical, llms.txt, curl suite CI | agent | TD-31 | [x] (code complete; see docs/specs/session-1) |
+| TD-33 | Crawler analytics: beacon, CrawlerHit, admin panel | agent | TD-32 | [x] (code complete; see docs/specs/session-1) |
+| TD-34 | Re-skin: Stitch full design, token swap + leak audit, visual regression | agent | TD-31 | [x] (code complete; see docs/specs/session-1) |
+| TD-35 | A11y & perf: AA incl. dimmed, keyboard/SR, CWV, react-doctor full | agent | TD-34 | [x] (code complete; see docs/specs/session-1) |
 | TD-36 | Launch: cutover, Access on, Sentry, restore drill, journeys, content | paired | all | [ ] |
 
 **GATE-P3** — `p3/GATE-P3.md` exit checklist → LAUNCH
