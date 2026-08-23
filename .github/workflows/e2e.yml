@@ -67,7 +67,8 @@ jobs:
 
       - name: Playwright — browsers
         working-directory: frontend
-        run: npx playwright install --with-deps chromium
+        # iPhone/iPad projects run WebKit; journeys also use Desktop Chrome.
+        run: npx playwright install --with-deps chromium webkit
 
       # Visual baselines are darwin-captured and content-dependent (re-capture
       # scheduled after TD-36.S6 authoring), so CI asserts the functional
