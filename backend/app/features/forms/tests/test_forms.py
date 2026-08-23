@@ -149,7 +149,7 @@ async def test_email_failure_does_not_fail_request(
     async def fake_verify(token: str, remoteip: str | None = None) -> bool:
         return True
 
-    async def fake_send_email(*args, **kwargs):
+    async def fake_send_email(*args: object, **kwargs: object) -> None:
         raise Exception("Email down")
 
     monkeypatch.setattr("app.features.forms.endpoints.router.verify_turnstile", fake_verify)

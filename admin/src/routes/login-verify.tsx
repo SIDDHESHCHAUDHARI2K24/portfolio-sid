@@ -149,7 +149,7 @@ export default function VerifyPage() {
             </div>
 
             {remainingAttempts <= 2 && remainingAttempts > 0 && (
-              <p className="text-center text-sm text-amber-600">
+              <p className="text-center text-sm text-destructive">
                 {remainingAttempts} attempt{remainingAttempts !== 1 ? 's' : ''} remaining
               </p>
             )}

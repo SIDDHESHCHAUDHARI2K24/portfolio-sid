@@ -47,8 +47,14 @@ def upgrade() -> None:
         sa.Column(
             "audience_override",
             postgresql.ARRAY(
-                sa.Enum(
-                    "recruiters", "techies", "investors", "founders", "personal", name="audience"
+                postgresql.ENUM(
+                    "recruiters",
+                    "techies",
+                    "investors",
+                    "founders",
+                    "personal",
+                    name="audience",
+                    create_type=False,
                 )
             ),
             nullable=True,
@@ -69,7 +75,9 @@ def upgrade() -> None:
         sa.Column("sort_order", sa.Integer(), server_default="0", nullable=False),
         sa.Column(
             "status",
-            sa.Enum("draft", "scheduled", "published", name="publish_status"),
+            postgresql.ENUM(
+                "draft", "scheduled", "published", name="publish_status", create_type=False
+            ),
             server_default="draft",
             nullable=False,
         ),
@@ -87,8 +95,14 @@ def upgrade() -> None:
         sa.Column(
             "audience_override",
             postgresql.ARRAY(
-                sa.Enum(
-                    "recruiters", "techies", "investors", "founders", "personal", name="audience"
+                postgresql.ENUM(
+                    "recruiters",
+                    "techies",
+                    "investors",
+                    "founders",
+                    "personal",
+                    name="audience",
+                    create_type=False,
                 )
             ),
             nullable=True,
@@ -109,7 +123,9 @@ def upgrade() -> None:
         sa.Column("sort_order", sa.Integer(), server_default="0", nullable=False),
         sa.Column(
             "status",
-            sa.Enum("draft", "scheduled", "published", name="publish_status"),
+            postgresql.ENUM(
+                "draft", "scheduled", "published", name="publish_status", create_type=False
+            ),
             server_default="draft",
             nullable=False,
         ),

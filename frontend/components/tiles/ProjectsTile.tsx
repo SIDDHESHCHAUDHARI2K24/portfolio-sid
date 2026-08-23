@@ -14,12 +14,13 @@ export function buildProjectsTile(projects: Project[]): Tile {
     };
   }
 
-  const latest = projects[0];
+  const pinned = projects.find((p) => p.is_pinned);
+  const display = pinned ?? projects[0];
 
   return {
     id: "projects",
     title: "Projects",
-    summary: latest.summary ?? latest.title,
+    summary: display.summary ?? display.title,
     href: "/projects",
     audiences: ["recruiters", "techies", "investors", "founders"],
     priority: 19,

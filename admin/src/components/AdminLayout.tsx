@@ -7,7 +7,18 @@ import { cn } from '@/lib/utils'
 import {
   LayoutDashboardIcon,
   ClockIcon,
+  FolderIcon,
+  FileTextIcon,
   TagsIcon,
+  CodeIcon,
+  AwardIcon,
+  FormInputIcon,
+  PresentationIcon,
+  LibraryIcon,
+  PenLineIcon,
+  GraduationCapIcon,
+  FileBadgeIcon,
+  BotIcon,
   ChevronLeftIcon,
   LogOutIcon,
   MenuIcon,
@@ -17,7 +28,18 @@ import {
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboardIcon },
   { to: '/timeline', label: 'Timeline', icon: ClockIcon },
+  { to: '/projects', label: 'Projects', icon: FolderIcon },
+  { to: '/posts', label: 'Posts', icon: FileTextIcon },
+  { to: '/thesis', label: 'Thesis', icon: GraduationCapIcon },
+  { to: '/skills', label: 'Skills', icon: CodeIcon },
+  { to: '/certs', label: 'Certifications', icon: AwardIcon },
+  { to: '/collections', label: 'Collections', icon: LibraryIcon },
+  { to: '/prose', label: 'Prose', icon: PenLineIcon },
+  { to: '/resumes', label: 'Resumes', icon: FileBadgeIcon },
+  { to: '/forms', label: 'Forms', icon: FormInputIcon },
+  { to: '/overview', label: 'Overview', icon: PresentationIcon },
   { to: '/tag-map', label: 'Tag Map', icon: TagsIcon },
+  { to: '/crawlers', label: 'Crawlers', icon: BotIcon },
 ]
 
 export function AdminLayout() {

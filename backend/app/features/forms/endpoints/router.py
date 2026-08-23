@@ -111,7 +111,7 @@ async def _check_rate_limit(session: AsyncSession, ip: str) -> bool:
         ),
         {"ip": ip},
     )
-    count = result.scalar_one()
+    count: int = result.scalar_one()
     return count < 5
 
 

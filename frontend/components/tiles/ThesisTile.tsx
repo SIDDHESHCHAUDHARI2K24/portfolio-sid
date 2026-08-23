@@ -16,17 +16,19 @@ export function buildThesisTile(entries: ThesisItem[]): Tile {
     };
   }
 
-  const latest = entries
+  const pinned = entries.find((e) => e.is_pinned);
+  const sorted = entries
     .slice()
     .sort(
       (a, b) =>
         new Date(b.published_date).getTime() - new Date(a.published_date).getTime()
-    )[0];
+    );
+  const display = pinned ?? sorted[0];
 
   return {
     id: "thesis",
     title: "Investment Thesis",
-    summary: latest.title,
+    summary: display.title,
     href: "/thesis",
     audiences: ["investors"],
     priority: 15,

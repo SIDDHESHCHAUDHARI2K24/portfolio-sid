@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 
 interface Props {
   /** All unique tag slugs from loaded entries. */

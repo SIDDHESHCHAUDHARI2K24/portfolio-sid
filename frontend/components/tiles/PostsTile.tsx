@@ -20,11 +20,12 @@ export function buildTechRabbitholeTile(posts: PostItem[]): Tile {
     };
   }
 
-  const latest = filtered[0];
+  const pinned = filtered.find((p) => p.is_pinned);
+  const display = pinned ?? filtered[0];
   return {
     id: "tech_rabbithole",
     title: "Tech Rabbithole",
-    summary: latest.title,
+    summary: display.title,
     href: "/tech-rabbithole",
     audiences: [],
     priority: 24,
@@ -49,7 +50,8 @@ export function buildHowIUseAiTile(posts: PostItem[]): Tile {
     };
   }
 
-  const latest = filtered[0];
+  const pinnedHowIUseAi = filtered.filter((p) => p.is_pinned)[0];
+  const latest = pinnedHowIUseAi ?? filtered[0];
   return {
     id: "how_i_use_ai",
     title: "How I Use AI",
@@ -78,7 +80,8 @@ export function buildVcForFoundersTile(posts: PostItem[]): Tile {
     };
   }
 
-  const latest = filtered[0];
+  const pinnedVc = filtered.filter((p) => p.is_pinned)[0];
+  const latest = pinnedVc ?? filtered[0];
   return {
     id: "vc_for_founders",
     title: "VC for Founders",

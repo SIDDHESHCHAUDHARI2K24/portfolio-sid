@@ -36,7 +36,7 @@ def _to_dict(sub: FormSubmission) -> dict[str, object]:
 async def submit_dict(
     session: AsyncSession,
     form_type: FormType,
-    payload: dict,
+    payload: dict[str, object],
     consent_given: bool,
     consent_text: str,
     submitter_email: str | None,

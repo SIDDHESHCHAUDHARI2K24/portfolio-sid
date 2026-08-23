@@ -14,8 +14,8 @@ interface IntroPlayerProps {
 
 export default function IntroPlayer({ wordIndex }: IntroPlayerProps) {
   return (
-    <div className="flex flex-col items-center gap-8">
-      <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 px-4">
+    <div className="flex flex-col items-center gap-8 w-full max-w-4xl px-6">
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
         {WORDS.map((word, i) => (
           <motion.span
             key={word}

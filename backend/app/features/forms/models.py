@@ -21,7 +21,7 @@ class FormSubmission(UUIDMixin, TimestampMixin, Base):
         postgresql.ENUM(FormType, name="form_type", create_type=True),
         nullable=False,
     )
-    payload: Mapped[dict] = mapped_column(postgresql.JSONB, nullable=False)
+    payload: Mapped[dict[str, object]] = mapped_column(postgresql.JSONB, nullable=False)
     consent_given: Mapped[bool] = mapped_column(default=False, server_default="false")
     consent_text: Mapped[str] = mapped_column(Text, nullable=False)
     submitter_email: Mapped[str | None] = mapped_column(String(320), nullable=True)

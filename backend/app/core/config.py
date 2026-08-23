@@ -46,6 +46,8 @@ class Settings(BaseSettings):
 
     admin_static_dir: str = "static"
 
+    glitchtip_dsn: str | None = None
+
 
 @lru_cache
 def get_settings() -> Settings:

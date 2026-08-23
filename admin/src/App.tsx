@@ -14,10 +14,19 @@ import CertsList from '@/routes/certs/CertsList'
 import CertsForm from '@/routes/certs/CertsForm'
 import CollectionsList from '@/routes/collections/CollectionsList'
 import CollectionsForm from '@/routes/collections/CollectionsForm'
+import PostList from '@/routes/posts/PostList'
+import PostForm from '@/routes/posts/PostForm'
 import ProseList from '@/routes/prose/ProseList'
 import ProseForm from '@/routes/prose/ProseForm'
 import FormsList from '@/routes/forms/FormsList'
+import ResumeList from '@/routes/resumes/ResumeList'
+import ResumeForm from '@/routes/resumes/ResumeForm'
+import OverviewList from '@/routes/overview/OverviewList'
+import OverviewForm from '@/routes/overview/OverviewForm'
+import ThesisList from '@/routes/thesis/ThesisList'
+import ThesisForm from '@/routes/thesis/ThesisForm'
 import TagMapMatrix from '@/routes/TagMapMatrix'
+import CrawlerHits from '@/routes/crawlers/CrawlerHits'
 
 function App() {
   return (
@@ -48,11 +57,24 @@ function App() {
         <Route path="/collections" element={<CollectionsList />} />
         <Route path="/collections/new" element={<CollectionsForm />} />
         <Route path="/collections/:id/edit" element={<CollectionsForm />} />
+        <Route path="/posts" element={<PostList />} />
+        <Route path="/posts/new" element={<PostForm />} />
+        <Route path="/posts/:id/edit" element={<PostForm />} />
         <Route path="/prose" element={<ProseList />} />
         <Route path="/prose/new" element={<ProseForm />} />
         <Route path="/prose/:id/edit" element={<ProseForm />} />
         <Route path="/forms" element={<FormsList />} />
+        <Route path="/overview" element={<OverviewList />} />
+        <Route path="/overview/new" element={<OverviewForm />} />
+        <Route path="/overview/:id/edit" element={<OverviewForm />} />
+        <Route path="/resumes" element={<ResumeList />} />
+        <Route path="/resumes/new" element={<ResumeForm />} />
+        <Route path="/resumes/:id/edit" element={<ResumeForm />} />
+        <Route path="/thesis" element={<ThesisList />} />
+        <Route path="/thesis/new" element={<ThesisForm />} />
+        <Route path="/thesis/:id/edit" element={<ThesisForm />} />
         <Route path="/tag-map" element={<TagMapMatrix />} />
+        <Route path="/crawlers" element={<CrawlerHits />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/login" replace />} />

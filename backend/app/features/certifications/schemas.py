@@ -29,6 +29,7 @@ class CertificationPublic(BaseModel):
     sort_order: int
     created_at: datetime
     updated_at: datetime
+    is_pinned: bool = False
     topic_tags: list[TagRef] = []
 
 
@@ -53,6 +54,7 @@ class CertificationCreate(BaseModel):
     sort_order: int = 0
     status: str = "draft"
     publish_at: datetime | None = None
+    is_pinned: bool = False
 
 
 class CertificationUpdate(BaseModel):
@@ -69,3 +71,4 @@ class CertificationUpdate(BaseModel):
     sort_order: int | None = None
     status: str | None = None
     publish_at: datetime | None = None
+    is_pinned: bool | None = None

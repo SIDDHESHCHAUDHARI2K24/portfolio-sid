@@ -17,6 +17,7 @@ dependencies = [
     "pyjwt>=2.13.0",
     "python-multipart>=0.0.32",
     "resend>=2.35.0",
+    "sentry-sdk>=2.66.1",
     "slowapi>=0.1.10",
     "sqlalchemy>=2.0.51",
     "uvicorn[standard]>=0.52.1",

@@ -177,6 +177,146 @@ export interface paths {
         patch: operations["update_api_v1_admin_certifications__cert_id__patch"];
         trace?: never;
     };
+    "/api/v1/collections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Public */
+        get: operations["list_public_api_v1_collections_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Admin */
+        get: operations["list_admin_api_v1_admin_collections_get"];
+        put?: never;
+        /** Create */
+        post: operations["create_api_v1_admin_collections_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collections/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin */
+        get: operations["get_admin_api_v1_admin_collections__item_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete */
+        delete: operations["delete_api_v1_admin_collections__item_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update */
+        patch: operations["update_api_v1_admin_collections__item_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/collections/cover-lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cover Lookup */
+        post: operations["cover_lookup_api_v1_admin_collections_cover_lookup_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/forms/{form_type_str}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Form */
+        post: operations["submit_form_api_v1_forms__form_type_str__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/forms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Admin */
+        get: operations["list_admin_api_v1_admin_forms_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/forms/{submission_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin */
+        get: operations["get_admin_api_v1_admin_forms__submission_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Admin */
+        patch: operations["update_admin_api_v1_admin_forms__submission_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/forms/export/csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export Csv */
+        get: operations["export_csv_api_v1_admin_forms_export_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/overview": {
         parameters: {
             query?: never;
@@ -390,6 +530,77 @@ export interface paths {
         patch: operations["update_api_v1_admin_projects__project_id__patch"];
         trace?: never;
     };
+    "/api/v1/prose": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Public */
+        get: operations["list_public_api_v1_prose_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prose/slug/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get By Slug */
+        get: operations["get_by_slug_api_v1_prose_slug__slug__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/prose": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Admin */
+        get: operations["list_admin_api_v1_admin_prose_get"];
+        put?: never;
+        /** Create */
+        post: operations["create_api_v1_admin_prose_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/prose/{page_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin */
+        get: operations["get_admin_api_v1_admin_prose__page_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete */
+        delete: operations["delete_api_v1_admin_prose__page_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update */
+        patch: operations["update_api_v1_admin_prose__page_id__patch"];
+        trace?: never;
+    };
     "/api/v1/relevance/map": {
         parameters: {
             query?: never;
@@ -430,6 +641,60 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/resumes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Public */
+        get: operations["list_public_api_v1_resumes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/resumes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Admin */
+        get: operations["list_admin_api_v1_admin_resumes_get"];
+        put?: never;
+        /** Create */
+        post: operations["create_api_v1_admin_resumes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/resumes/{resume_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin */
+        get: operations["get_admin_api_v1_admin_resumes__resume_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete */
+        delete: operations["delete_api_v1_admin_resumes__resume_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update */
+        patch: operations["update_api_v1_admin_resumes__resume_id__patch"];
         trace?: never;
     };
     "/api/v1/skills": {
@@ -730,6 +995,11 @@ export interface components {
              */
             updated_at: string;
             /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
              * Topic Tags
              * @default []
              */
@@ -783,6 +1053,11 @@ export interface components {
             status: string;
             /** Publish At */
             publish_at?: string | null;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
         };
         /** CertificationPublic */
         CertificationPublic: {
@@ -823,6 +1098,11 @@ export interface components {
              */
             updated_at: string;
             /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
              * Topic Tags
              * @default []
              */
@@ -856,6 +1136,225 @@ export interface components {
             status?: string | null;
             /** Publish At */
             publish_at?: string | null;
+            /** Is Pinned */
+            is_pinned?: boolean | null;
+        };
+        /** CollectionItemAdmin */
+        CollectionItemAdmin: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Creator */
+            creator: string | null;
+            /** Kind */
+            kind: string;
+            /** Section */
+            section: string | null;
+            /** Cover Key */
+            cover_key: string | null;
+            /** External Id */
+            external_id: string | null;
+            /** External Source */
+            external_source: string | null;
+            /** Status */
+            status: string | null;
+            /** Note */
+            note: string | null;
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Status */
+            status_: string;
+            /** Publish At */
+            publish_at: string | null;
+            /** Published At */
+            published_at: string | null;
+        };
+        /** CollectionItemCreate */
+        CollectionItemCreate: {
+            /** Title */
+            title: string;
+            /** Creator */
+            creator?: string | null;
+            kind: components["schemas"]["CollectionKind"];
+            /** Section */
+            section?: string | null;
+            /** Cover Key */
+            cover_key?: string | null;
+            /** External Id */
+            external_id?: string | null;
+            external_source?: components["schemas"]["ExternalSource"] | null;
+            status?: components["schemas"]["CollectionStatus"] | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Publish Status
+             * @default draft
+             */
+            publish_status: string;
+            /** Publish At */
+            publish_at?: string | null;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+        };
+        /** CollectionItemPublic */
+        CollectionItemPublic: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Creator */
+            creator: string | null;
+            /** Kind */
+            kind: string;
+            /** Section */
+            section: string | null;
+            /** Cover Key */
+            cover_key: string | null;
+            /** External Id */
+            external_id: string | null;
+            /** External Source */
+            external_source: string | null;
+            /** Status */
+            status: string | null;
+            /** Note */
+            note: string | null;
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** CollectionItemUpdate */
+        CollectionItemUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Creator */
+            creator?: string | null;
+            kind?: components["schemas"]["CollectionKind"] | null;
+            /** Section */
+            section?: string | null;
+            /** Cover Key */
+            cover_key?: string | null;
+            /** External Id */
+            external_id?: string | null;
+            external_source?: components["schemas"]["ExternalSource"] | null;
+            status?: components["schemas"]["CollectionStatus"] | null;
+            /** Note */
+            note?: string | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Publish Status */
+            publish_status?: string | null;
+            /** Publish At */
+            publish_at?: string | null;
+            /** Is Pinned */
+            is_pinned?: boolean | null;
+        };
+        /**
+         * CollectionKind
+         * @enum {string}
+         */
+        CollectionKind: "book" | "anime" | "manhwa";
+        /**
+         * CollectionStatus
+         * @enum {string}
+         */
+        CollectionStatus: "reading" | "completed" | "want_to_read";
+        /** CoverLookupRequest */
+        CoverLookupRequest: {
+            /** Title */
+            title: string;
+            kind: components["schemas"]["CollectionKind"];
+        };
+        /** CoverLookupResponse */
+        CoverLookupResponse: {
+            /** Status */
+            status: string;
+            /** Cover Key */
+            cover_key?: string | null;
+        };
+        /**
+         * ExternalSource
+         * @enum {string}
+         */
+        ExternalSource: "open_library" | "jikan" | "manual";
+        /** FormSubmissionAdmin */
+        FormSubmissionAdmin: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Form Type */
+            form_type: string;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Consent Given */
+            consent_given: boolean;
+            /** Consent Text */
+            consent_text: string;
+            /** Submitter Email */
+            submitter_email: string | null;
+            /** Ip Address */
+            ip_address: string | null;
+            /** User Agent */
+            user_agent: string | null;
+            /** Is Read */
+            is_read: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** FormSubmissionUpdate */
+        FormSubmissionUpdate: {
+            /** Is Read */
+            is_read?: boolean | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -886,6 +1385,11 @@ export interface components {
             cta_label: string | null;
             /** Cta Url */
             cta_url: string | null;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
             /**
              * Created At
              * Format: date-time
@@ -930,6 +1434,11 @@ export interface components {
             status: string;
             /** Publish At */
             publish_at?: string | null;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
         };
         /** OverviewIntroPublic */
         OverviewIntroPublic: {
@@ -950,6 +1459,11 @@ export interface components {
             cta_label: string | null;
             /** Cta Url */
             cta_url: string | null;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
             /**
              * Created At
              * Format: date-time
@@ -977,6 +1491,8 @@ export interface components {
             status?: string | null;
             /** Publish At */
             publish_at?: string | null;
+            /** Is Pinned */
+            is_pinned?: boolean | null;
         };
         /** PostAdmin */
         PostAdmin: {
@@ -1009,6 +1525,11 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
             /**
              * Topic Tags
              * @default []
@@ -1059,6 +1580,11 @@ export interface components {
             status: string;
             /** Publish At */
             publish_at?: string | null;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
         };
         /** PostPublic */
         PostPublic: {
@@ -1092,6 +1618,11 @@ export interface components {
              */
             updated_at: string;
             /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
              * Topic Tags
              * @default []
              */
@@ -1123,6 +1654,8 @@ export interface components {
             status?: string | null;
             /** Publish At */
             publish_at?: string | null;
+            /** Is Pinned */
+            is_pinned?: boolean | null;
         };
         /** ProjectAdmin */
         ProjectAdmin: {
@@ -1155,6 +1688,11 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
             /**
              * Topic Tags
              * @default []
@@ -1202,6 +1740,11 @@ export interface components {
             status: string;
             /** Publish At */
             publish_at?: string | null;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
         };
         /** ProjectPublic */
         ProjectPublic: {
@@ -1235,6 +1778,11 @@ export interface components {
              */
             updated_at: string;
             /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
              * Topic Tags
              * @default []
              */
@@ -1267,6 +1815,232 @@ export interface components {
             status?: string | null;
             /** Publish At */
             publish_at?: string | null;
+            /** Is Pinned */
+            is_pinned?: boolean | null;
+        };
+        /**
+         * ProseGroup
+         * @enum {string}
+         */
+        ProseGroup: "hobbies" | "work_views" | "investor_intro";
+        /** ProsePageAdmin */
+        ProsePageAdmin: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /** Group */
+            group: string;
+            /** Cta Label */
+            cta_label: string | null;
+            /** Cta Url */
+            cta_url: string | null;
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Status */
+            status: string;
+            /** Publish At */
+            publish_at: string | null;
+            /** Published At */
+            published_at: string | null;
+            /** Audience Override */
+            audience_override: string[] | null;
+        };
+        /** ProsePageCreate */
+        ProsePageCreate: {
+            /** Slug */
+            slug: string;
+            /** Title */
+            title: string;
+            /**
+             * Body
+             * @default
+             */
+            body: string;
+            group: components["schemas"]["ProseGroup"];
+            /** Cta Label */
+            cta_label?: string | null;
+            /** Cta Url */
+            cta_url?: string | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Audience Override */
+            audience_override?: string[] | null;
+            /**
+             * Status
+             * @default draft
+             */
+            status: string;
+            /** Publish At */
+            publish_at?: string | null;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+        };
+        /** ProsePagePublic */
+        ProsePagePublic: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /** Group */
+            group: string;
+            /** Cta Label */
+            cta_label: string | null;
+            /** Cta Url */
+            cta_url: string | null;
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** ProsePageUpdate */
+        ProsePageUpdate: {
+            /** Slug */
+            slug?: string | null;
+            /** Title */
+            title?: string | null;
+            /** Body */
+            body?: string | null;
+            group?: components["schemas"]["ProseGroup"] | null;
+            /** Cta Label */
+            cta_label?: string | null;
+            /** Cta Url */
+            cta_url?: string | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Audience Override */
+            audience_override?: string[] | null;
+            /** Status */
+            status?: string | null;
+            /** Publish At */
+            publish_at?: string | null;
+            /** Is Pinned */
+            is_pinned?: boolean | null;
+        };
+        /** ResumeAdmin */
+        ResumeAdmin: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Variant */
+            variant: string;
+            /** Label */
+            label: string;
+            /** File Key */
+            file_key: string;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** ResumeCreate */
+        ResumeCreate: {
+            /** Variant */
+            variant: string;
+            /** Label */
+            label: string;
+            /** File Key */
+            file_key: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
+        /** ResumePublic */
+        ResumePublic: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Variant */
+            variant: string;
+            /** Label */
+            label: string;
+            /** File Key */
+            file_key: string;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** ResumeUpdate */
+        ResumeUpdate: {
+            /** Variant */
+            variant?: string | null;
+            /** Label */
+            label?: string | null;
+            /** File Key */
+            file_key?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
         };
         /** SkillAdmin */
         SkillAdmin: {
@@ -1428,6 +2202,11 @@ export interface components {
              */
             updated_at: string;
             /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
              * Topic Tags
              * @default []
              */
@@ -1473,6 +2252,11 @@ export interface components {
             status: string;
             /** Publish At */
             publish_at?: string | null;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
         };
         /** ThesisPublic */
         ThesisPublic: {
@@ -1505,6 +2289,11 @@ export interface components {
              */
             updated_at: string;
             /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
              * Topic Tags
              * @default []
              */
@@ -1532,6 +2321,8 @@ export interface components {
             status?: string | null;
             /** Publish At */
             publish_at?: string | null;
+            /** Is Pinned */
+            is_pinned?: boolean | null;
         };
         /** TimelineEntryAdmin */
         TimelineEntryAdmin: {
@@ -1573,6 +2364,11 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
             /**
              * Topic Tags
              * @default []
@@ -1623,6 +2419,11 @@ export interface components {
             status: string;
             /** Publish At */
             publish_at?: string | null;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
         };
         /** TimelineEntryPublic */
         TimelineEntryPublic: {
@@ -1665,6 +2466,11 @@ export interface components {
              */
             updated_at: string;
             /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
              * Topic Tags
              * @default []
              */
@@ -1697,6 +2503,8 @@ export interface components {
             status?: string | null;
             /** Publish At */
             publish_at?: string | null;
+            /** Is Pinned */
+            is_pinned?: boolean | null;
         };
         /**
          * TimelineKind
@@ -2074,6 +2882,369 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CertificationAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_public_api_v1_collections_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionItemPublic"][];
+                };
+            };
+        };
+    };
+    list_admin_api_v1_admin_collections_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionItemAdmin"][];
+                };
+            };
+        };
+    };
+    create_api_v1_admin_collections_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectionItemCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionItemAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_api_v1_admin_collections__item_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionItemAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_api_v1_admin_collections__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_api_v1_admin_collections__item_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectionItemUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionItemAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cover_lookup_api_v1_admin_collections_cover_lookup_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CoverLookupRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CoverLookupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_form_api_v1_forms__form_type_str__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                form_type_str: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_admin_api_v1_admin_forms_get: {
+        parameters: {
+            query?: {
+                form_type?: string | null;
+                is_read?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormSubmissionAdmin"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_api_v1_admin_forms__submission_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                submission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormSubmissionAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_admin_api_v1_admin_forms__submission_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                submission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FormSubmissionUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormSubmissionAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_csv_api_v1_admin_forms_export_csv_get: {
+        parameters: {
+            query?: {
+                form_type?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
                 };
             };
             /** @description Validation Error */
@@ -2695,6 +3866,205 @@ export interface operations {
             };
         };
     };
+    list_public_api_v1_prose_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProsePagePublic"][];
+                };
+            };
+        };
+    };
+    get_by_slug_api_v1_prose_slug__slug__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProsePagePublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_admin_api_v1_admin_prose_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProsePageAdmin"][];
+                };
+            };
+        };
+    };
+    create_api_v1_admin_prose_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProsePageCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProsePageAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_api_v1_admin_prose__page_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProsePageAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_api_v1_admin_prose__page_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_api_v1_admin_prose__page_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProsePageUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProsePageAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_map_api_v1_relevance_map_get: {
         parameters: {
             query?: never;
@@ -2761,6 +4131,174 @@ export interface operations {
                     "application/json": {
                         [key: string]: string[];
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_public_api_v1_resumes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResumePublic"][];
+                };
+            };
+        };
+    };
+    list_admin_api_v1_admin_resumes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResumeAdmin"][];
+                };
+            };
+        };
+    };
+    create_api_v1_admin_resumes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResumeCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResumeAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_api_v1_admin_resumes__resume_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resume_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResumeAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_api_v1_admin_resumes__resume_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resume_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_api_v1_admin_resumes__resume_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resume_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResumeUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResumeAdmin"];
                 };
             };
             /** @description Validation Error */

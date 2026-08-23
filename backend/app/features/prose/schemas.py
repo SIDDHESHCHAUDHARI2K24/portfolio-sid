@@ -17,6 +17,7 @@ class ProsePagePublic(BaseModel):
     cta_label: str | None
     cta_url: str | None
     sort_order: int
+    is_pinned: bool = False
     created_at: datetime
     updated_at: datetime
 
@@ -39,6 +40,7 @@ class ProsePageCreate(BaseModel):
     audience_override: list[str] | None = None
     status: str = "draft"
     publish_at: datetime | None = None
+    is_pinned: bool = False
 
 
 class ProsePageUpdate(BaseModel):
@@ -52,3 +54,4 @@ class ProsePageUpdate(BaseModel):
     audience_override: list[str] | None = None
     status: str | None = None
     publish_at: datetime | None = None
+    is_pinned: bool | None = None

@@ -8,7 +8,16 @@ type Cert = paths["/api/v1/certifications"]["get"]["responses"]["200"]["content"
 
 export const metadata: Metadata = {
   title: "Certifications — Siddhesh Chaudhari",
+  description: "Professional certifications across technical and business domains.",
   alternates: { canonical: "/certifications" },
+  openGraph: {
+    title: "Certifications — Siddhesh Chaudhari",
+    description: "Professional certifications across technical and business domains.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function CertificationsPage() {

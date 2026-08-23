@@ -21,6 +21,7 @@ export interface Project {
   video_url: string | null;
   timeline_entry_id: string | null;
   sort_order: number;
+  is_pinned: boolean;
   created_at: string;
   updated_at: string;
   topic_tags: TagRef[];

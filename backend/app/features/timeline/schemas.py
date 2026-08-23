@@ -33,6 +33,7 @@ class TimelineEntryPublic(BaseModel):
     sort_order: int
     created_at: datetime
     updated_at: datetime
+    is_pinned: bool = False
     topic_tags: list[TagRef] = []
 
 
@@ -57,6 +58,7 @@ class TimelineEntryCreate(BaseModel):
     audience_override: list[str] | None = None
     status: str = "draft"
     publish_at: datetime | None = None
+    is_pinned: bool = False
 
     @model_validator(mode="after")
     def end_not_before_start(self) -> "TimelineEntryCreate":
@@ -79,6 +81,7 @@ class TimelineEntryUpdate(BaseModel):
     audience_override: list[str] | None = None
     status: str | None = None
     publish_at: datetime | None = None
+    is_pinned: bool | None = None
 
     @model_validator(mode="after")
     def end_not_before_start(self) -> "TimelineEntryUpdate":

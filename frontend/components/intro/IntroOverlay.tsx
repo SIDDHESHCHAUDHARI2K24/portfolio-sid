@@ -124,16 +124,23 @@ export default function IntroOverlay() {
         <motion.div
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background overflow-hidden"
           onClick={showIntro ? skip : undefined}
+          onKeyDown={(e) => {
+            if (showIntro && (e.key === 'Enter' || e.key === 'Escape')) {
+              skip();
+            }
+          }}
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           key="intro-overlay"
+          role="button"
+          tabIndex={0}
         >
           <AnimatePresence mode="wait">
             {showIntro && (
               <motion.div
                 key="intro-content"
-                className="flex flex-col items-center"
+                className="flex flex-col items-center justify-center"
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
               >
@@ -179,7 +186,7 @@ export default function IntroOverlay() {
                 layoutId={`square-${i}`}
                 className={
                   showIntro
-                    ? `w-6 h-6 rounded ${
+                    ? `w-8 h-8 rounded ${
                         i <= wordIndex ? "bg-relevant" : "bg-card"
                       }`
                     : "rounded border border-border bg-card hover:bg-secondary cursor-pointer p-4 md:p-6"

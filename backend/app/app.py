@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
+from app.core.glitchtip import init_glitchtip
 from app.features.auth.endpoints.router import admin_router, limiter
 from app.features.auth.endpoints.router import router as auth_router
 from app.features.auth.service import AuthError
@@ -15,6 +16,8 @@ from app.features.certifications.endpoints.router import admin_router as certs_a
 from app.features.certifications.endpoints.router import public_router as certs_public_router
 from app.features.collections.endpoints.router import admin_router as collections_admin_router
 from app.features.collections.endpoints.router import public_router as collections_public_router
+from app.features.crawlers.endpoints.router import admin_router as crawlers_admin_router
+from app.features.crawlers.middleware import crawler_middleware
 from app.features.forms.endpoints.router import admin_router as forms_admin_router
 from app.features.forms.endpoints.router import public_router as forms_public_router
 from app.features.overview.endpoints.router import admin_router as overview_admin_router
@@ -55,6 +58,7 @@ def register_routers(app: FastAPI) -> None:
     app.include_router(certs_admin_router)
     app.include_router(collections_public_router)
     app.include_router(collections_admin_router)
+    app.include_router(crawlers_admin_router)
     app.include_router(forms_public_router)
     app.include_router(forms_admin_router)
     app.include_router(overview_public_router)
@@ -91,6 +95,7 @@ async def _rate_limit_handler(request: Request, exc: Exception) -> JSONResponse:
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    init_glitchtip(settings.glitchtip_dsn, environment=settings.environment)
     app = FastAPI(title="portfolio-sid API")
 
     app.state.limiter = limiter
@@ -105,6 +110,8 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    app.middleware("http")(crawler_middleware)
 
     @app.get("/health")
     async def health() -> dict[str, str]:

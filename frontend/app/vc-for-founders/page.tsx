@@ -9,7 +9,16 @@ type TagMapResponse = { [key: string]: string[] };
 
 export const metadata: Metadata = {
   title: "VC for Founders — Siddhesh Chaudhari",
+  description: "What I look for as an investor and how I think about early-stage startups.",
   alternates: { canonical: "/vc-for-founders" },
+  openGraph: {
+    title: "VC for Founders — Siddhesh Chaudhari",
+    description: "What I look for as an investor and how I think about early-stage startups.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function VcForFoundersPage() {

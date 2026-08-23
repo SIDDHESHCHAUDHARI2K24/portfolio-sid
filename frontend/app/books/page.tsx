@@ -8,7 +8,16 @@ type Item = paths["/api/v1/collections"]["get"]["responses"]["200"]["content"]["
 
 export const metadata: Metadata = {
   title: "Bookshelf — Siddhesh Chaudhari",
+  description: "Curated reading list — books with notes, ratings, and recommendations.",
   alternates: { canonical: "/books" },
+  openGraph: {
+    title: "Bookshelf — Siddhesh Chaudhari",
+    description: "Curated reading list — books with notes, ratings, and recommendations.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function BooksPage() {

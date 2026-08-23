@@ -1,7 +1,7 @@
 "use client";
 
 import { useCategory } from "@/components/CategoryProvider";
-import { useAudio, AUDIO_TRACKS } from "@/components/audio";
+import { useAudio } from "@/components/audio";
 import { useEffect, useState } from "react";
 
 const CATEGORIES = [

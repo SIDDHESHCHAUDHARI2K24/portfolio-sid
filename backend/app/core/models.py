@@ -76,6 +76,7 @@ class PublishableMixin:
     )
     publish_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    is_pinned: Mapped[bool] = mapped_column(nullable=False, default=False, server_default="false")
 
     @declared_attr.directive
     def __table_args__(cls) -> tuple[Index, ...]:

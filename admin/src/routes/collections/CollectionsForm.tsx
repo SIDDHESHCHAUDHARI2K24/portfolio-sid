@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiFetch, ApiError } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -94,6 +94,7 @@ function emptyForm(): FormState {
 export default function CollectionsForm() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const isEdit = !!id
   const [form, setForm] = useState<FormState>(emptyForm())
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -129,7 +130,10 @@ export default function CollectionsForm() {
   const createMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
       apiFetch('/admin/collections', { method: 'POST', body: JSON.stringify(data) }),
-    onSuccess: () => navigate('/collections'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['collections'] })
+      navigate('/collections')
+    },
     onError: (err) => {
       if (err instanceof ApiError && err.status === 422) {
         setServerError(err.message)
@@ -142,7 +146,10 @@ export default function CollectionsForm() {
   const updateMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
       apiFetch(`/admin/collections/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-    onSuccess: () => navigate('/collections'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['collections'] })
+      navigate('/collections')
+    },
     onError: (err) => {
       if (err instanceof ApiError && err.status === 422) {
         setServerError(err.message)
@@ -264,8 +271,8 @@ export default function CollectionsForm() {
               {coverLookup && (
                 <p className={cn(
                   'text-xs mt-1',
-                  coverLookup.status === 'found' ? 'text-green-600' :
-                  coverLookup.status === 'no_match' ? 'text-yellow-600' :
+                  coverLookup.status === 'found' ? 'text-primary' :
+                  coverLookup.status === 'no_match' ? 'text-muted-foreground' :
                   'text-destructive'
                 )}>
                   {coverLookup.status === 'found'

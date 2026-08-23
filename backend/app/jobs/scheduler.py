@@ -23,6 +23,7 @@ from app.core.database import async_session_factory as _default_session_factory
 from app.core.enums import PublishStatus
 from app.core.models_registry import publishables
 from app.core.revalidation import revalidate
+from app.features.crawlers import repository as crawler_repo
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +64,19 @@ async def run_once(factory: async_sessionmaker[AsyncSession]) -> tuple[int, list
     return promoted, tag_list
 
 
+async def run_crawler_retention(factory: async_sessionmaker[AsyncSession], days: int = 90) -> int:
+    deleted = 0
+    try:
+        async with factory() as session:
+            deleted = await crawler_repo.delete_older_than(session, days)
+            await session.commit()
+        if deleted:
+            logger.info("crawler retention: pruned %d hit(s) older than %d days", deleted, days)
+    except Exception:
+        logger.exception("crawler retention: failed")
+    return deleted
+
+
 async def main(
     session_factory: async_sessionmaker[AsyncSession] | None = None,
 ) -> int:
@@ -73,6 +87,7 @@ async def main(
         logger.info("scheduler: no publishable models registered; nothing to do")
         return 0
     promoted, tags = await run_once(factory)
+    await run_crawler_retention(factory)
     logger.info(
         "scheduler: promoted %d row(s) across %d model(s); revalidated tags=%s",
         promoted,

@@ -84,7 +84,8 @@ def _extract_jikan_image_url(data: dict[str, Any]) -> str | None:
         return None
     images = results[0].get("images", {})
     jpg = images.get("jpg", {})
-    return jpg.get("image_url") or jpg.get("large_image_url")
+    url: str | None = jpg.get("image_url") or jpg.get("large_image_url")
+    return url
 
 
 async def _store_cover(adapter: StorageAdapter, body: bytes, prefix: str) -> str:

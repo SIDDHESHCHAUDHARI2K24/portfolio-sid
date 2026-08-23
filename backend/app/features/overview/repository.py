@@ -11,9 +11,7 @@ from app.features.overview.models import OverviewIntro
 
 async def list_public(session: AsyncSession) -> list[OverviewIntro]:
     stmt = (
-        select(OverviewIntro)
-        .where(public_filter(OverviewIntro))
-        .order_by(OverviewIntro.audience)
+        select(OverviewIntro).where(public_filter(OverviewIntro)).order_by(OverviewIntro.audience)
     )
     return list((await session.scalars(stmt)).all())
 

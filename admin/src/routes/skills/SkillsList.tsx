@@ -2,10 +2,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { PlusIcon, PencilIcon, Trash2Icon } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 
 interface Skill {
   id: string

@@ -78,11 +78,7 @@ async def replace_map(session: AsyncSession, mapping: dict[str, list[str]]) -> N
 
 
 async def list_tags(session: AsyncSession) -> Sequence[TopicTag]:
-    return (
-        (await session.execute(select(TopicTag).order_by(TopicTag.slug)))
-        .scalars()
-        .all()
-    )
+    return (await session.execute(select(TopicTag).order_by(TopicTag.slug))).scalars().all()
 
 
 async def create_tag(session: AsyncSession, slug: str, label: str) -> TopicTag:
@@ -116,6 +112,7 @@ async def delete_tag(session: AsyncSession, tag_id: uuid.UUID) -> bool:
 
 async def tag_in_use(session: AsyncSession, tag_id: uuid.UUID) -> bool:
     from sqlalchemy import text as sa_text
+
     row = (
         await session.execute(
             sa_text("SELECT 1 FROM audience_tag_map WHERE topic_tag_id = :tid LIMIT 1"),

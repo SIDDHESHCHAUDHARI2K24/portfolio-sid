@@ -15,7 +15,7 @@ class FormSubmissionPublic(BaseModel):
 class FormSubmissionAdmin(BaseModel):
     id: UUID
     form_type: str
-    payload: dict
+    payload: dict[str, object]
     consent_given: bool
     consent_text: str
     submitter_email: str | None

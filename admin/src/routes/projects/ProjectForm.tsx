@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiFetch, ApiError } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -59,6 +59,7 @@ function emptyForm(): FormState {
 export default function ProjectForm() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const isEdit = !!id
   const [form, setForm] = useState<FormState>(emptyForm())
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -99,6 +100,7 @@ export default function ProjectForm() {
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
       navigate('/projects')
     },
     onError: (err) => {
@@ -117,6 +119,7 @@ export default function ProjectForm() {
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
       navigate('/projects')
     },
     onError: (err) => {

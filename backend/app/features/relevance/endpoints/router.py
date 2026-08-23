@@ -21,9 +21,7 @@ public_router = APIRouter(prefix="/api/v1/relevance", tags=["relevance"])
 admin_router = APIRouter(
     prefix="/api/v1/admin/relevance", tags=["admin"], dependencies=admin_auth()
 )
-tag_admin_router = APIRouter(
-    prefix="/api/v1/admin/tags", tags=["admin"], dependencies=admin_auth()
-)
+tag_admin_router = APIRouter(prefix="/api/v1/admin/tags", tags=["admin"], dependencies=admin_auth())
 
 DbSession = Annotated[AsyncSession, Depends(get_session)]
 

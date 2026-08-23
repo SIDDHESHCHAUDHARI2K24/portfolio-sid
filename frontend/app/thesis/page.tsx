@@ -9,7 +9,16 @@ type TagMapResponse = { [key: string]: string[] };
 
 export const metadata: Metadata = {
   title: "Investment Thesis — Siddhesh Chaudhari",
+  description: "Thesis statements and perspectives on technology, markets, and emerging trends.",
   alternates: { canonical: "/thesis" },
+  openGraph: {
+    title: "Investment Thesis — Siddhesh Chaudhari",
+    description: "Thesis statements and perspectives on technology, markets, and emerging trends.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function ThesisPage() {

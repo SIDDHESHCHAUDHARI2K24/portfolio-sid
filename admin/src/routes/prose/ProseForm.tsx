@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiFetch, ApiError } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -72,6 +72,7 @@ function emptyForm(): FormState {
 export default function ProseForm() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const isEdit = !!id
   const [form, setForm] = useState<FormState>(emptyForm())
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -103,7 +104,10 @@ export default function ProseForm() {
   const createMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
       apiFetch('/admin/prose', { method: 'POST', body: JSON.stringify(data) }),
-    onSuccess: () => navigate('/prose'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['prose'] })
+      navigate('/prose')
+    },
     onError: (err) => {
       if (err instanceof ApiError && err.status === 422) {
         setServerError(err.message)
@@ -116,7 +120,10 @@ export default function ProseForm() {
   const updateMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
       apiFetch(`/admin/prose/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-    onSuccess: () => navigate('/prose'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['prose'] })
+      navigate('/prose')
+    },
     onError: (err) => {
       if (err instanceof ApiError && err.status === 422) {
         setServerError(err.message)

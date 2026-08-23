@@ -61,15 +61,18 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [state, setState] = useState<AudioState>(loadState);
   const stateRef = useRef(state);
-  stateRef.current = state;
 
   const track = AUDIO_TRACKS[state.trackIndex] ?? AUDIO_TRACKS[0];
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   useEffect(() => {
     const el = audioRef.current;
     if (!el) return;
     el.volume = state.volume;
-  }, []);
+  }, [state.volume]);
 
   const update = useCallback((patch: Partial<AudioState>) => {
     setState((prev) => {

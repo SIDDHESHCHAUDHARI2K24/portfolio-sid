@@ -20,11 +20,22 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = buildRootMetadata();
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const token = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {token && (
+          <script
+            defer
+            src="https://static.cloudflarestorage.com/beacon.min.js"
+            data-cf-beacon={`{"token": "${token}"}`}
+          />
+        )}
+      </head>
       <body className="min-h-full flex flex-col">
         <CategoryProvider>
           <AudioProvider>

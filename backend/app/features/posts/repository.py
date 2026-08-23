@@ -28,7 +28,7 @@ async def list_public(session: AsyncSession) -> list[Post]:
 async def list_by_collection(session: AsyncSession, collection: PostCollection) -> list[Post]:
     stmt = (
         select(Post)
-        .where(public_filter(Post), Post.collections.any(collection))
+        .where(public_filter(Post), Post.collections.contains([collection]))
         .options(selectinload(Post.topic_tags))
         .order_by(Post.published_date.desc().nullslast(), Post.sort_order.asc())
     )

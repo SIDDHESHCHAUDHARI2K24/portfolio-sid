@@ -38,6 +38,7 @@ class ProjectPublic(BaseModel):
     sort_order: int
     created_at: datetime
     updated_at: datetime
+    is_pinned: bool = False
     topic_tags: list[TagRef] = []
     attachments: list[AttachmentRef] = []
 
@@ -60,6 +61,7 @@ class ProjectCreate(BaseModel):
     audience_override: list[str] | None = None
     status: str = "draft"
     publish_at: datetime | None = None
+    is_pinned: bool = False
 
 
 class ProjectUpdate(BaseModel):
@@ -73,6 +75,7 @@ class ProjectUpdate(BaseModel):
     audience_override: list[str] | None = None
     status: str | None = None
     publish_at: datetime | None = None
+    is_pinned: bool | None = None
 
 
 class AttachmentCreate(BaseModel):

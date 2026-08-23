@@ -16,12 +16,13 @@ export function buildTimelineTile(entries: Entry[]): Tile {
     };
   }
 
-  const latest = entries[0];
+  const pinned = entries.find((e) => (e as Entry).is_pinned);
+  const display = pinned ?? entries[0];
 
   return {
     id: "timeline",
     title: "Timeline",
-    summary: latest.summary ?? `${latest.title} at ${latest.organisation}`,
+    summary: display.summary ?? `${display.title} at ${display.organisation}`,
     href: "/timeline",
     audiences: [],
     priority: 20,

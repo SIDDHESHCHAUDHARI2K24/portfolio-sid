@@ -9,7 +9,16 @@ type TagMapResponse = { [key: string]: string[] };
 
 export const metadata: Metadata = {
   title: "Projects — Siddhesh Chaudhari",
+  description: "Software projects, tools, and experiments — from full-stack apps to AI integrations.",
   alternates: { canonical: "/projects" },
+  openGraph: {
+    title: "Projects — Siddhesh Chaudhari",
+    description: "Software projects, tools, and experiments — from full-stack apps to AI integrations.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function ProjectsPage() {

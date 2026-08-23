@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiFetch, ApiError } from '@/lib/api'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ import { LockIcon } from 'lucide-react'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [password, setPassword] = useState('')
 
   const mutation = useMutation({
@@ -19,6 +20,7 @@ export default function LoginPage() {
         body: JSON.stringify({ password: pw }),
       }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] })
       navigate('/login/verify')
     },
   })

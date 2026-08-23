@@ -5,7 +5,16 @@ const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "1x00000000000000
 
 export const metadata: Metadata = {
   title: "Dealflow — Siddhesh Chaudhari",
+  description: "Investor introductions — share your firm and focus area for direct review.",
   alternates: { canonical: "/dealflow" },
+  openGraph: {
+    title: "Dealflow — Siddhesh Chaudhari",
+    description: "Investor introductions — share your firm and focus area for direct review.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default function DealflowPage() {

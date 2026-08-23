@@ -49,7 +49,7 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Published
             </CardTitle>
-            <span className="size-2 rounded-full bg-green-500" />
+            <span className="size-2 rounded-full bg-primary" />
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{isLoading ? '...' : stats.published}</p>
@@ -60,7 +60,7 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Drafts
             </CardTitle>
-            <span className="size-2 rounded-full bg-amber-500" />
+            <span className="size-2 rounded-full bg-muted-foreground" />
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{isLoading ? '...' : stats.draft}</p>
@@ -71,7 +71,7 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Scheduled
             </CardTitle>
-            <span className="size-2 rounded-full bg-blue-500" />
+            <span className="size-2 rounded-full bg-border" />
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{isLoading ? '...' : stats.scheduled}</p>

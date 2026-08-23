@@ -9,7 +9,16 @@ type TagMapResponse = { [key: string]: string[] };
 
 export const metadata: Metadata = {
   title: "Tech Rabbithole — Siddhesh Chaudhari",
+  description: "Deep dives into engineering problems, architecture decisions, and what broke in production.",
   alternates: { canonical: "/tech-rabbithole" },
+  openGraph: {
+    title: "Tech Rabbithole — Siddhesh Chaudhari",
+    description: "Deep dives into engineering problems, architecture decisions, and what broke in production.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function TechRabbitholePage() {

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -9,8 +10,22 @@ const nextConfig: NextConfig = {
         hostname: "media.siddhesh-chaudhari.com",
         pathname: "/**",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "9000",
+        pathname: "/**",
+      },
     ],
   },
 };
 
-export default nextConfig;
+const sentryConfig = withSentryConfig(nextConfig, {
+  org: "",
+  project: "",
+  silent: true,
+  telemetry: false,
+  disableLogger: true,
+});
+
+export default process.env.GLITCHTIP_DSN ? sentryConfig : nextConfig;

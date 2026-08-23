@@ -13,13 +13,12 @@ import json
 import sys
 from pathlib import Path
 
-_backend_root = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(_backend_root))
-
-from app.app import create_app
-
 
 def main() -> None:
+    _backend_root = Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(_backend_root))
+    from app.app import create_app  # import requires the path insert above
+
     app = create_app()
     schema = app.openapi()
     out = _backend_root / "openapi.json"

@@ -16,7 +16,16 @@ const SECTION_CONFIG: Record<string, { label: string; showPerSkillIcon: boolean 
 
 export const metadata: Metadata = {
   title: "Skills — Siddhesh Chaudhari",
+  description: "Technical and business skills — languages, frameworks, AI, data, tools, and strategy.",
   alternates: { canonical: "/skills" },
+  openGraph: {
+    title: "Skills — Siddhesh Chaudhari",
+    description: "Technical and business skills — languages, frameworks, AI, data, tools, and strategy.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function SkillsPage() {

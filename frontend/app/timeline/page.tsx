@@ -10,7 +10,16 @@ type TagMapResponse = paths["/api/v1/relevance/map"]["get"]["responses"]["200"][
 
 export const metadata: Metadata = {
   title: "Timeline — Siddhesh Chaudhari",
+  description: "Career timeline — education, experience, and professional milestones.",
   alternates: { canonical: "/timeline" },
+  openGraph: {
+    title: "Timeline — Siddhesh Chaudhari",
+    description: "Career timeline — education, experience, and professional milestones.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function TimelinePage() {

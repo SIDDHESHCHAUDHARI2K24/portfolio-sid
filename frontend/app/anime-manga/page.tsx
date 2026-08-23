@@ -8,7 +8,16 @@ type Item = paths["/api/v1/collections"]["get"]["responses"]["200"]["content"]["
 
 export const metadata: Metadata = {
   title: "Anime & Manhwa — Siddhesh Chaudhari",
+  description: "Anime and manhwa collections with ratings and recommendations.",
   alternates: { canonical: "/anime-manga" },
+  openGraph: {
+    title: "Anime & Manhwa — Siddhesh Chaudhari",
+    description: "Anime and manhwa collections with ratings and recommendations.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function AnimeMangaPage() {

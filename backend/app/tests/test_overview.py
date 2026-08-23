@@ -18,21 +18,21 @@ SEED_AUDIENCES = VALID_AUDIENCES
 
 async def _seed_overview(session: AsyncSession) -> None:
     """Insert one published row per audience if none exist."""
-    existing = {r for r in (await session.execute(
-        select(OverviewIntro.audience)
-    )).scalars().all()}
+    existing = {r for r in (await session.execute(select(OverviewIntro.audience))).scalars().all()}
     missing = [a for a in SEED_AUDIENCES if a not in existing]
     if not missing:
         return
     now = datetime.now(UTC)
     for aud in missing:
-        session.add(OverviewIntro(
-            audience=aud,
-            headline=f"Siddhesh Chaudhari — {aud.title()}",
-            body=f"Welcome! This is the **{aud}** view.",
-            status=PublishStatus.PUBLISHED,
-            published_at=now,
-        ))
+        session.add(
+            OverviewIntro(
+                audience=aud,
+                headline=f"Siddhesh Chaudhari — {aud.title()}",
+                body=f"Welcome! This is the **{aud}** view.",
+                status=PublishStatus.PUBLISHED,
+                published_at=now,
+            )
+        )
     await session.commit()
 
 
@@ -88,6 +88,7 @@ async def test_get_by_audience_public(client: AsyncClient, session: AsyncSession
 
 async def test_public_filter_leak_guard(session: AsyncSession) -> None:
     import uuid as _uuid
+
     now = datetime.now(UTC)
     draft_aud = f"_leak_draft_{_uuid.uuid4().hex[:8]}"
     future_aud = f"_leak_future_{_uuid.uuid4().hex[:8]}"
@@ -115,7 +116,8 @@ async def test_public_filter_leak_guard(session: AsyncSession) -> None:
 
     visible = set(
         (await session.execute(select(OverviewIntro.id).where(public_filter(OverviewIntro))))
-        .scalars().all()
+        .scalars()
+        .all()
     )
 
     assert published.id in visible

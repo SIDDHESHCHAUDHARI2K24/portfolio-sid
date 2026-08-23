@@ -15,7 +15,16 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
   title: "Contact — Siddhesh Chaudhari",
+  description: "Get in touch — email, LinkedIn, booking a call, and resume downloads.",
   alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "Contact — Siddhesh Chaudhari",
+    description: "Get in touch — email, LinkedIn, booking a call, and resume downloads.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function ContactPage() {

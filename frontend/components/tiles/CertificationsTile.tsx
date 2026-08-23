@@ -16,15 +16,17 @@ export function buildCertificationsTile(certs: Cert[]): Tile {
     };
   }
 
-  const latest = certs
+  const pinned = certs.find((c) => c.is_pinned);
+  const sorted = certs
     .slice()
-    .sort((a, b) => new Date(b.issued_date).getTime() - new Date(a.issued_date).getTime())[0];
+    .sort((a, b) => new Date(b.issued_date).getTime() - new Date(a.issued_date).getTime());
+  const display = pinned ?? sorted[0];
 
   return {
     id: "certifications",
     title: "Certifications",
-    summary: latest
-      ? `${latest.title} from ${latest.issuer}`
+    summary: display
+      ? `${display.title} from ${display.issuer}`
       : `${certs.length} certifications`,
     href: "/certifications",
     audiences: ["recruiters", "techies", "investors", "founders"],

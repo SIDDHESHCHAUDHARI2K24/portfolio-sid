@@ -20,6 +20,7 @@ class CollectionItemPublic(BaseModel):
     status: str | None
     note: str | None
     sort_order: int
+    is_pinned: bool = False
     created_at: datetime
     updated_at: datetime
 
@@ -43,6 +44,7 @@ class CollectionItemCreate(BaseModel):
     sort_order: int = 0
     publish_status: str = "draft"
     publish_at: datetime | None = None
+    is_pinned: bool = False
 
 
 class CollectionItemUpdate(BaseModel):
@@ -58,6 +60,7 @@ class CollectionItemUpdate(BaseModel):
     sort_order: int | None = None
     publish_status: str | None = None
     publish_at: datetime | None = None
+    is_pinned: bool | None = None
 
 
 class CoverLookupRequest(BaseModel):

@@ -9,7 +9,16 @@ type TagMapResponse = { [key: string]: string[] };
 
 export const metadata: Metadata = {
   title: "How I Use AI — Siddhesh Chaudhari",
+  description: "Tools, workflows, and prompts — practical AI use for engineering and beyond.",
   alternates: { canonical: "/how-i-use-ai" },
+  openGraph: {
+    title: "How I Use AI — Siddhesh Chaudhari",
+    description: "Tools, workflows, and prompts — practical AI use for engineering and beyond.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function HowIUseAiPage() {

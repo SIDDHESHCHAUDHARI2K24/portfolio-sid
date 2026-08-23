@@ -14,6 +14,7 @@ class OverviewIntroPublic(BaseModel):
     hero_image_key: str | None
     cta_label: str | None
     cta_url: str | None
+    is_pinned: bool = False
     created_at: datetime
     updated_at: datetime
 
@@ -33,6 +34,7 @@ class OverviewIntroCreate(BaseModel):
     cta_url: str | None = None
     status: str = "draft"
     publish_at: datetime | None = None
+    is_pinned: bool = False
 
 
 class OverviewIntroUpdate(BaseModel):
@@ -43,3 +45,4 @@ class OverviewIntroUpdate(BaseModel):
     cta_url: str | None = None
     status: str | None = None
     publish_at: datetime | None = None
+    is_pinned: bool | None = None

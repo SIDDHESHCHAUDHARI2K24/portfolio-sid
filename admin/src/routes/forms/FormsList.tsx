@@ -1,10 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
 import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select } from '@/components/ui/select'
-import { DownloadIcon, ExternalLinkIcon, MailCheckIcon, EyeIcon } from 'lucide-react'
+import { DownloadIcon, MailCheckIcon, EyeIcon } from 'lucide-react'
 import { useState } from 'react'
 
 interface Submission {
@@ -224,7 +223,7 @@ function DetailView({ item }: { item: Submission }) {
           Consent
         </h3>
         <p className="text-sm">
-          <span className={item.consent_given ? 'text-green-600' : 'text-destructive'}>
+          <span className={item.consent_given ? 'text-primary' : 'text-destructive'}>
             {item.consent_given ? 'Given' : 'Not given'}
           </span>
         </p>
