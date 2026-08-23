@@ -30,21 +30,19 @@ const MORPH_SETTLE_MS = 300; // accounts for shared layout morph animation settl
 export default function IntroOverlay() {
   const { setCategory, clear } = useCategory();
   const reducedMotion = useReducedMotion();
-  const [phase, setPhase] = useState<"intro" | "selector" | "done">(() => {
-    if (typeof window === "undefined") return "intro";
-    if (sessionStorage.getItem("intro-seen") === "true") return "done";
-    return "intro";
-  });
+  // null = unknown until mounted. Never read sessionStorage during render:
+  // an SSR/client divergence here makes React abandon the subtree, leaving
+  // the SSR overlay orphaned on top of the page (observed in e2e).
+  const [phase, setPhase] = useState<"intro" | "selector" | "done" | null>(
+    null
+  );
   const [wordIndex, setWordIndex] = useState(-1);
   const [counter, setCounter] = useState(0);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
     const seen = sessionStorage.getItem("intro-seen") === "true";
-    if (reducedMotion || seen) {
-      setPhase("done");
-      return;
-    }
+    if (seen || reducedMotion) setPhase("done");
+    else setPhase("intro");
   }, [reducedMotion]);
 
   useEffect(() => {
@@ -115,8 +113,15 @@ export default function IntroOverlay() {
     [setCategory, clear]
   );
 
-  const showOverlay = phase !== "done";
+  const showOverlay = phase === "intro" || phase === "selector";
   const showIntro = phase === "intro";
+
+  // Opaque cover while the real phase resolves post-mount. Same output on
+  // server and client, so hydration adopts it cleanly; prevents a flash of
+  // the page beneath before sessionStorage is known.
+  if (phase === null) {
+    return <div className="fixed inset-0 z-[100] bg-background" aria-hidden="true" />;
+  }
 
   return (
     <AnimatePresence>

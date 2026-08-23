@@ -111,6 +111,7 @@ export default function DealflowForm({ siteKey, consentText }: Props) {
         name="_hpt"
         tabIndex={-1}
         autoComplete="off"
+        aria-hidden="true"
         style={{ position: "absolute", left: "-9999px", opacity: 0 }}
         onChange={() => {}}
       />

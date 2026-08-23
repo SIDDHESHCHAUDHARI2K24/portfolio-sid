@@ -1,6 +1,18 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 const ADMIN_URL = "http://localhost:5200";
+
+/**
+ * Navigate as a returning visitor: pre-set the intro-seen flag so the
+ * intro/category gate doesn't cover the page. Tests that exercise the gate
+ * itself (Journey 1) should not use this.
+ */
+async function gotoReturning(page: Page, url: string) {
+  await page.addInitScript(() => {
+    sessionStorage.setItem("intro-seen", "true");
+  });
+  await page.goto(url);
+}
 
 /* ------------------------------------------------------------------ */
 /* Journey 1: First Visit — Intro → Select Category → Overview        */
@@ -80,11 +92,12 @@ test.describe("Journey 3: Category Switch via HUD", () => {
   test("switch to Recruiters category, timeline re-renders with filtered entries", async ({
     page,
   }) => {
-    await page.goto("/timeline");
-    await page.waitForLoadState("networkidle");
+    await gotoReturning(page, "/timeline");
 
     // page heading is visible
-    await expect(page.getByText("Timeline")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole("heading", { name: "Timeline" })).toBeVisible({
+      timeout: 10000,
+    });
 
     // open HUD category selector
     const hudButton = page.getByLabel("Toggle category selector");
@@ -117,9 +130,12 @@ test.describe("Journey 3: Category Switch via HUD", () => {
 /* Journey 4: Admin — Login → Create Draft → Publish → Verify         */
 /* ------------------------------------------------------------------ */
 test.describe("Journey 4: Admin Flow", () => {
+  // Requires the admin SPA (:5200), backend (:8000) and credentials. Runs
+  // only when explicitly provisioned (local pairing); CI skips until that
+  // infra exists there.
   test.skip(
-    !process.env.CI,
-    "Skipped by default — requires admin (port 5200) and backend (port 8000) running"
+    !process.env.E2E_ADMIN_PASSWORD && !process.env.E2E_TEST_PASSWORD,
+    "Requires admin (port 5200) + backend (port 8000) running and E2E_ADMIN_PASSWORD/E2E_TEST_PASSWORD set"
   );
 
   test("login, create draft timeline entry, publish, verify on public page", async ({
@@ -235,19 +251,21 @@ test.describe("Journey 5: Form Submission Pages", () => {
   test("contact page shows email, LinkedIn, Cal.com links", async ({
     page,
   }) => {
-    await page.goto("/contact");
-    await page.waitForLoadState("networkidle");
+    await gotoReturning(page, "/contact");
 
-    await expect(page.getByText("Contact")).toBeVisible({ timeout: 10000 });
-
-    // email section
-    await expect(page.getByText("Email")).toBeVisible();
     await expect(
-      page.getByText("siddhesh@example.com")
-    ).toBeVisible();
+      page.getByRole("heading", { name: "Contact" })
+    ).toBeVisible({ timeout: 10000 });
+
+    // email section — scoped to the heading: the form below also has an
+    // "Email" label, which makes unscoped getByText ambiguous.
+    await expect(page.getByRole("heading", { name: "Email" })).toBeVisible();
+    await expect(page.getByText("siddhesh@example.com")).toBeVisible();
 
     // LinkedIn link
-    await expect(page.getByText("LinkedIn")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "LinkedIn" })
+    ).toBeVisible();
     await expect(
       page.getByRole("link", { name: /linkedin\.com\/in\/siddheshchaudhari/i })
     ).toBeVisible();
@@ -262,10 +280,12 @@ test.describe("Journey 5: Form Submission Pages", () => {
   test("dealflow page shows consent checkbox and Turnstile widget", async ({
     page,
   }) => {
-    await page.goto("/dealflow");
-    await page.waitForLoadState("networkidle");
+    await gotoReturning(page, "/dealflow");
 
-    await expect(page.getByText("Dealflow")).toBeVisible({ timeout: 10000 });
+    // scoped to the heading: the consent text also contains "Dealflow"
+    await expect(
+      page.getByRole("heading", { name: "Dealflow" })
+    ).toBeVisible({ timeout: 10000 });
 
     // consent checkbox is present (type=checkbox within a label)
     const consentCheckbox = page.locator('label input[type="checkbox"]');
