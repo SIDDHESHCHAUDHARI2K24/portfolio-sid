@@ -7,7 +7,7 @@
 | **Executor** | agent (parallelizable by feature) |
 | **Depends on** | S2_T02 (committed baseline; docs describe real code) |
 | **Blocks** | nothing (independent); improves every later review |
-| **Status** | ⏳ PENDING |
+| **Status** | DONE — 841aa4b; 14 feature docs + policy note |
 
 ## Purpose
 User requirement: every feature/function/file carries a docstring, and each feature has a markdown doc explaining purpose, data flow and functionality with mermaid diagrams. Scope decision (user-approved): **public API surface** — modules, classes, public functions/methods across backend features + frontend lib/config + admin shared components — not private helpers or tests.

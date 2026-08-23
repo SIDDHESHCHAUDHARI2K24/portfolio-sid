@@ -8,7 +8,7 @@
 | **Canonical cards** | `development_plan/todos/p0/TD-12-ci-quality-tests.md`, `TD-13-ci-contract-checks.md` (steps NOT duplicated here) |
 | **Depends on** | S2_T02 (green baseline committed); remote push enabled |
 | **Blocks** | S2_T06 (e2e/deploy extend this pipeline) |
-| **Status** | ⏳ PENDING |
+| **Status** | DONE (see post-development record) |
 
 ## Purpose
 Every gate that was run by hand in S2_T01 must become a pull-request gate so regressions cannot silently land. This is the single highest-leverage automation gap in the project: `.github/workflows/` does not exist yet.

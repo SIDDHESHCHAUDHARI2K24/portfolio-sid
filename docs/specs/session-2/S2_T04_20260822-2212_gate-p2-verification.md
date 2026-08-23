@@ -7,7 +7,7 @@
 | **Executor** | agent (scriptable items) + user (real-device item) |
 | **Depends on** | S2_T02 (P3 code committed; gates run against final code) |
 | **Blocks** | TD-36 launch work in session 3/4 |
-| **Status** | ⏳ PENDING |
+| **Status** | 🔶 SCRIPTED PORTION DONE — 9/12 criteria green against production build; see `docs/post-development/session-2/gate-p2-evidence.md` (remaining: CI e2e first run after push auth · real-device PDF check · post-content re-run of pdf/email checks) |
 
 ## Purpose
 `GATE-P2` was declared closed by the original session 4 without recorded evidence. The P3 plan makes tile registration the entry condition for convergence, so all 13 exit criteria must be demonstrably true before launch tasks proceed. Evidence-before-claims.

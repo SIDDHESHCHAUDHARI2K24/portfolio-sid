@@ -50,13 +50,13 @@
 ### Wave 4 — CI/CD + infra deploy
 | ID | Title | Exec | Deps | Status |
 |---|---|---|---|---|
-| TD-12 | CI: ruff/mypy/ESLint/tsc + unit tests (codegraph-scoped) | agent | TD-03..05, TD-01 | [ ] |
-| TD-13 | CI: OpenAPI drift + Alembic single-head | agent | TD-12, TD-07 | [ ] |
-| TD-14 | react-doctor install+baseline+PR gate; Playwright E2E; SSR curl check in CI | agent | TD-12, TD-09 | [ ] |
+| TD-12 | CI: ruff/mypy/ESLint/tsc + unit tests (codegraph-scoped) | agent | TD-03..05, TD-01 | [x] workflows committed fda09a0; first remote run pending push auth |
+| TD-13 | CI: OpenAPI drift + Alembic single-head | agent | TD-12, TD-07 | [x] in ci.yml contract job; same caveat |
+| TD-14 | react-doctor install+baseline+PR gate; Playwright E2E; SSR curl check in CI | agent | TD-12, TD-09 | [~] e2e.yml committed 2b4685a (journeys+a11y); react-doctor gate + visual suite deferred |
 | TD-M4 | Railway: Postgres + backend/frontend/cron services | paired | TD-09, TD-M2 | [~] railway CLI logged in; services not provisioned |
 | TD-M5 | Railway auto-deploy OFF + RAILWAY_TOKEN env secret | user | TD-M4 | [ ] |
 | TD-M6 | Cloudflare Tunnel + Access (env-gated, single hostname) | paired | TD-M1, TD-M4 | [ ] |
-| TD-15 | Deploy workflow + production environment approval | agent | TD-M5, TD-14 | [ ] |
+| TD-15 | Deploy workflow + production environment approval | agent | TD-M5, TD-14 | [x] deploy.yml committed 2b4685a; activation needs RAILWAY_TOKEN + TD-M4/M5 |
 
 **GATE-P0** — `p0/GATE-P0.md` exit checklist
 

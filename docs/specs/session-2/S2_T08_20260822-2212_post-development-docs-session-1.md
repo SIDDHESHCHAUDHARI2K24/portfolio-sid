@@ -7,7 +7,7 @@
 | **Executor** | agent |
 | **Depends on** | each task's completion (rolling) |
 | **Blocks** | S2_T09 handoff (links these) |
-| **Status** | ⏳ PENDING (partially seeded: session-1 report already written in S2_T03) |
+| **Status** | DONE — records for T04..T07 + session-2-summary |
 
 ## Purpose
 User requirement: every task developed gets post-development documentation under `docs/post-development/session-<n>/`, recording what was actually built versus planned, with the same rigour as the spec.
