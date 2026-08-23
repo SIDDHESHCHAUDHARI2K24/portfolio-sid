@@ -49,6 +49,7 @@ jobs:
         run: |
           uv sync --frozen
           uv run alembic upgrade head
+          uv run python scripts/seed_e2e.py
           nohup uv run uvicorn app.app:create_app --factory --host 0.0.0.0 --port 8000 &
           for i in $(seq 1 30); do curl -sf http://localhost:8000/api/v1/overview >/dev/null && break; sleep 1; done
           curl -sf http://localhost:8000/api/v1/overview >/dev/null || { echo "::error::backend did not become ready"; exit 1; }
