@@ -26,7 +26,7 @@
 | To-Do | State | Evidence |
 |---|---|---|
 | TD-00 repo init | DONE | gitignore (incl. `opencode.json`, `.env*`), gitattributes, secrets never committed |
-| TD-01 agent tooling | DONE | caveman (project + global), graphify `--project` for opencode/claude/codex, codegraph init (index built) + telemetry off, superpowers enabled in Claude Code + opencode. **blackbox-cli intentionally NOT installed (user decision).** |
+| TD-01 agent tooling | DONE | graphify `--project` for opencode/claude/codex, codegraph init (index built) + telemetry off, superpowers enabled in Claude Code + opencode. **blackbox-cli intentionally NOT installed (user decision).** |
 | TD-02 docs + conventions | DONE | `docs/` full set; `docs/conventions.md` holds all 15 invariants + contention protocol |
 | TD-03 backend scaffold | DONE | `create_app()` factory, `/health` + `/api/v1/health`, Settings (pydantic-settings), async engine/session, ruff+mypy strict config |
 | TD-04 Next.js scaffold | DONE | standalone output, `NEXT_PUBLIC_INDEXABLE=false` → noindex robots (invariant 13), `scripts/check_ssr.sh`, static `/` verified via curl |
@@ -94,7 +94,7 @@ Cards fully written (`todos/p2/`, `todos/p3/`) but untouched. Start P2 with **TD
 7. **StorageAdapter is sync** (boto3 is sync) — documented in module.
 8. **Static admin serving via catch-all route, not StaticFiles mount** — avoids the mount-order trap entirely; `/api/*` still 404s correctly.
 9. **Stitch key** stored only in local `.env` (gitignored); `.mcp.json` committed with env expansion.
-10. **Caveman** project-level installed (AGENTS.md carries it); responses in future sessions should stay terse per that config.
+10. **Agent instructions** in AGENTS.md; responses should stay concise and to the point.
 11. **Test DB strategy** — real `portfolio_test` Postgres DB, schema from registry metadata, never mock query logic. Seeds from migrations are NOT present in the test DB (metadata.create_all doesn't run migrations) — integration tests insert their own fixtures.
 
 ## 6. Mistakes hit & resolutions (do not repeat)
@@ -126,7 +126,7 @@ Cards fully written (`todos/p2/`, `todos/p3/`) but untouched. Start P2 with **TD
 4. Backend commands run from `backend/`; local services via `docker compose up -d` from repo root.
 5. Update the card's status in `todos/README.md` after each To-Do.
 6. Never commit secrets; never echo key values; `.env` files stay gitignored.
-7. Terse output (caveman config active in AGENTS.md).
+7. Concise output per AGENTS.md conventions.
 
 ## 9. Watch-list for future work
 

@@ -20,7 +20,7 @@
 | ID | Title | Exec | Deps | Status |
 |---|---|---|---|---|
 | TD-00 | Repo init + git hygiene + secrets guardrails | agent | — | [x] |
-| TD-01 | Agent tooling: caveman, graphify, codegraph, superpowers | agent | TD-00 | [x] |
+| TD-01 | Agent tooling: graphify, codegraph, superpowers | agent | TD-00 | [x] |
 | TD-02 | Canonical docs set + conventions + pointer files | agent | TD-00 | [x] |
 | TD-M1 | Verify Cloudflare zone active; record renewal/WHOIS | user | — | [~] domain bought + NS delegated; zone-Active check + renewal record pending |
 

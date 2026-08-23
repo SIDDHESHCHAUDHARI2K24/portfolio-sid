@@ -236,7 +236,7 @@ e286656 feat(p2): collections + prose — cover pipeline, books/anime, prose pag
 - **R2 credentials not configured** — `TD-M2` pending. StorageAdapter works with MinIO locally
 - **Turnstile keys** — `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` need config
 - **Railway services not provisioned** — `TD-M4..M6` pending
-- **GitHub auth used single-use PAT** — Token `REDACTED-PAT` was used for this session's push. Rotate or switch to SSH for future sessions
+- **GitHub auth used single-use PAT** — A personal access token was used for this session's push. It has been revoked; switch to SSH or a scoped fine-grained token for future sessions. (Token value removed from this document for security.)
 
 ### Deferred findings (from this session)
 1. Drag-to-reorder not implemented for Skills admin (manual sort_order inputs work)

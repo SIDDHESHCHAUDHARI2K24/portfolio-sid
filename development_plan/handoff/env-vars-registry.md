@@ -22,6 +22,7 @@ References only — **no secret values in this file**. `STITCH_API_KEY` lives ON
 | `CF_ACCESS_TEAM_DOMAIN` | `<team>.cloudflareaccess.com` (JWKS at `/cdn-cgi/access/certs`) | TD-M6 | TD-17 |
 | `CF_ACCESS_AUD` | Access application AUD tag | TD-M6 | TD-17 |
 | `SENTRY_DSN` | Backend error tracking (gap G11) | TD-36 | TD-36 |
+| `GLITCHTIP_DSN` | **GlitchTip** (open-source Sentry-compatible) DSN for error tracking on both backend + frontend. Set to a GlitchTip instance DSN on Railway. | TD-36 | TD-36 new `app/core/glitchtip.py`, frontend sentry configs |
 | `REVALIDATION_SECRET` | Shared secret for the Next.js revalidate route; backend sends it in the webhook header | TD-M4 | TD-19 (sender side) |
 
 ## Frontend service (Railway)

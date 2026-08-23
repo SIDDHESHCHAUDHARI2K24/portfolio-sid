@@ -44,10 +44,10 @@ across Timeline and Projects — corrupting the relevance engine site-wide.
 - Every external link carries `rel="noopener noreferrer"`
 
 ## Acceptance Criteria
-- [ ] C.T1–C.T4 acceptance criteria above all green
-- [ ] `collections` enum array and `topic_tags` M2M are separate relationships in the schema
-- [ ] Migration regenerated against latest main; single head
-- [ ] Registry check passes
+- [x] C.T1–C.T4 acceptance criteria above all green
+- [x] `collections` enum array and `topic_tags` M2M are separate relationships in the schema
+- [x] Migration regenerated against latest main; single head
+- [x] Registry check passes
 
 ## Verify
 `curl -s localhost:3000/tech-rabbithole && curl -s localhost:3000/how-i-use-ai && curl -s localhost:3000/thesis && (cd backend && uv run alembic heads) && uv run scripts/check_registries.py`

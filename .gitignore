@@ -19,6 +19,10 @@ dist/
 .turbo/
 *.tsbuildinfo
 
+# playwright artifacts (baselines under tests/*-snapshots/ stay tracked)
+playwright-report/
+test-results/
+
 # databases & dumps
 *.db
 *.sqlite
