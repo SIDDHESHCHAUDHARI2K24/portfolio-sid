@@ -1,0 +1,54 @@
+name: Deploy
+
+# Gated production deploy. Activation prerequisites (user-side, TD-M4/M5):
+#   1. Railway services provisioned (Postgres, backend, frontend, cron)
+#   2. RAILWAY_TOKEN set as a GitHub secret on the `production` environment
+# Until both exist this workflow only runs via manual dispatch for dry-runs.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Check gates without deploying"
+        default: "true"
+        type: boolean
+
+jobs:
+  deploy:
+    name: Deploy to Railway (production environment)
+    runs-on: ubuntu-latest
+    environment: production # requires manual approval once configured in repo settings
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify release gates
+        run: |
+          echo "Gates that must be green before this deploy:"
+          echo " - CI workflow green on the deployed SHA"
+          echo " - E2E workflow green on the deployed SHA"
+          echo "(branch protection should require both; this job deploys main HEAD)"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy backend + admin container
+        if: ${{ inputs.dry_run != true }}
+        working-directory: backend
+        run: railway up --service backend --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Deploy frontend
+        if: ${{ inputs.dry_run != true }}
+        working-directory: frontend
+        run: railway up --service frontend --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Dry-run summary
+        if: ${{ inputs.dry_run == true }}
+        run: echo "Dry run — verified checkout and CLI availability. Set RAILWAY_TOKEN + provision services (TD-M4/M5) to enable real deploys."

@@ -26,10 +26,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
+    // CI runs the production build (TD-36.S5 contract); dev server locally.
+    command: process.env.CI ? 'npm run start' : 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
+    timeout: 60_000,
   },
   expect: {
     toHaveScreenshot: {

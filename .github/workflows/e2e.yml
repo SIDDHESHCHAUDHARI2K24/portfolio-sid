@@ -1,0 +1,81 @@
+name: E2E
+
+on:
+  pull_request:
+    paths:
+      - "frontend/**"
+      - "backend/**"
+      - ".github/workflows/e2e.yml"
+  push:
+    branches: [main]
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Playwright — journeys + a11y (production build)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: portfolio
+          POSTGRES_PASSWORD: portfolio
+          POSTGRES_DB: portfolio
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U portfolio"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio
+      STORAGE_KIND: local
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+      # Turnstile is mocked/absent in tests; forms render without a site key.
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Backend — deps + migrate + serve
+        working-directory: backend
+        run: |
+          uv sync --frozen
+          uv run alembic upgrade head
+          nohup uv run uvicorn app.app:create_app --factory --host 0.0.0.0 --port 8000 &
+          for i in $(seq 1 30); do curl -sf http://localhost:8000/api/v1/overview >/dev/null && break; sleep 1; done
+          curl -sf http://localhost:8000/api/v1/overview >/dev/null || { echo "::error::backend did not become ready"; exit 1; }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Frontend — install + production build
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Playwright — browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      # Visual baselines are darwin-captured and content-dependent (re-capture
+      # scheduled after TD-36.S6 authoring), so CI asserts the functional
+      # suites only. Pixel suites stay a local gate until linux baselines land.
+      - name: Run journeys + accessibility suites
+        working-directory: frontend
+        run: npx playwright test tests/journeys tests/accessibility
+
+      - name: Upload trace artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: frontend/test-results/
+          retention-days: 7
