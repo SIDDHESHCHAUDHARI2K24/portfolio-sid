@@ -6,6 +6,14 @@ The architectural contract. Every agent and every phase inherits these. Violatio
 - Production: `siddhesh-chaudhari.com` · Admin: `admin.siddhesh-chaudhari.com` (Tunnel + Access, single hostname for SPA + `/api/*`) · Media: `media.siddhesh-chaudhari.com` (R2 custom domain)
 - Domain renewal price and backup policy recorded here when confirmed (TD-M1, TD-M4).
 
+### Domain registrar facts (TD-M1, 2026-08-28)
+- **Zone status:** Active in Cloudflare dashboard (confirmed).
+- **Registrar:** Cloudflare Domains.
+- **Auto-renew:** enabled.
+- **WHOIS privacy:** included (Cloudflare Domains default).
+- **Renewal price:** `TBD` — owner to confirm in Cloudflare Domains dashboard and replace this
+  placeholder. Price is a dashboard fact only; never committed as a secret.
+
 ## Invariants
 
 ### 1. Overlay, never replacement (Critical)
