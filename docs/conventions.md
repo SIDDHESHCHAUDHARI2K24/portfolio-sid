@@ -3,7 +3,7 @@
 The architectural contract. Every agent and every phase inherits these. Violations are mostly silent in a browser — that is why they are written here.
 
 ## Domain & hosts
-- Production: `siddhesh-chaudhari.com` · Admin: `admin.siddhesh-chaudhari.com` (Tunnel + Access, single hostname for SPA + `/api/*`) · Media: `media.siddhesh-chaudhari.com` (R2 custom domain)
+- Production: `siddhesh-chaudhari.com` · Admin: `admin.siddhesh-chaudhari.com` (Railway custom domain; single hostname for SPA + `/api/*`; Cloudflare Tunnel/Access dropped) · Media: served by backend at `admin.siddhesh-chaudhari.com/media` (Railway Volume; R2 dropped)
 - Domain renewal price and backup policy recorded here when confirmed (TD-M1, TD-M4).
 
 ### Domain registrar facts (TD-M1, 2026-08-28)
@@ -75,7 +75,7 @@ code outside the two token-definition files (`frontend/app/globals.css`,
 `NEXT_PUBLIC_INDEXABLE` defaults to `false`; the Railway hostname must never be indexed. Flip only in TD-36 after every route is verified on the custom domain.
 
 ### 14. Admin security posture
-`CORS_ALLOW_ORIGINS` is empty in production (same-origin by construction). Router-level `Depends(require_admin)` — never per-endpoint decorators. Turnstile `/siteverify` before any DB write; identical generic responses for accepted/discarded submissions. `pull_request_target` with a checkout of PR code is forever prohibited in CI.
+`CORS_ALLOW_ORIGINS` is empty in production (same-origin by construction — admin SPA + `/api/*` share one hostname, no Cloudflare Tunnel). Router-level `Depends(require_admin)` — never per-endpoint decorators. Honeypot + per-IP rate-limit before any DB write (replaces Turnstile); identical generic responses for accepted/discarded submissions. `pull_request_target` with a checkout of PR code is forever prohibited in CI.
 
 ### 15. Secrets
 Secrets live only in Railway env vars, GitHub `production` environment secrets, and local gitignored `.env`. Nothing secret ever enters git, logs, or response bodies. `.mcp.json` uses `${VAR}` expansion only.
