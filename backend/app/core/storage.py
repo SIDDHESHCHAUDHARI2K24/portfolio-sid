@@ -103,6 +103,7 @@ class LocalDiskStorage(StorageAdapter):
     """
 
     def __init__(self, settings: Settings) -> None:
+        self._settings = settings
         self._root = Path(settings.local_storage_dir)
 
     def _path(self, key: str) -> Path:
@@ -117,6 +118,9 @@ class LocalDiskStorage(StorageAdapter):
         path.write_bytes(data)
 
     def get_url(self, key: str) -> str:
+        base = self._settings.media_base_url
+        if base:
+            return f"{base.rstrip('/')}/media/{key}"
         return f"/media/{key}"
 
     def delete(self, key: str) -> None:

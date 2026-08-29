@@ -11,6 +11,7 @@ class ResumePublic(BaseModel):
     variant: str
     label: str
     file_key: str
+    file_url: str | None = None
     is_active: bool
     created_at: datetime
     updated_at: datetime

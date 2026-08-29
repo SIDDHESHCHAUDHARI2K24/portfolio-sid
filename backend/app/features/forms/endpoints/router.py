@@ -11,7 +11,6 @@ from app.core.cache_tags import FORMS
 from app.core.database import get_session
 from app.core.deps import admin_auth
 from app.core.revalidation import revalidate
-from app.core.turnstile import verify_turnstile
 from app.features.auth.utils import client_ip
 from app.features.forms import service
 from app.features.forms.models import FormType
@@ -54,22 +53,14 @@ async def submit_form(
     if honeypot:
         return GENERIC_SUCCESS
 
-    # 2. Turnstile verification
-    turnstile_token = body.get("turnstile_token", "")
-    if not turnstile_token:
-        return GENERIC_SUCCESS
-
     ip = client_ip(request)
-    turnstile_ok = await verify_turnstile(turnstile_token, remoteip=ip)
-    if not turnstile_ok:
-        return GENERIC_SUCCESS
 
-    # 3. Rate limit (in-memory: max 5 per IP per hour)
+    # 2. Rate limit (per-IP DB check: max 5 per IP per hour)
     rate_limit_ok = await _check_rate_limit(session, ip)
     if not rate_limit_ok:
         raise HTTPException(status_code=429, detail="Too many submissions. Please try again later.")
 
-    # 4. Database write
+    # 3. Database write
     consent_given = bool(body.get("consent_given", False))
     consent_text = str(body.get("consent_text", ""))
     submitter_email = body.get("email") or None
@@ -81,7 +72,6 @@ async def submit_form(
         if k
         not in {
             "_hpt",
-            "turnstile_token",
             "consent_given",
             "consent_text",
             "email",

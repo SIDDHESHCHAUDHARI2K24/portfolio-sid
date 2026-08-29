@@ -139,6 +139,32 @@
         }
       }
     },
+    "/api/v1/auth/dev/otp": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Dev Otp",
+        "description": "Dev-only: return the most recently issued OTP so the local e2e admin\njourney can log in without a configured email provider. Gated on\nENVIRONMENT=development \u2014 returns 404 in every other mode so the endpoint\nis undetectable in production.",
+        "operationId": "dev_otp_api_v1_auth_dev_otp_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Dev Otp Api V1 Auth Dev Otp Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/logout": {
       "post": {
         "tags": [
@@ -3441,6 +3467,17 @@
             ],
             "title": "File Key"
           },
+          "file_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Url"
+          },
           "file_type": {
             "anyOf": [
               {
@@ -3723,6 +3760,17 @@
               }
             ],
             "title": "File Key"
+          },
+          "file_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Url"
           },
           "file_type": {
             "anyOf": [
@@ -6603,6 +6651,17 @@
             "type": "string",
             "title": "File Key"
           },
+          "file_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Url"
+          },
           "is_active": {
             "type": "boolean",
             "title": "Is Active"
@@ -6676,6 +6735,17 @@
           "file_key": {
             "type": "string",
             "title": "File Key"
+          },
+          "file_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Url"
           },
           "is_active": {
             "type": "boolean",
@@ -6801,6 +6871,17 @@
               }
             ],
             "title": "Icon Key"
+          },
+          "icon_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon Url"
           },
           "sort_order": {
             "type": "integer",
@@ -6934,6 +7015,17 @@
               }
             ],
             "title": "Icon Key"
+          },
+          "icon_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon Url"
           },
           "sort_order": {
             "type": "integer",

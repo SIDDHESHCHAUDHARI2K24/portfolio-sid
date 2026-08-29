@@ -46,3 +46,5 @@ custom domain needs the active zone.
 - Bucket-scoped tokens only; account-wide R2 tokens prohibited
 - r2.dev public URLs are never the production media path
 - Hostname mismatch is the classic silent Turnstile failure — register all three hostnames
+
+> **Cloudflare removal (2026-08-29):** R2, Turnstile, and CF Web Analytics are removed per `docs/handoff/HANDOFF-CLOUDFLARE-REMOVAL-PLAN.md`. Storage → backend `/media` + Railway Volume; captcha → honeypot + rate-limit; analytics → Umami. Current acceptance criteria live in that plan.

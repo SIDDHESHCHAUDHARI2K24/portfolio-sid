@@ -17,6 +17,7 @@ class SkillPublic(BaseModel):
     subsection: str | None
     icon_slug: str | None
     icon_key: str | None
+    icon_url: str | None = None
     sort_order: int
     created_at: datetime
     updated_at: datetime

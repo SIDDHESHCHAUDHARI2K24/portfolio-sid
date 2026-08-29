@@ -18,6 +18,7 @@ class Settings(BaseSettings):
 
     storage_kind: Literal["s3", "local"] = "s3"
     local_storage_dir: str = ".storage"
+    media_base_url: str | None = None
 
     r2_endpoint: str | None = None
     r2_access_key_id: str | None = None
@@ -28,9 +29,6 @@ class Settings(BaseSettings):
     resend_api_key: str | None = None
     resend_from: str = "portfolio@siddhesh-chaudhari.com"
     admin_email: str | None = None
-
-    turnstile_secret_key: str | None = None
-    turnstile_site_key: str | None = None
 
     session_secret: str = "dev-only-secret"
     admin_password_hash: str | None = None

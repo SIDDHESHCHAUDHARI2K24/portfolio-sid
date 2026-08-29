@@ -4,22 +4,19 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
 interface Props {
-  fileKey: string | null;
+  fileUrl: string | null;
   fileType: string | null;
   credentialUrl: string | null;
   title: string;
 }
 
-const R2_DOMAIN = "https://media.siddhesh-chaudhari.com";
-
-export default function CertViewer({ fileKey, fileType, credentialUrl, title }: Props) {
+export default function CertViewer({ fileUrl, fileType, credentialUrl, title }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [pdfInlineFailed, setPdfInlineFailed] = useState(false);
   const objectRef = useRef<HTMLObjectElement>(null);
 
-  const fileUrl = fileKey ? `${R2_DOMAIN}/${fileKey}` : null;
-  const hasPdf = fileType === "pdf" && fileUrl;
-  const hasImage = fileType === "image" && fileUrl;
+  const hasPdf = fileType === "pdf" && !!fileUrl;
+  const hasImage = fileType === "image" && !!fileUrl;
   const hasLink = !!credentialUrl;
 
   useEffect(() => {
@@ -63,7 +60,7 @@ export default function CertViewer({ fileKey, fileType, credentialUrl, title }: 
           {hasPdf && !pdfInlineFailed && (
             <object
               ref={objectRef}
-              data={fileUrl}
+              data={fileUrl ?? undefined}
               type="application/pdf"
               className="w-full"
               style={{ minHeight: 500 }}
@@ -80,7 +77,7 @@ export default function CertViewer({ fileKey, fileType, credentialUrl, title }: 
                 This device does not support inline PDF viewing.
               </p>
               <a
-                href={fileUrl}
+                href={fileUrl ?? undefined}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block text-sm font-medium text-primary hover:underline"
@@ -93,7 +90,7 @@ export default function CertViewer({ fileKey, fileType, credentialUrl, title }: 
           {hasImage && (
             <div className="relative w-full" style={{ minHeight: 300 }}>
               <Image
-                src={fileUrl}
+                src={fileUrl ?? ""}
                 alt={title}
                 fill
                 className="object-contain"

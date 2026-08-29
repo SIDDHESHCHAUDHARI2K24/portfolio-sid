@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.enums import Audience, PublishStatus
 from app.core.models import TopicTag
+from app.core.storage import get_storage
 from app.features.certifications import repository
 from app.features.certifications.models import CertFileType, Certification, CertKind
 from app.features.certifications.schemas import CertificationCreate, CertificationUpdate
@@ -26,6 +27,7 @@ def _cert_to_dict(cert: Certification) -> dict[str, object]:
         "expires_date": cert.expires_date,
         "credential_url": cert.credential_url,
         "file_key": cert.file_key,
+        "file_url": get_storage().get_url(cert.file_key) if cert.file_key else None,
         "file_type": _s(cert.file_type) if cert.file_type else None,
         "sort_order": cert.sort_order,
         "created_at": cert.created_at,

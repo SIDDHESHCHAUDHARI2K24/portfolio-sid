@@ -5,6 +5,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.storage import get_storage
 from app.features.resumes import repository
 from app.features.resumes.models import Resume, ResumeVariant
 from app.features.resumes.schemas import ResumeCreate, ResumeUpdate
@@ -16,6 +17,7 @@ def _to_dict(resume: Resume) -> dict[str, object]:
         "variant": resume.variant.value,
         "label": resume.label,
         "file_key": resume.file_key,
+        "file_url": get_storage().get_url(resume.file_key) if resume.file_key else None,
         "is_active": resume.is_active,
         "created_at": resume.created_at,
         "updated_at": resume.updated_at,

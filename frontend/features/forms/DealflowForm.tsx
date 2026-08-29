@@ -1,23 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 
 interface Props {
-  siteKey: string;
   consentText: string;
 }
 
-interface TurnstileApi {
-  render: (el: HTMLElement, opts: { sitekey: string; callback: () => void }) => string;
-  getResponse: (id: string) => string;
-  reset: (id?: string) => void;
-}
-
-function turnstile(): TurnstileApi | undefined {
-  return (window as unknown as { turnstile?: TurnstileApi }).turnstile;
-}
-
-export default function DealflowForm({ siteKey, consentText }: Props) {
+export default function DealflowForm({ consentText }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [firm, setFirm] = useState("");
@@ -25,28 +14,6 @@ export default function DealflowForm({ siteKey, consentText }: Props) {
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
   const [error, setError] = useState("");
-  const turnstileRef = useRef<HTMLDivElement>(null);
-  const widgetId = useRef<string>("");
-
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      const w = turnstile();
-      if (w && turnstileRef.current) {
-        widgetId.current = w.render(turnstileRef.current, {
-          sitekey: siteKey,
-          callback: () => {},
-        });
-      }
-    };
-    document.head.appendChild(script);
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, [siteKey]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -59,23 +26,6 @@ export default function DealflowForm({ siteKey, consentText }: Props) {
 
     setStatus("submitting");
 
-    let token = "";
-    try {
-      const w = turnstile();
-      if (w && widgetId.current) {
-        token = w.getResponse(widgetId.current);
-        if (!token) {
-          setError("Please complete the verification challenge.");
-          setStatus("idle");
-          return;
-        }
-      }
-    } catch {
-      setError("Verification challenge not available. Please refresh.");
-      setStatus("idle");
-      return;
-    }
-
     try {
       await fetch("/api/v1/forms/dealflow", {
         method: "POST",
@@ -87,7 +37,6 @@ export default function DealflowForm({ siteKey, consentText }: Props) {
           focus_area: focusArea.trim(),
           consent_given: consent,
           consent_text: consentText,
-          turnstile_token: token,
           _hpt: "",
         }),
       });
@@ -96,11 +45,6 @@ export default function DealflowForm({ siteKey, consentText }: Props) {
     } catch {
       setError("Something went wrong. Please try again.");
       setStatus("idle");
-    } finally {
-      try {
-        const w = turnstile();
-        if (w && widgetId.current) w.reset(widgetId.current);
-      } catch {}
     }
   }
 
@@ -187,12 +131,6 @@ export default function DealflowForm({ siteKey, consentText }: Props) {
           <span>{consentText}</span>
         </label>
       </div>
-
-      <div
-        ref={turnstileRef}
-        data-sitekey={siteKey}
-        className="cf-turnstile"
-      />
 
       {error && (
         <p className="text-sm text-destructive">{error}</p>

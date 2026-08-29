@@ -1,72 +1,22 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 
 interface Props {
-  siteKey: string;
   consentText: string;
 }
 
-interface TurnstileApi {
-  render: (el: HTMLElement, opts: { sitekey: string; callback: () => void }) => string;
-  getResponse: (id: string) => string;
-  reset: (id?: string) => void;
-}
-
-function turnstile(): TurnstileApi | undefined {
-  return (window as unknown as { turnstile?: TurnstileApi }).turnstile;
-}
-
-export default function ContactForm({ siteKey, consentText }: Props) {
+export default function ContactForm({ consentText }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
   const [error, setError] = useState("");
-  const turnstileRef = useRef<HTMLDivElement>(null);
-  const widgetId = useRef<string>("");
-
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      const w = turnstile();
-      if (w && turnstileRef.current) {
-        widgetId.current = w.render(turnstileRef.current, {
-          sitekey: siteKey,
-          callback: () => {},
-        });
-      }
-    };
-    document.head.appendChild(script);
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, [siteKey]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setStatus("submitting");
-
-    let token = "";
-    try {
-      const w = turnstile();
-      if (w && widgetId.current) {
-        token = w.getResponse(widgetId.current);
-        if (!token) {
-          setError("Please complete the verification challenge.");
-          setStatus("idle");
-          return;
-        }
-      }
-    } catch {
-      setError("Verification challenge not available. Please refresh.");
-      setStatus("idle");
-      return;
-    }
 
     try {
       await fetch("/api/v1/forms/contact", {
@@ -78,7 +28,6 @@ export default function ContactForm({ siteKey, consentText }: Props) {
           message: message.trim(),
           consent_given: true,
           consent_text: consentText,
-          turnstile_token: token,
           _hpt: "",
         }),
       });
@@ -87,11 +36,6 @@ export default function ContactForm({ siteKey, consentText }: Props) {
     } catch {
       setError("Something went wrong. Please try again.");
       setStatus("idle");
-    } finally {
-      try {
-        const w = turnstile();
-        if (w && widgetId.current) w.reset(widgetId.current);
-      } catch {}
     }
   }
 
@@ -152,12 +96,6 @@ export default function ContactForm({ siteKey, consentText }: Props) {
           placeholder="Your message..."
         />
       </div>
-
-      <div
-        ref={turnstileRef}
-        data-sitekey={siteKey}
-        className="cf-turnstile"
-      />
 
       {error && (
         <p className="text-sm text-destructive">{error}</p>

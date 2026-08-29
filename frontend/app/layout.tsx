@@ -20,7 +20,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = buildRootMetadata();
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
-  const token = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN
+  const umamiSrc = process.env.NEXT_PUBLIC_UMAMI_SRC
+  const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
 
   return (
     <html
@@ -28,11 +29,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        {token && (
+        {umamiSrc && umamiWebsiteId && (
           <script
             defer
-            src="https://static.cloudflarestorage.com/beacon.min.js"
-            data-cf-beacon={`{"token": "${token}"}`}
+            src={umamiSrc}
+            data-website-id={umamiWebsiteId}
           />
         )}
       </head>

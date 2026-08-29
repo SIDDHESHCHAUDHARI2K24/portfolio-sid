@@ -8,6 +8,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.storage import get_storage
 from app.features.skills import repository
 from app.features.skills.models import Skill, SkillSection
 from app.features.skills.schemas import SkillCreate, SkillUpdate
@@ -24,6 +25,7 @@ def _skill_to_dict(skill: Skill) -> dict[str, object]:
         "subsection": skill.subsection,
         "icon_slug": skill.icon_slug,
         "icon_key": skill.icon_key,
+        "icon_url": get_storage().get_url(skill.icon_key) if skill.icon_key else None,
         "sort_order": skill.sort_order,
         "created_at": skill.created_at,
         "updated_at": skill.updated_at,

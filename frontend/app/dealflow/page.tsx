@@ -1,8 +1,6 @@
 import DealflowForm from "@/features/forms/DealflowForm";
 import type { Metadata } from "next";
 
-const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "1x00000000000000000000AA";
-
 export const metadata: Metadata = {
   title: "Dealflow — Siddhesh Chaudhari",
   description: "Investor introductions — share your firm and focus area for direct review.",
@@ -26,7 +24,7 @@ export default function DealflowPage() {
         reviewed directly.
       </p>
 
-      <DealflowForm siteKey={SITE_KEY} consentText="I consent to having my data stored for the purpose of this dealflow submission. My information will not be shared with third parties." />
+      <DealflowForm consentText="I consent to having my data stored for the purpose of this dealflow submission. My information will not be shared with third parties." />
     </main>
   );
 }

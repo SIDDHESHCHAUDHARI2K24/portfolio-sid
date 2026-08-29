@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import APIRouter, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
@@ -130,6 +131,18 @@ def create_app() -> FastAPI:
     @app.get("/health")
     async def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    settings = get_settings()
+    if settings.storage_kind == "local":
+        media_dir = Path(settings.local_storage_dir)
+        media_dir.mkdir(parents=True, exist_ok=True)
+        # Registered before the SPA catch-all so /media/* is served as a file
+        # and not swallowed by index.html.
+        app.mount(
+            "/media",
+            StaticFiles(directory=str(media_dir.resolve())),
+            name="media",
+        )
 
     register_routers(app)
 

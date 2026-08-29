@@ -6,7 +6,6 @@ import type { Metadata } from "next";
 
 type Resume = paths["/api/v1/resumes"]["get"]["responses"]["200"]["content"]["application/json"][number];
 
-const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "1x00000000000000000000AA";
 const EMAIL = "siddhesh@example.com";
 const LINKEDIN_URL = "https://www.linkedin.com/in/siddheshchaudhari/";
 const CAL_URL = "https://cal.com/siddhesh";
@@ -96,15 +95,15 @@ export default async function ContactPage() {
           </div>
         </section>
 
-        {resumes.length > 0 && (
+          {resumes.length > 0 && (
           <section className="mb-10">
             <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
               Resumes
             </h2>
             <div className="flex flex-wrap gap-4">
-              {techResume && (
+              {techResume?.file_url && (
                 <a
-                  href={`/media/${techResume.file_key}`}
+                  href={techResume.file_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-accent transition-colors"
@@ -115,9 +114,9 @@ export default async function ContactPage() {
                   </span>
                 </a>
               )}
-              {businessResume && (
+              {businessResume?.file_url && (
                 <a
-                  href={`/media/${businessResume.file_key}`}
+                  href={businessResume.file_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-accent transition-colors"
@@ -134,7 +133,7 @@ export default async function ContactPage() {
 
         <section className="mb-10">
           <h2 className="text-lg font-semibold mb-4">Send a message</h2>
-          <ContactForm siteKey={SITE_KEY} consentText="I consent to having my data stored for the purpose of this contact submission." />
+          <ContactForm consentText="I consent to having my data stored for the purpose of this contact submission." />
         </section>
       </main>
     </>

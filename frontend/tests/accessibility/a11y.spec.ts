@@ -13,7 +13,7 @@ for (const route of ROUTES) {
       sessionStorage.setItem('intro-seen', 'true');
     });
     await page.goto(route);
-    // networkidle never settles here (Turnstile/audio keep the network
+    // networkidle never settles here (the audio layer keeps the network
     // busy); axe needs a stable DOM, not a quiet network.
     await page.evaluate(() => document.fonts.ready);
     const results = await new AxeBuilder({ page }).analyze();

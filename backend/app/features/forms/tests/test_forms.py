@@ -41,10 +41,6 @@ async def test_contact_submission_persists(
     clean_forms: None,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    async def fake_verify(token: str, remoteip: str | None = None) -> bool:
-        return True
-
-    monkeypatch.setattr("app.features.forms.endpoints.router.verify_turnstile", fake_verify)
     monkeypatch.setattr(email, "send_email", AsyncMock())
 
     response = await client.post(
@@ -55,7 +51,6 @@ async def test_contact_submission_persists(
             "message": "Hello",
             "consent_given": True,
             "consent_text": "I agree.",
-            "turnstile_token": "valid-token",
             "_hpt": "",
         },
     )
@@ -79,10 +74,6 @@ async def test_dealflow_submission_requires_consent(
     clean_forms: None,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    async def fake_verify(token: str, remoteip: str | None = None) -> bool:
-        return True
-
-    monkeypatch.setattr("app.features.forms.endpoints.router.verify_turnstile", fake_verify)
     monkeypatch.setattr(email, "send_email", AsyncMock())
 
     response = await client.post(
@@ -94,7 +85,6 @@ async def test_dealflow_submission_requires_consent(
             "focus_area": "Pre-seed",
             "consent_given": True,
             "consent_text": "I consent.",
-            "turnstile_token": "valid-token",
             "_hpt": "",
         },
     )
@@ -109,11 +99,6 @@ async def test_honeypot_returns_generic_success(
     clean_forms: None,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    async def fake_verify(token: str, remoteip: str | None = None) -> bool:
-        return True
-
-    monkeypatch.setattr("app.features.forms.endpoints.router.verify_turnstile", fake_verify)
-
     response = await client.post(
         "http://test/api/v1/forms/contact",
         json={
@@ -122,7 +107,6 @@ async def test_honeypot_returns_generic_success(
             "message": "spam",
             "consent_given": True,
             "consent_text": "X",
-            "turnstile_token": "xxx",
             "_hpt": "gotcha",
         },
     )
@@ -146,13 +130,9 @@ async def test_email_failure_does_not_fail_request(
     clean_forms: None,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    async def fake_verify(token: str, remoteip: str | None = None) -> bool:
-        return True
-
     async def fake_send_email(*args: object, **kwargs: object) -> None:
         raise Exception("Email down")
 
-    monkeypatch.setattr("app.features.forms.endpoints.router.verify_turnstile", fake_verify)
     monkeypatch.setattr(email, "send_email", fake_send_email)
 
     from app.core.config import get_settings
@@ -168,7 +148,6 @@ async def test_email_failure_does_not_fail_request(
             "message": "Hi",
             "consent_given": True,
             "consent_text": "ok",
-            "turnstile_token": "valid-token",
             "_hpt": "",
         },
     )

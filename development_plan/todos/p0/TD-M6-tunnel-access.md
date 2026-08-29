@@ -46,3 +46,5 @@ login page and fails looking like a CORS misconfiguration.
 - One hostname, one Access app — never split SPA and API across subdomains
 - Named tunnels only; trycloudflare.com prohibited for production
 - CF_ACCESS_ENABLED stays an env gate; launch (TD-36) turns it on permanently
+
+> **Cloudflare removal (2026-08-29):** Cloudflare Tunnel + Access are removed. `CF_ACCESS_ENABLED=false` permanently; admin served as a Railway custom domain on the backend service (single hostname for SPA + `/api/*`). See `docs/handoff/HANDOFF-CLOUDFLARE-REMOVAL-PLAN.md`.

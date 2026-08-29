@@ -25,6 +25,7 @@ class CertificationPublic(BaseModel):
     expires_date: date | None
     credential_url: str | None
     file_key: str | None
+    file_url: str | None = None
     file_type: str | None
     sort_order: int
     created_at: datetime

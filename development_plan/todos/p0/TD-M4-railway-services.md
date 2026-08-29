@@ -46,3 +46,5 @@ CORS_ALLOW_ORIGINS ships explicitly empty as a deliberate security posture.
 - CORS_ALLOW_ORIGINS empty in production is a security posture, not an oversight — admin and API are same-origin by construction
 - Railway's filesystem is ephemeral: ISR cache discarded on deploy is expected behaviour, not a fault
 - pgbouncer deliberately excluded (tech-stack-analysis §6.1)
+
+> **Cloudflare removal (2026-08-29):** R2/Turnstile/Access dropped. Add `STORAGE_KIND=local`, `LOCAL_STORAGE_DIR`, `MEDIA_BASE_URL`; frontend uses Railway native Next.js preset. See `docs/handoff/HANDOFF-CLOUDFLARE-REMOVAL-PLAN.md`.

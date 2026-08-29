@@ -38,7 +38,7 @@ export default function SkillsClient({ grouped, config }: Props) {
                     {isBusiness && skills[0] && (
                       <SkillIcon
                         slug={skills[0].icon_slug}
-                        r2Key={skills[0].icon_key}
+                        iconUrl={skills[0].icon_url ?? null}
                         label={subsection}
                         size={20}
                       />
@@ -64,7 +64,7 @@ export default function SkillsClient({ grouped, config }: Props) {
                       {cfg.showPerSkillIcon && (
                         <SkillIcon
                           slug={skill.icon_slug}
-                          r2Key={skill.icon_key}
+                          iconUrl={skill.icon_url ?? null}
                           label={skill.name}
                           size={20}
                         />

@@ -72,6 +72,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/dev/otp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dev Otp
+         * @description Dev-only: return the most recently issued OTP so the local e2e admin
+         *     journey can log in without a configured email provider. Gated on
+         *     ENVIRONMENT=development — returns 404 in every other mode so the endpoint
+         *     is undetectable in production.
+         */
+        get: operations["dev_otp_api_v1_auth_dev_otp_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/logout": {
         parameters: {
             query?: never;
@@ -242,6 +265,40 @@ export interface paths {
         put?: never;
         /** Cover Lookup */
         post: operations["cover_lookup_api_v1_admin_collections_cover_lookup_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/crawlers/hits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Hits */
+        get: operations["list_hits_api_v1_admin_crawlers_hits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/crawlers/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Summary */
+        get: operations["get_summary_api_v1_admin_crawlers_summary_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -980,6 +1037,8 @@ export interface components {
             credential_url: string | null;
             /** File Key */
             file_key: string | null;
+            /** File Url */
+            file_url?: string | null;
             /** File Type */
             file_type: string | null;
             /** Sort Order */
@@ -1083,6 +1142,8 @@ export interface components {
             credential_url: string | null;
             /** File Key */
             file_key: string | null;
+            /** File Url */
+            file_url?: string | null;
             /** File Type */
             file_type: string | null;
             /** Sort Order */
@@ -1314,6 +1375,36 @@ export interface components {
             status: string;
             /** Cover Key */
             cover_key?: string | null;
+        };
+        /** CrawlerHitOut */
+        CrawlerHitOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** User Agent */
+            user_agent: string;
+            /** Path */
+            path: string;
+            /** Ip Hash */
+            ip_hash: string;
+            /** Agent Label */
+            agent_label: string | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp: string;
+        };
+        /** CrawlerSummaryRow */
+        CrawlerSummaryRow: {
+            /** Agent Label */
+            agent_label: string | null;
+            /** Week Start */
+            week_start: string;
+            /** Count */
+            count: number;
         };
         /**
          * ExternalSource
@@ -1978,6 +2069,8 @@ export interface components {
             label: string;
             /** File Key */
             file_key: string;
+            /** File Url */
+            file_url?: string | null;
             /** Is Active */
             is_active: boolean;
             /**
@@ -2018,6 +2111,8 @@ export interface components {
             label: string;
             /** File Key */
             file_key: string;
+            /** File Url */
+            file_url?: string | null;
             /** Is Active */
             is_active: boolean;
             /**
@@ -2059,6 +2154,8 @@ export interface components {
             icon_slug: string | null;
             /** Icon Key */
             icon_key: string | null;
+            /** Icon Url */
+            icon_url?: string | null;
             /** Sort Order */
             sort_order: number;
             /**
@@ -2107,6 +2204,8 @@ export interface components {
             icon_slug: string | null;
             /** Icon Key */
             icon_key: string | null;
+            /** Icon Url */
+            icon_url?: string | null;
             /** Sort Order */
             sort_order: number;
             /**
@@ -2652,6 +2751,28 @@ export interface operations {
             };
         };
     };
+    dev_otp_api_v1_auth_dev_otp_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
     logout_api_v1_auth_logout_post: {
         parameters: {
             query?: never;
@@ -3092,6 +3213,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_hits_api_v1_admin_crawlers_hits_get: {
+        parameters: {
+            query?: {
+                agent_label?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CrawlerHitOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_summary_api_v1_admin_crawlers_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CrawlerSummaryRow"][];
                 };
             };
         };

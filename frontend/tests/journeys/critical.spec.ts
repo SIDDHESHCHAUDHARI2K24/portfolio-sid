@@ -141,6 +141,14 @@ test.describe("Journey 4: Admin Flow", () => {
   test("login, create draft timeline entry, publish, verify on public page", async ({
     page,
   }) => {
+    // The dev OTP shortcut uses a single shared challenge slot, so running the
+    // admin login concurrently across viewports races. The flow is
+    // viewport-agnostic, so exercise it once on desktop.
+    test.skip(
+      test.info().project.name !== "desktop",
+      "Admin login flow runs once on desktop (shared dev-OTP slot)"
+    );
+
     const uniqueTitle = `E2E Test Entry ${Date.now()}`;
 
     // --- Login ---
@@ -159,7 +167,23 @@ test.describe("Journey 4: Admin Flow", () => {
     // --- OTP Verification ---
     await expect(page.getByText("Verify Code")).toBeVisible({ timeout: 10000 });
 
-    const otp = process.env.E2E_ADMIN_OTP || process.env.E2E_TEST_OTP || "";
+    // Prefer an explicit OTP from env; otherwise pull the dev-only code the
+    // local backend serves at /api/v1/auth/dev/otp (ENVIRONMENT=development).
+    // This lets the journey run with no Resend key configured.
+    let otp = process.env.E2E_ADMIN_OTP || process.env.E2E_TEST_OTP || "";
+    if (!otp) {
+      try {
+        const resp = await page.request.get(
+          "http://localhost:8000/api/v1/auth/dev/otp"
+        );
+        if (resp.ok()) {
+          const data = (await resp.json()) as { code?: string };
+          otp = data.code ?? "";
+        }
+      } catch {
+        otp = "";
+      }
+    }
     if (otp.length === 6) {
       const inputs = page.locator('input[maxlength="1"]');
       for (let i = 0; i < 6; i++) {
@@ -172,12 +196,16 @@ test.describe("Journey 4: Admin Flow", () => {
     }
 
     // should redirect to dashboard after successful verification
-    await expect(page.getByText("Dashboard")).toBeVisible({ timeout: 15000 });
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Dashboard" })
+    ).toBeVisible({ timeout: 15000 });
 
     // --- Navigate to Timeline ---
     await page.goto(`${ADMIN_URL}/timeline`);
     await page.waitForLoadState("networkidle");
-    await expect(page.getByText("Timeline")).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Timeline" })
+    ).toBeVisible({ timeout: 10000 });
 
     // --- Create New Entry ---
     await page.getByRole("link", { name: /New Entry/i }).click();
@@ -188,7 +216,7 @@ test.describe("Journey 4: Admin Flow", () => {
     // fill basic details
     await page
       .getByPlaceholder("Software Engineer")
-      .fill("Playwright E2E Entry");
+      .fill(uniqueTitle);
     await page.getByPlaceholder("Acme Corp").fill(uniqueTitle);
     await page.locator('input[type="date"]').first().fill("2024-01-01");
 
@@ -197,36 +225,36 @@ test.describe("Journey 4: Admin Flow", () => {
 
     // --- Verify draft in list ---
     await page.waitForLoadState("networkidle");
-    await expect(page.getByText("Timeline")).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText("Playwright E2E Entry")).toBeVisible({
+    await expect(page.getByRole("heading", { level: 1, name: "Timeline" })).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.getByText(uniqueTitle).first()).toBeVisible({
       timeout: 5000,
     });
 
     // verify status badge shows "draft"
     const draftRow = page.locator("tr", {
-      hasText: "Playwright E2E Entry",
+      hasText: uniqueTitle,
     });
     await expect(draftRow.getByText("draft")).toBeVisible();
 
     // --- Edit and Publish ---
-    const editLink = draftRow.getByRole("link", { name: /Edit/i });
+    const editLink = draftRow.locator('a[href*="/edit"]').first();
     await editLink.click();
-    await expect(page.getByText(/Edit Timeline Entry/i)).toBeVisible({
+    await expect(
+      page.getByRole("heading", { level: 1, name: /Edit Timeline Entry/i })
+    ).toBeVisible({
       timeout: 5000,
     });
 
-    // change status to "published" via PublishStatusField
-    // The PublishStatusField should have a select/dropdown
-    await page
+    // change status to "published" via the PublishStatusField custom select
+    const statusTrigger = page
+      .getByText("Status", { exact: true })
+      .locator("..")
       .getByRole("combobox")
-      .or(page.locator("select"))
-      .first()
-      .selectOption("published");
-    // fallback: look for radio/button
-    const publishOption = page.getByRole("button", { name: /published/i });
-    if (await publishOption.isVisible()) {
-      await publishOption.click();
-    }
+      .first();
+    await statusTrigger.click();
+    await page.getByRole("option", { name: "published" }).click();
 
     await page.getByRole("button", { name: /Update/i }).click();
     await page.waitForLoadState("networkidle");
@@ -236,9 +264,12 @@ test.describe("Journey 4: Admin Flow", () => {
     const publicPage = await page.context().newPage();
     await publicPage.goto("/timeline");
     await publicPage.waitForLoadState("networkidle");
-    await expect(
-      publicPage.getByText("Playwright E2E Entry")
-    ).toBeVisible({ timeout: 15000 });
+    const pubEntry = publicPage.getByText(uniqueTitle).first();
+    // The published entry may take a moment to appear after cache revalidation.
+    await expect(async () => {
+      await publicPage.reload();
+      expect(await pubEntry.isVisible()).toBeTruthy();
+    }).toPass({ timeout: 25000, intervals: [2000] });
 
     await publicPage.close();
   });
@@ -277,9 +308,7 @@ test.describe("Journey 5: Form Submission Pages", () => {
     ).toBeVisible();
   });
 
-  test("dealflow page shows consent checkbox and Turnstile widget", async ({
-    page,
-  }) => {
+  test("dealflow page shows consent checkbox", async ({ page }) => {
     await gotoReturning(page, "/dealflow");
 
     // scoped to the heading: the consent text also contains "Dealflow"
@@ -291,11 +320,49 @@ test.describe("Journey 5: Form Submission Pages", () => {
     const consentCheckbox = page.locator('label input[type="checkbox"]');
     await expect(consentCheckbox.first()).toBeVisible();
 
-    // Turnstile widget container should be present (.cf-turnstile div)
-    // The Turnstile widget loads asynchronously via external script;
-    // verify the container div exists
-    await expect(page.locator(".cf-turnstile").first()).toBeVisible({
-      timeout: 5000,
+    // submit button is present and labelled
+    await expect(
+      page.getByRole("button", { name: "Submit" })
+    ).toBeVisible();
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* Journey 6: Project -> Timeline cross-link (TD-36.S5)               */
+/* ------------------------------------------------------------------ */
+test.describe("Journey 6: Project → Timeline cross-link", () => {
+  test("open a project, follow its timeline cross-link, land on the highlighted entry", async ({
+    page,
+  }) => {
+    await gotoReturning(page, "/projects");
+
+    await expect(
+      page.getByRole("heading", { name: "Projects" })
+    ).toBeVisible({ timeout: 10000 });
+
+    // click the seeded cross-linked project
+    await page
+      .getByRole("link", { name: /E2E Seed: Cross-linked project/i })
+      .first()
+      .click();
+
+    await expect(page).toHaveURL(/e2e-seed-project/, {
+      timeout: 10000,
+    });
+
+    // the detail page exposes a cross-link to /timeline#entry-<id>
+    const crossLink = page.locator('a[href^="/timeline#entry-"]').first();
+    await expect(crossLink).toBeVisible({ timeout: 5000 });
+
+    await crossLink.click();
+
+    await expect(page).toHaveURL(/#entry-/, { timeout: 10000 });
+
+    // the targeted entry exists on the timeline and is the scroll/highlight target
+    const hash = page.url().split("#entry-")[1];
+    expect(hash).toBeTruthy();
+    await expect(page.locator(`article#entry-${hash}`).first()).toBeVisible({
+      timeout: 10000,
     });
   });
 });

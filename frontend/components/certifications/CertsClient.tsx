@@ -45,7 +45,7 @@ function CertCard({ cert }: { cert: Cert }) {
       </p>
 
       <CertViewer
-        fileKey={cert.file_key}
+        fileUrl={cert.file_url ?? null}
         fileType={cert.file_type}
         credentialUrl={cert.credential_url}
         title={cert.title}

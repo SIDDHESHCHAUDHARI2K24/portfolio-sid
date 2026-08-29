@@ -4,23 +4,21 @@ import { useState } from "react";
 
 interface Props {
   slug: string | null;
-  r2Key: string | null;
+  iconUrl: string | null;
   label: string;
   size?: number;
 }
-
-const R2_DOMAIN = "https://media.siddhesh-chaudhari.com";
 
 function slugToUrl(slug: string): string {
   return `https://cdn.jsdelivr.net/npm/simple-icons@14/icons/${encodeURIComponent(slug)}.svg`;
 }
 
-export default function SkillIcon({ slug, r2Key, label, size = 24 }: Props) {
+export default function SkillIcon({ slug, iconUrl, label, size = 24 }: Props) {
   const [failedCdn, setFailedCdn] = useState(false);
-  const [failedR2, setFailedR2] = useState(false);
+  const [failedIcon, setFailedIcon] = useState(false);
 
   const cdnUrl = slug ? slugToUrl(slug) : null;
-  const r2Url = r2Key ? `${R2_DOMAIN}/${r2Key}` : null;
+  const mediaUrl = iconUrl ? iconUrl : null;
 
   if (cdnUrl && !failedCdn) {
     return (
@@ -35,15 +33,15 @@ export default function SkillIcon({ slug, r2Key, label, size = 24 }: Props) {
     );
   }
 
-  if (r2Url && !failedR2) {
+  if (mediaUrl && !failedIcon) {
     return (
       <img
-        src={r2Url}
+        src={mediaUrl}
         alt={label}
         width={size}
         height={size}
         className="inline-block object-contain"
-        onError={() => setFailedR2(true)}
+        onError={() => setFailedIcon(true)}
       />
     );
   }
