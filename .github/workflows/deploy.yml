@@ -37,8 +37,15 @@ jobs:
 
       - name: Deploy backend + admin container
         if: ${{ inputs.dry_run != true }}
-        working-directory: backend
+        working-directory: .
         run: railway up --service backend --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Deploy cron (scheduler)
+        if: ${{ inputs.dry_run != true }}
+        working-directory: .
+        run: railway up --service cron --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 

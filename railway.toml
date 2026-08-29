@@ -1,0 +1,7 @@
+# Railway Config-as-Code (build/deploy only).
+# NOTE: Config-as-Code is deprecated by Railway (supported until 2026-12-01);
+# env vars and volumes are managed via CLI, not this file.
+# This file applies to the `backend` and `cron` services, both built from the
+# repo root with backend/Dockerfile (which bundles the admin SPA from /admin).
+[build]
+dockerfilePath = "backend/Dockerfile"

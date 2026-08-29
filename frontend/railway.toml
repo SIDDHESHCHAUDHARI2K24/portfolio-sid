@@ -1,0 +1,7 @@
+# Railway Config-as-Code for the `frontend` service (rootDirectory = /frontend).
+# Railpack auto-detects Next.js; NEXT_PUBLIC_* vars are set via CLI.
+[build]
+builder = "RAILPACK"
+
+[deploy]
+healthcheckPath = "/"
