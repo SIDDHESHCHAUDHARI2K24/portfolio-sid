@@ -18,4 +18,4 @@ COPY --from=admin-build /admin/dist ./static
 ENV PYTHONUNBUFFERED=1 \
     PATH="/app/.venv/bin:$PATH"
 EXPOSE 8000
-CMD uvicorn app.app:create_app --factory --host 0.0.0.0 --port "${PORT:-8000}"
+CMD sh -c "uv run alembic upgrade head && uvicorn app.app:create_app --factory --host 0.0.0.0 --port \"${PORT:-8000}\""
