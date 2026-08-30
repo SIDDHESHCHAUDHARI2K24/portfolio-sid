@@ -7,6 +7,7 @@ e.g. ``database_url`` <- ``DATABASE_URL``. See ``.env.example``.
 from functools import lru_cache
 from typing import Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +16,17 @@ class Settings(BaseSettings):
 
     environment: str = "development"
     database_url: str = "postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio"
+
+    @field_validator("database_url")
+    @classmethod
+    def _coerce_asyncpg_driver(cls, v: str) -> str:
+        # Railway Postgres emits a sync `postgresql://` URL; SQLAlchemy's async
+        # engine requires the `postgresql+asyncpg://` driver. Coerce when absent.
+        if v.startswith("postgresql://"):
+            return "postgresql+asyncpg://" + v[len("postgresql://") :]
+        if v.startswith("postgres://"):
+            return "postgresql+asyncpg://" + v[len("postgres://") :]
+        return v
 
     storage_kind: Literal["s3", "local"] = "s3"
     local_storage_dir: str = ".storage"
