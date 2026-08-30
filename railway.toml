@@ -4,4 +4,4 @@
 # This file applies to the `backend` and `cron` services, both built from the
 # repo root with backend/Dockerfile (which bundles the admin SPA from /admin).
 [build]
-dockerfilePath = "backend/Dockerfile"
+dockerfilePath = "Dockerfile"
