@@ -44,7 +44,7 @@ interface FormState {
 
 interface CoverLookupResult {
   status: string
-  cover_key: string | null
+  cover_key?: string | null
 }
 
 const KINDS = [
