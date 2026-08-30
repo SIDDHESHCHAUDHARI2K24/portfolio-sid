@@ -14,6 +14,12 @@ The architectural contract. Every agent and every phase inherits these. Violatio
 - **Renewal price:** `TBD` — owner to confirm in Cloudflare Domains dashboard and replace this
   placeholder. Price is a dashboard fact only; never committed as a secret.
 
+### Postgres backup policy (TD-M4, 2026-08-29)
+- **Provider:** Railway-managed Postgres (`Postgres` service in project `awake-success`, production environment).
+- **Automated backups:** Railway performs automated daily backups with point-in-time recovery. Exact retention is per Railway's current plan — owner to confirm the window in Railway dashboard → `Postgres` → Settings and update this note. The dashboard value is the source of truth.
+- **Restore drill:** a from-scratch restore into a throwaway scratch DB is run as part of TD-36 (see `restore-procedure.md`, created if missing). Restores never overwrite production; they target a scratch service only.
+- **Secrets:** `DATABASE_URL` lives only in Railway env / `RAILWAY_*` vars — never in git, logs, or responses (invariant #15).
+
 ## Invariants
 
 ### 1. Overlay, never replacement (Critical)
