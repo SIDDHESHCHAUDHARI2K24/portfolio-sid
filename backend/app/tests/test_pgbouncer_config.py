@@ -125,3 +125,58 @@ def test_global_engine_uses_pool_tuning() -> None:
     assert pool._max_overflow == settings.database_max_overflow
     assert pool._pre_ping is True
     assert isinstance(db_module.engine.pool, AsyncAdaptedQueuePool)
+
+
+def test_build_engine_disables_prepared_statement_cache_when_pgbouncer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """PgBouncer transaction mode + asyncpg prepared statements conflict.
+
+    SQLAlchemy's asyncpg dialect keeps a client-side prepared statement cache
+    (``prepared_statement_cache_size`` default 100); under PgBouncer
+    transaction pooling the server-side connection changes per transaction,
+    which surfaces as ``DuplicatePreparedStatementError``. When
+    ``PGBOUNCER_ENABLED`` is true the cache must be disabled.
+    """
+    from app.core import database as db_module
+
+    captured: dict[str, Any] = {}
+
+    def fake_create_async_engine(url: str, **kwargs: Any) -> Any:
+        captured["url"] = url
+        captured.update(kwargs)
+        return kwargs  # engine not needed; assertion-only
+
+    monkeypatch.setattr(db_module, "create_async_engine", fake_create_async_engine)
+    settings = Settings(
+        _env_file=None,
+        pgbouncer_enabled=True,
+        database_url="postgresql+asyncpg://portfolio:portfolio@localhost:6432/portfolio",
+    )
+    db_module.build_engine(settings)
+    assert captured["connect_args"] == {"prepared_statement_cache_size": 0}
+    assert captured["pool_size"] == 10
+    assert captured["max_overflow"] == 5
+    assert captured["pool_pre_ping"] is True
+
+
+def test_build_engine_keeps_prepared_statement_cache_without_pgbouncer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Direct Postgres (no PgBouncer) keeps the prepared statement cache."""
+    from app.core import database as db_module
+
+    captured: dict[str, Any] = {}
+
+    def fake_create_async_engine(url: str, **kwargs: Any) -> Any:
+        captured.update(kwargs)
+        return kwargs
+
+    monkeypatch.setattr(db_module, "create_async_engine", fake_create_async_engine)
+    settings = Settings(
+        _env_file=None,
+        pgbouncer_enabled=False,
+        database_url="postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio",
+    )
+    db_module.build_engine(settings)
+    assert captured["connect_args"] == {}

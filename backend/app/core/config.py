@@ -20,10 +20,11 @@ class Settings(BaseSettings):
     # DATABASE_URL at the pgbouncer endpoint instead of postgres directly:
     #   local:  postgresql+asyncpg://portfolio:portfolio@localhost:6432/portfolio
     #           (docker-compose pgbouncer sidecar on 6432 -> postgres:5432)
-    #   Railway production: DATABASE_URL already routes via Railway's internal
-    #           pgbouncer — no sidecar service needed, only pool tuning applies.
-    #           Keep PGBOUNCER_ENABLED=false (default) and let Railway inject the
-    #           pooled URL; the pool_size/max_overflow values below still apply.
+    #   Railway production: dedicated `pgbouncer` service
+    #           (edoburu/pgbouncer) on pgbouncer.railway.internal:6432 ->
+    #           postgres.railway.internal:5432. Keep PGBOUNCER_ENABLED=true so
+    #           database.py disables the asyncpg prepared-statement cache
+    #           (unsafe with pgbouncer transaction pooling).
     database_pool_size: int = 10
     database_max_overflow: int = 5
     pgbouncer_enabled: bool = False

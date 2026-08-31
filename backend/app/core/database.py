@@ -26,11 +26,19 @@ Why not NullPool:
 Why transaction mode is safe with asyncpg:
 
 * The classic incompatibility is server-side prepared statements and
-  ``LISTEN/NOTIFY`` / advisory locks that assume session affinity. ``asyncpg``
-  via SQLAlchemy's async dialect does **not** use server-prepared statements
-  by default (unlike ``psycopg`` with ``prepare_threshold``), and this
-  codebase never uses ``LISTEN/NOTIFY`` or session-level advisory locks.
-  Hence ``POOL_MODE=transaction`` is safe without ``statement_cache_size=0``.
+  ``LISTEN/NOTIFY`` / advisory locks that assume session affinity. SQLAlchemy's
+  asyncpg dialect keeps a *client-side* prepared statement cache
+  (``prepared_statement_cache_size``, default 100), which conflicts with
+  PgBouncer transaction pooling: the server-side connection changes between
+  transactions, so a cached ``__asyncpg_stmt_N__`` lands on a server connection
+  that already has it (``DuplicatePreparedStatementError``) or lost it.
+* When ``PGBOUNCER_ENABLED`` is true we therefore disable the prepared
+  statement cache (``prepared_statement_cache_size=0``); queries then use
+  simple/extended protocol without server-side ``PREPARE``.
+* ``asyncpg`` itself does not use server-prepared statements implicitly; the
+  cache lives in SQLAlchemy's dialect, hence the dialect-level knob above.
+* This codebase never uses ``LISTEN/NOTIFY`` or session-level advisory locks.
+  Hence ``POOL_MODE=transaction`` is safe with the cache disabled.
 * ``pool_pre_ping=True`` guards against stale connections that PgBouncer
   may have recycled server-side while the client pool still holds them.
 """
@@ -44,17 +52,32 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from app.core.config import get_settings
+from app.core.config import Settings, get_settings
 
 settings = get_settings()
 
-# See module docstring for PgBouncer/pool justification — QueuePool, not NullPool.
-engine: AsyncEngine = create_async_engine(
-    settings.database_url,
-    pool_size=settings.database_pool_size,
-    max_overflow=settings.database_max_overflow,
-    pool_pre_ping=True,
-)
+
+def build_engine(settings: Settings) -> AsyncEngine:
+    """Create the async engine from ``settings``.
+
+    See module docstring for PgBouncer/pool justification — QueuePool, not
+    NullPool, and the asyncpg prepared statement cache disabled when routing
+    through PgBouncer transaction pooling.
+    """
+    return create_async_engine(
+        settings.database_url,
+        pool_size=settings.database_pool_size,
+        max_overflow=settings.database_max_overflow,
+        pool_pre_ping=True,
+        connect_args=(
+            {"prepared_statement_cache_size": 0}
+            if settings.pgbouncer_enabled
+            else {}
+        ),
+    )
+
+
+engine: AsyncEngine = build_engine(settings)
 async_session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
 
