@@ -43,11 +43,15 @@ const nextConfig: NextConfig = {
     remotePatterns,
   },
   // Private backend: browser fetches via relative "/api" proxied to the
-  // Railway internal backend. Build/SSR fetches use BACKEND_URL directly
-  // (see lib/api.ts). This keeps the backend out of the public CORS surface
-  // while still allowing the public site to read content.
+  // Railway internal backend at runtime (inside private network). Build/SSR
+  // fetches use BACKEND_URL directly (see lib/api.ts) with a public-proxy
+  // fallback when the builder cannot resolve *.railway.internal. This keeps the
+  // backend out of the public CORS surface while still allowing the public
+  // site to read content. Rewrites themselves are runtime-only; the backend
+  // value is resolved when the server starts, so the builder never needs to
+  // fetch it — but we keep the default in sync with the Railway PORT (8080).
   async rewrites() {
-    const backend = process.env.BACKEND_URL ?? "http://backend.railway.internal:8000";
+    const backend = process.env.BACKEND_URL ?? "http://backend.railway.internal:8080";
     return [
       { source: "/api/:path*", destination: `${backend}/api/:path*` },
       { source: "/media/:path*", destination: `${backend}/media/:path*` },
