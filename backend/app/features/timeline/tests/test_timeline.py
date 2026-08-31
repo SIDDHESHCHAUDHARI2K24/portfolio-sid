@@ -139,6 +139,158 @@ async def test_public_entry_not_found_returns_404(client: httpx.AsyncClient) -> 
     assert response.status_code == 404
 
 
+async def test_public_detail_excludes_draft(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_timeline_tables: None,
+) -> None:
+    draft = TimelineEntry(
+        kind=TimelineKind.EXPERIENCE,
+        title="Draft hidden",
+        organisation="HIDDEN",
+        start_date=date(2023, 1, 1),
+        status=PublishStatus.DRAFT,
+    )
+    session.add(draft)
+    await session.commit()
+
+    response = await client.get(f"http://test/api/v1/timeline/{draft.id}")
+    assert response.status_code == 404
+
+
+async def test_public_detail_excludes_future_scheduled(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_timeline_tables: None,
+) -> None:
+    future = TimelineEntry(
+        kind=TimelineKind.EXPERIENCE,
+        title="Future scheduled hidden",
+        organisation="FUTURE",
+        start_date=date(2025, 1, 1),
+        status=PublishStatus.SCHEDULED,
+        publish_at=datetime.now(UTC) + timedelta(days=30),
+    )
+    session.add(future)
+    await session.commit()
+
+    response = await client.get(f"http://test/api/v1/timeline/{future.id}")
+    assert response.status_code == 404
+
+
+async def test_public_detail_returns_published(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_timeline_tables: None,
+) -> None:
+    published = TimelineEntry(
+        kind=TimelineKind.EXPERIENCE,
+        title="Public detail visible",
+        organisation="VISIBLE",
+        start_date=date(2022, 1, 1),
+        status=PublishStatus.PUBLISHED,
+        published_at=datetime.now(UTC),
+    )
+    session.add(published)
+    await session.commit()
+
+    response = await client.get(f"http://test/api/v1/timeline/{published.id}")
+    assert response.status_code == 200
+    assert response.json()["title"] == "Public detail visible"
+
+
+async def test_admin_detail_returns_draft(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_timeline_tables: None,
+    clean_auth_tables: None,
+    admin_settings: Settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    await _login(client, monkeypatch)
+    draft = TimelineEntry(
+        kind=TimelineKind.EXPERIENCE,
+        title="Admin draft visible",
+        organisation="ADMIN",
+        start_date=date(2023, 6, 1),
+        status=PublishStatus.DRAFT,
+    )
+    session.add(draft)
+    await session.commit()
+
+    response = await client.get(f"http://test/api/v1/admin/timeline/{draft.id}")
+    assert response.status_code == 200
+    assert response.json()["title"] == "Admin draft visible"
+
+
+async def test_public_timeline_projects_filters(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_timeline_tables: None,
+) -> None:
+    from app.features.projects.models import Project
+
+    # Need to clean projects tables as well for isolation
+    await session.execute(text("DELETE FROM project_topic_tags"))
+    await session.execute(text("DELETE FROM project_attachments"))
+    await session.execute(text("DELETE FROM projects"))
+    await session.commit()
+
+    timeline_entry = TimelineEntry(
+        kind=TimelineKind.EXPERIENCE,
+        title="Timeline with projects",
+        organisation="ORG",
+        start_date=date(2022, 1, 1),
+        status=PublishStatus.PUBLISHED,
+        published_at=datetime.now(UTC),
+    )
+    session.add(timeline_entry)
+    await session.flush()
+
+    published_proj = Project(
+        title="Published proj",
+        slug="published-proj-timeline",
+        status=PublishStatus.PUBLISHED,
+        published_at=datetime.now(UTC),
+        timeline_entry_id=timeline_entry.id,
+    )
+    draft_proj = Project(
+        title="Draft proj",
+        slug="draft-proj-timeline",
+        status=PublishStatus.DRAFT,
+        timeline_entry_id=timeline_entry.id,
+    )
+    other_timeline_proj = Project(
+        title="Other timeline proj",
+        slug="other-timeline-proj",
+        status=PublishStatus.PUBLISHED,
+        published_at=datetime.now(UTC),
+        timeline_entry_id=None,
+    )
+    session.add_all([published_proj, draft_proj, other_timeline_proj])
+    await session.commit()
+
+    response = await client.get(f"http://test/api/v1/timeline/{timeline_entry.id}/projects")
+    assert response.status_code == 200
+    titles = [p["title"] for p in response.json()]
+    assert "Published proj" in titles
+    assert "Draft proj" not in titles
+    assert "Other timeline proj" not in titles
+
+    # Draft timeline entry should 404 even if projects exist
+    draft_entry = TimelineEntry(
+        kind=TimelineKind.EXPERIENCE,
+        title="Draft entry",
+        organisation="DRAFTORG",
+        start_date=date(2023, 1, 1),
+        status=PublishStatus.DRAFT,
+    )
+    session.add(draft_entry)
+    await session.commit()
+    response2 = await client.get(f"http://test/api/v1/timeline/{draft_entry.id}/projects")
+    assert response2.status_code == 404
+
+
 async def test_public_responses_omit_status_and_overrides(
     client: httpx.AsyncClient,
     session: AsyncSession,
@@ -301,7 +453,7 @@ async def test_revalidation_fires_after_create(
         },
     )
     assert response.status_code == 201
-    assert calls == [["timeline"]]
+    assert calls == [["timeline", "projects"]]
 
 
 async def test_null_end_date_means_current(

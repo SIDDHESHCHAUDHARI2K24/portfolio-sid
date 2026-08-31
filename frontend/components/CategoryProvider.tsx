@@ -39,6 +39,10 @@ function clearCookie(name: string): void {
   document.cookie = `${name}=; max-age=0; path=/; SameSite=Lax`;
 }
 
+// `category === null` means the `default` audience (conventions.md #1 crawler SSR).
+// It is never offered as a user choice after D2; IntroOverlay/HUD only expose the
+// 5 concrete audiences. `clear()` resets to `default` for programmatic /
+// crawler cases but is no longer wired to any button.
 export function CategoryProvider({ children }: { children: ReactNode }) {
   const [category, setCategoryState] = useState<string | null>(null);
 

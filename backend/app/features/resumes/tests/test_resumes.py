@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from app.core import email
 from app.core.config import Settings
-from app.features.resumes.models import Resume, ResumeVariant
+from app.features.resumes.models import ALLOWED_VARIANTS, Resume
 from app.tests.helpers import TEST_ADMIN_PASSWORD
 
 
@@ -38,25 +38,25 @@ async def test_public_list_returns_active_resumes(
     session: AsyncSession,
     clean_resumes: None,
 ) -> None:
-    tech = Resume(
-        variant=ResumeVariant.TECH,
-        label="Tech CV",
-        file_key="resumes/tech-abc.pdf",
+    business = Resume(
+        variant="business",
+        label="Business CV",
+        file_key="resumes/biz-abc.pdf",
         is_active=True,
     )
-    biz = Resume(
-        variant=ResumeVariant.BUSINESS,
-        label="Business CV",
-        file_key="resumes/biz-def.pdf",
+    generic = Resume(
+        variant="generic",
+        label="Generic CV",
+        file_key="resumes/generic-def.pdf",
         is_active=True,
     )
     inactive = Resume(
-        variant=ResumeVariant.TECH,
-        label="Old Tech",
+        variant="business",
+        label="Old Business",
         file_key="resumes/old-xyz.pdf",
         is_active=False,
     )
-    session.add_all([tech, biz, inactive])
+    session.add_all([business, generic, inactive])
     await session.commit()
 
     response = await client.get("http://test/api/v1/resumes")
@@ -64,8 +64,8 @@ async def test_public_list_returns_active_resumes(
     data = response.json()
     assert len(data) == 2
     variants = [r["variant"] for r in data]
-    assert "tech" in variants
     assert "business" in variants
+    assert "generic" in variants
 
 
 async def test_both_variants_persist(
@@ -73,25 +73,77 @@ async def test_both_variants_persist(
     session: AsyncSession,
     clean_resumes: None,
 ) -> None:
-    tech = Resume(
-        variant=ResumeVariant.TECH,
-        label="Tech Resume",
-        file_key="resumes/t.pdf",
-        is_active=True,
-    )
-    biz = Resume(
-        variant=ResumeVariant.BUSINESS,
+    business = Resume(
+        variant="business",
         label="Biz Resume",
         file_key="resumes/b.pdf",
         is_active=True,
     )
-    session.add_all([tech, biz])
+    generic = Resume(
+        variant="generic",
+        label="Generic Resume",
+        file_key="resumes/t.pdf",
+        is_active=True,
+    )
+    session.add_all([business, generic])
     await session.commit()
 
     response = await client.get("http://test/api/v1/resumes")
     data = response.json()
     variants = {r["variant"] for r in data}
-    assert variants == {"tech", "business"}
+    assert variants == {"business", "generic"}
+
+
+async def test_all_six_variants_persist(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_resumes: None,
+) -> None:
+    for variant in sorted(ALLOWED_VARIANTS):
+        session.add(
+            Resume(
+                variant=variant,
+                label=f"{variant} CV",
+                file_key=f"resumes/{variant}.pdf",
+                is_active=True,
+            )
+        )
+    await session.commit()
+
+    response = await client.get("http://test/api/v1/resumes")
+    assert response.status_code == 200
+    data = response.json()
+    variants = {r["variant"] for r in data}
+    assert variants == ALLOWED_VARIANTS
+
+
+async def test_variant_validation_rejects_invalid_and_case_sensitive(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_resumes: None,
+    clean_auth_tables: None,
+    admin_settings: Settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    await _login(client, monkeypatch)
+    # invalid variant
+    resp = await client.post(
+        "http://test/api/v1/admin/resumes",
+        json={"variant": "invalid_variant", "label": "X", "file_key": "r/x.pdf"},
+    )
+    assert resp.status_code == 422
+    # case-sensitive: Business vs business
+    resp2 = await client.post(
+        "http://test/api/v1/admin/resumes",
+        json={"variant": "Business", "label": "X", "file_key": "r/x.pdf"},
+    )
+    assert resp2.status_code == 422
+    # legacy tech should also be rejected now
+    resp3 = await client.post(
+        "http://test/api/v1/admin/resumes",
+        json={"variant": "tech", "label": "X", "file_key": "r/x.pdf"},
+    )
+    assert resp3.status_code == 422
 
 
 async def test_admin_crud(
@@ -107,30 +159,38 @@ async def test_admin_crud(
     create_resp = await client.post(
         "http://test/api/v1/admin/resumes",
         json={
-            "variant": "tech",
-            "label": "Tech CV",
-            "file_key": "resumes/tech-abc.pdf",
+            "variant": "business",
+            "label": "Business CV",
+            "file_key": "resumes/business-abc.pdf",
         },
     )
     assert create_resp.status_code == 201
     created = create_resp.json()
-    assert created["variant"] == "tech"
-    assert created["label"] == "Tech CV"
+    assert created["variant"] == "business"
+    assert created["label"] == "Business CV"
     assert created["is_active"] is True
 
     resume_id = created["id"]
 
     get_resp = await client.get(f"http://test/api/v1/admin/resumes/{resume_id}")
     assert get_resp.status_code == 200
-    assert get_resp.json()["label"] == "Tech CV"
+    assert get_resp.json()["label"] == "Business CV"
 
     update_resp = await client.patch(
         f"http://test/api/v1/admin/resumes/{resume_id}",
-        json={"label": "Updated Tech CV", "is_active": False},
+        json={"label": "Updated Business CV", "is_active": False},
     )
     assert update_resp.status_code == 200
-    assert update_resp.json()["label"] == "Updated Tech CV"
+    assert update_resp.json()["label"] == "Updated Business CV"
     assert update_resp.json()["is_active"] is False
+
+    # variant update across allowlist works
+    variant_update = await client.patch(
+        f"http://test/api/v1/admin/resumes/{resume_id}",
+        json={"variant": "ai_consultant"},
+    )
+    assert variant_update.status_code == 200
+    assert variant_update.json()["variant"] == "ai_consultant"
 
     delete_resp = await client.delete(f"http://test/api/v1/admin/resumes/{resume_id}")
     assert delete_resp.status_code == 204
@@ -143,6 +203,6 @@ async def test_admin_requires_auth(client: httpx.AsyncClient) -> None:
     assert (
         await client.post(
             "http://test/api/v1/admin/resumes",
-            json={"variant": "tech", "label": "X", "file_key": "r/x.pdf"},
+            json={"variant": "business", "label": "X", "file_key": "r/x.pdf"},
         )
     ).status_code == 401

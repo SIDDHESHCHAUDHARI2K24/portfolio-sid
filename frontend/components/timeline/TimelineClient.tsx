@@ -4,6 +4,7 @@ import { useCategory } from "@/components/CategoryProvider";
 import { isRelevant } from "@/lib/relevance";
 import type { paths } from "@/src/api";
 import { Briefcase, GraduationCap } from "lucide-react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
@@ -124,7 +125,12 @@ export default function TimelineClient({ entries, tagMap }: Props) {
 
               <div className="space-y-2">
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                  <h2 className="text-lg font-semibold">{entry.title}</h2>
+                  <Link
+                    href={`/timeline/${entry.id}`}
+                    className="text-lg font-semibold hover:underline hover:text-primary transition-colors"
+                  >
+                    {entry.title}
+                  </Link>
                   <span className="text-sm text-muted-foreground">
                     at {entry.organisation}
                   </span>

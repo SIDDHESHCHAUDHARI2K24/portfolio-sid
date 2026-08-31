@@ -74,6 +74,37 @@ export function buildCreativeWorkJsonLd(project: Project) {
   };
 }
 
+export function buildTimelineEntryJsonLd(entry: TimelineEntry) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: `${entry.title} at ${entry.organisation}`,
+    description: entry.summary ?? undefined,
+    url: `${BASE_URL}/timeline/${entry.id}`,
+    dateCreated: entry.created_at,
+    dateModified: entry.updated_at,
+    author: {
+      "@type": "Person",
+      name: PERSON_NAME,
+      url: BASE_URL,
+    },
+    keywords: entry.topic_tags?.map((t) => t.label).join(", ") || undefined,
+  };
+}
+
+export function buildBreadcrumbJsonLd(items: { name: string; url: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url.startsWith("http") ? item.url : `${BASE_URL}${item.url}`,
+    })),
+  };
+}
+
 export function buildBlogPostingJsonLd(page: ProsePage) {
   return {
     "@context": "https://schema.org",

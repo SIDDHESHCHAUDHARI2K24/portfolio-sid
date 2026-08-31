@@ -283,7 +283,7 @@ async def test_revalidation_fires_after_create(
         },
     )
     assert response.status_code == 201
-    assert calls == [["projects"]]
+    assert calls == [["projects", "timeline"]]
 
 
 async def test_project_persists_without_timeline_entry(

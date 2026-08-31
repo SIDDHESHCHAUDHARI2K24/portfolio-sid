@@ -20,6 +20,11 @@ The architectural contract. Every agent and every phase inherits these. Violatio
 - **Restore drill:** a from-scratch restore into a throwaway scratch DB is run as part of TD-36 (see `restore-procedure.md`, created if missing). Restores never overwrite production; they target a scratch service only.
 - **Secrets:** `DATABASE_URL` lives only in Railway env / `RAILWAY_*` vars — never in git, logs, or responses (invariant #15).
 
+### Connection pooling — PgBouncer (2026-08-30)
+- **Local:** `docker-compose.yml` runs a `pgbouncer` sidecar (`edoburu/pgbouncer:1.22`) on `6432:5432`, `POOL_MODE=transaction`, `MAX_CLIENT_CONN=100`, `DEFAULT_POOL_SIZE=20`, `RESERVE_POOL=5`. Postgres stays on `5432` — tests default to direct. To opt in, set `PGBOUNCER_ENABLED=true` and `DATABASE_URL=...@localhost:6432/...` in `backend/.env` (see `LOCAL.md` §1a). Depends on `postgres` healthy; has its own `pg_isready` healthcheck.
+- **Production (Railway):** Postgres already exposes an **internal PgBouncer** — no sidecar service is deployed. Only asyncpg pool tuning applies (`backend/app/core/database.py`).
+- **Backend tuning:** `backend/app/core/config.py` exposes `database_pool_size` (default 10), `database_max_overflow` (5), `pgbouncer_enabled` (env `PGBOUNCER_ENABLED`, default false). `backend/app/core/database.py` creates the `AsyncEngine` with `pool_size`, `max_overflow`, `pool_pre_ping=True` on the default `AsyncAdaptedQueuePool` — intentionally **not** `NullPool` (see module docstring for justification: transaction mode is safe with `asyncpg` which does not use server-prepared statements by default; `NullPool` would defeat client-side pooling).
+
 ## Invariants
 
 ### 1. Overlay, never replacement (Critical)

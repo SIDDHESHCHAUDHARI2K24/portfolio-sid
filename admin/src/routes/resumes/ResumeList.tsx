@@ -16,9 +16,24 @@ interface ResumeEntry {
   updated_at: string
 }
 
+const VARIANT_LABELS: Record<string, string> = {
+  business: 'Business / TPM',
+  generic: 'Product Builder',
+  vc: 'Venture Capital',
+  ai_consultant: 'AI Consultant',
+  ai_workflow: 'AI Workflow Engineer',
+  product_engineer: 'Product Engineer',
+  // legacy fallback
+  tech: 'Tech (legacy)',
+}
+
 function formatDate(d: string | null) {
   if (!d) return '—'
   return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+function variantLabel(variant: string): string {
+  return VARIANT_LABELS[variant] ?? variant
 }
 
 export default function ResumeList() {
@@ -83,8 +98,8 @@ export default function ResumeList() {
                 <tr key={entry.id} className="border-b border-border hover:bg-muted/30">
                   <td className="px-4 py-3 font-medium">{entry.label}</td>
                   <td className="px-4 py-3">
-                    <Badge variant="outline" className="uppercase">
-                      {entry.variant}
+                    <Badge variant="outline" title={entry.variant}>
+                      {variantLabel(entry.variant)}
                     </Badge>
                   </td>
                   <td className="px-4 py-3">

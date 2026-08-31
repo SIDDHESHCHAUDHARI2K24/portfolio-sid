@@ -16,6 +16,34 @@ services:
       timeout: 3s
       retries: 10
 
+  pgbouncer:
+    image: edoburu/pgbouncer:1.22
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "6432:5432"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: portfolio
+      DB_PASSWORD: portfolio
+      DB_NAME: portfolio
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 100
+      DEFAULT_POOL_SIZE: 20
+      RESERVE_POOL: 5
+      RESERVE_POOL_SIZE: 5
+      ADMIN_USERS: portfolio
+      IGNORE_STARTUP_PARAMETERS: extra_float_digits
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U portfolio -d portfolio || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
   minio:
     image: minio/minio
     restart: unless-stopped

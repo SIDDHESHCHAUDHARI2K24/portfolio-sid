@@ -81,6 +81,13 @@ async def get_by_slug_dict(session: AsyncSession, slug: str) -> dict[str, object
     return _project_to_dict(project)
 
 
+async def list_public_by_timeline_dict(
+    session: AsyncSession, entry_id: UUID
+) -> list[dict[str, object]]:
+    projects = await repository.list_public_by_timeline(session, entry_id)
+    return [_project_to_dict(p) for p in projects]
+
+
 async def _resolve_tags(session: AsyncSession, slugs: list[str]) -> list[UUID]:
     if not slugs:
         return []

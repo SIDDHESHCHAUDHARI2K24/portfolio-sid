@@ -33,6 +33,10 @@ test-results/
 graphify-out/cost.json
 graphify-out/cache/
 
+# resume source PDFs — storage + DB are the source of truth (D8)
+resumes/*.pdf
+!resumes/.gitkeep
+
 # os/editor
 .DS_Store
 .idea/

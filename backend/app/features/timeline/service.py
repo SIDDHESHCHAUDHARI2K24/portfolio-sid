@@ -62,6 +62,13 @@ async def get_dict(session: AsyncSession, entry_id: UUID) -> dict[str, object] |
     return _entry_to_dict(entry)
 
 
+async def get_public_dict(session: AsyncSession, entry_id: UUID) -> dict[str, object] | None:
+    entry = await repository.get_public(session, entry_id)
+    if entry is None:
+        return None
+    return _entry_to_dict(entry)
+
+
 async def _resolve_tags(session: AsyncSession, slugs: list[str]) -> list[UUID]:
     if not slugs:
         return []

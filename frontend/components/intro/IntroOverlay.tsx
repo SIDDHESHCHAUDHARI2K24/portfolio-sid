@@ -22,13 +22,12 @@ export const CATEGORY_TILES: CategoryTile[] = [
   { id: "investors", label: "Investors", sub: "Back me" },
   { id: "founders", label: "Founders", sub: "Partner with me" },
   { id: "personal", label: "Personal", sub: "Know me" },
-  { id: "all", label: "Show everything", sub: "See it all" },
 ];
 
 const MORPH_SETTLE_MS = 300; // accounts for shared layout morph animation settle time
 
 export default function IntroOverlay() {
-  const { setCategory, clear } = useCategory();
+  const { setCategory } = useCategory();
   const reducedMotion = useReducedMotion();
   // null = unknown until mounted. Never read sessionStorage during render:
   // an SSR/client divergence here makes React abandon the subtree, leaving
@@ -102,15 +101,11 @@ export default function IntroOverlay() {
 
   const handleSelect = useCallback(
     (tileId: string) => {
-      if (tileId === "all") {
-        clear();
-      } else {
-        setCategory(tileId);
-      }
+      setCategory(tileId);
       sessionStorage.setItem("intro-seen", "true");
       setPhase("done");
     },
-    [setCategory, clear]
+    [setCategory]
   );
 
   const showOverlay = phase === "intro" || phase === "selector";

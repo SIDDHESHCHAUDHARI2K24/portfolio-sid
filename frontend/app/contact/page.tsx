@@ -2,7 +2,21 @@ import { apiFetch } from "@/lib/api";
 import { CACHE_TAGS } from "@/lib/cacheTags";
 import type { paths } from "@/src/api";
 import ContactForm from "@/features/forms/ContactForm";
+import ContactResumes from "./ContactResumes";
 import type { Metadata } from "next";
+
+/**
+ * Audience → resume variant mapping (D2).
+ * Default (no category / null) shows all 6; each audience sees a tailored subset.
+ * Variant `ai_workflow` on the backend corresponds to spec's `ai_workflow_engineer`.
+ */
+export const ResumeAudienceMap: Record<string, string[]> = {
+  recruiters: ["business", "generic", "product_engineer"],
+  techies: ["ai_workflow_engineer", "ai_consultant", "product_engineer", "generic"],
+  investors: ["vc", "business", "ai_consultant"],
+  founders: ["vc", "product_engineer"],
+  personal: ["generic"],
+};
 
 type Resume = paths["/api/v1/resumes"]["get"]["responses"]["200"]["content"]["application/json"][number];
 
@@ -37,8 +51,18 @@ export default async function ContactPage() {
     // if API unavailable, page still renders
   }
 
-  const techResume = resumes.find((r) => r.variant === "tech");
-  const businessResume = resumes.find((r) => r.variant === "business");
+  // 6 canonical variants per backend/scripts/resume_canon.json:resumes
+  const VARIANT_ORDER = [
+    "business",
+    "generic",
+    "vc",
+    "ai_consultant",
+    "ai_workflow",
+    "product_engineer",
+  ];
+  const sortedResumes = [...resumes].sort(
+    (a, b) => VARIANT_ORDER.indexOf(a.variant) - VARIANT_ORDER.indexOf(b.variant),
+  );
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -95,41 +119,7 @@ export default async function ContactPage() {
           </div>
         </section>
 
-          {resumes.length > 0 && (
-          <section className="mb-10">
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
-              Resumes
-            </h2>
-            <div className="flex flex-wrap gap-4">
-              {techResume?.file_url && (
-                <a
-                  href={techResume.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-accent transition-colors"
-                >
-                  <span className="font-medium">Tech Resume</span>
-                  <span className="text-muted-foreground">
-                    {techResume.label}
-                  </span>
-                </a>
-              )}
-              {businessResume?.file_url && (
-                <a
-                  href={businessResume.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-accent transition-colors"
-                >
-                  <span className="font-medium">Business Resume</span>
-                  <span className="text-muted-foreground">
-                    {businessResume.label}
-                  </span>
-                </a>
-              )}
-            </div>
-          </section>
-        )}
+          <ContactResumes resumes={sortedResumes} />
 
         <section className="mb-10">
           <h2 className="text-lg font-semibold mb-4">Send a message</h2>

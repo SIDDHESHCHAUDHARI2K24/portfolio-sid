@@ -47,6 +47,19 @@ async def get_by_slug(session: AsyncSession, slug: str) -> Project | None:
     return (await session.scalars(stmt)).unique().one_or_none()
 
 
+async def list_public_by_timeline(
+    session: AsyncSession, entry_id: UUID
+) -> list[Project]:
+    stmt = (
+        select(Project)
+        .where(Project.timeline_entry_id == entry_id)
+        .where(public_filter(Project))
+        .options(selectinload(Project.topic_tags), selectinload(Project.attachments))
+        .order_by(Project.sort_order.asc(), Project.created_at.desc())
+    )
+    return list((await session.scalars(stmt)).unique().all())
+
+
 async def create(
     session: AsyncSession,
     project: Project,

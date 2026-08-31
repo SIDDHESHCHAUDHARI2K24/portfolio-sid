@@ -4,7 +4,7 @@ import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { PlusIcon, PencilIcon, Trash2Icon, FilterIcon } from 'lucide-react'
+import { PlusIcon, PencilIcon, Trash2Icon, FilterIcon, EyeIcon } from 'lucide-react'
 import { useState } from 'react'
 
 interface TagRef {
@@ -145,6 +145,16 @@ export default function TimelineList() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
+                      <a
+                        href={`/timeline/${entry.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="View public page"
+                      >
+                        <Button variant="ghost" size="icon-sm" title="View">
+                          <EyeIcon className="size-4" />
+                        </Button>
+                      </a>
                       <Link to={`/timeline/${entry.id}/edit`}>
                         <Button variant="ghost" size="icon-sm" title="Edit">
                           <PencilIcon className="size-4" />

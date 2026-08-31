@@ -40,6 +40,16 @@ async def get(session: AsyncSession, entry_id: UUID) -> TimelineEntry | None:
     )
 
 
+async def get_public(session: AsyncSession, entry_id: UUID) -> TimelineEntry | None:
+    stmt = (
+        select(TimelineEntry)
+        .where(TimelineEntry.id == entry_id)
+        .where(public_filter(TimelineEntry))
+        .options(selectinload(TimelineEntry.topic_tags))
+    )
+    return (await session.scalars(stmt)).unique().one_or_none()
+
+
 async def create(
     session: AsyncSession,
     entry: TimelineEntry,

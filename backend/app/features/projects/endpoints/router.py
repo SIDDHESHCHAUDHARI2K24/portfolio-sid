@@ -6,7 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.cache_tags import PROJECTS
+from app.core.cache_tags import PROJECTS, TIMELINE
 from app.core.database import get_session
 from app.core.deps import admin_auth
 from app.core.revalidation import revalidate
@@ -60,7 +60,7 @@ async def get_admin(project_id: UUID, session: DbSession) -> ProjectAdmin:
 async def create(body: ProjectCreate, session: DbSession) -> ProjectAdmin:
     try:
         project_dict = await service.create_dict(session, body)
-        await revalidate([PROJECTS])
+        await revalidate([PROJECTS, TIMELINE])
         return ProjectAdmin(**project_dict)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -70,7 +70,7 @@ async def create(body: ProjectCreate, session: DbSession) -> ProjectAdmin:
 async def update(project_id: UUID, body: ProjectUpdate, session: DbSession) -> ProjectAdmin:
     try:
         project_dict = await service.update_dict(session, project_id, body)
-        await revalidate([PROJECTS])
+        await revalidate([PROJECTS, TIMELINE])
         return ProjectAdmin(**project_dict)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -80,6 +80,6 @@ async def update(project_id: UUID, body: ProjectUpdate, session: DbSession) -> P
 async def delete(project_id: UUID, session: DbSession) -> None:
     try:
         await service.delete(session, project_id)
-        await revalidate([PROJECTS])
+        await revalidate([PROJECTS, TIMELINE])
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

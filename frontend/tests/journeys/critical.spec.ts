@@ -18,7 +18,7 @@ async function gotoReturning(page: Page, url: string) {
 /* Journey 1: First Visit — Intro → Select Category → Overview        */
 /* ------------------------------------------------------------------ */
 test.describe("Journey 1: First Visit", () => {
-  test("intro animation plays, skip, select 'Show everything', overview renders", async ({
+  test("intro animation plays, skip, select a category, overview renders", async ({
     page,
   }) => {
     await page.goto("/");
@@ -36,8 +36,8 @@ test.describe("Journey 1: First Visit", () => {
     // category selector should now show with "Who are you?" heading
     await expect(page.getByText("Who are you?")).toBeVisible({ timeout: 3000 });
 
-    // click "Show everything" tile
-    await page.getByText("Show everything").click();
+    // pick a concrete audience (default catch-all is no longer user-selectable)
+    await page.getByText("Recruiters").click();
 
     // intro overlay dismissed — overview tile grid should be visible
     await expect(overlay).not.toBeVisible({ timeout: 3000 });

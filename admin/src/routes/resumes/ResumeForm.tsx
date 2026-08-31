@@ -28,9 +28,19 @@ interface FormState {
   is_active: boolean
 }
 
+// 6 canonical variants per backend/scripts/resume_canon.json:resumes
+const VARIANT_OPTIONS: { value: string; label: string }[] = [
+  { value: 'business', label: 'Business / TPM' },
+  { value: 'generic', label: 'Product Builder' },
+  { value: 'vc', label: 'Venture Capital' },
+  { value: 'ai_consultant', label: 'AI Consultant' },
+  { value: 'ai_workflow', label: 'AI Workflow Engineer' },
+  { value: 'product_engineer', label: 'Product Engineer' },
+]
+
 function emptyForm(): FormState {
   return {
-    variant: 'tech',
+    variant: 'business',
     label: '',
     file_key: '',
     is_active: true,
@@ -170,8 +180,11 @@ export default function ResumeForm() {
                   <Select.Value />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="tech">Tech</Select.Item>
-                  <Select.Item value="business">Business</Select.Item>
+                  {VARIANT_OPTIONS.map((opt) => (
+                    <Select.Item key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </Select.Item>
+                  ))}
                 </Select.Content>
               </Select>
               {errors.variant && <p className="text-sm text-destructive">{errors.variant}</p>}

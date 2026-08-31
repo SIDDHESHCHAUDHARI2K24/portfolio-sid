@@ -16,6 +16,17 @@ class Settings(BaseSettings):
 
     environment: str = "development"
     database_url: str = "postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio"
+    # QueuePool tuning for asyncpg. When PGBOUNCER_ENABLED=true, point
+    # DATABASE_URL at the pgbouncer endpoint instead of postgres directly:
+    #   local:  postgresql+asyncpg://portfolio:portfolio@localhost:6432/portfolio
+    #           (docker-compose pgbouncer sidecar on 6432 -> postgres:5432)
+    #   Railway production: DATABASE_URL already routes via Railway's internal
+    #           pgbouncer — no sidecar service needed, only pool tuning applies.
+    #           Keep PGBOUNCER_ENABLED=false (default) and let Railway inject the
+    #           pooled URL; the pool_size/max_overflow values below still apply.
+    database_pool_size: int = 10
+    database_max_overflow: int = 5
+    pgbouncer_enabled: bool = False
 
     @field_validator("database_url")
     @classmethod

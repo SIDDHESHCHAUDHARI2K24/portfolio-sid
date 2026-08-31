@@ -13,7 +13,7 @@ const CATEGORIES = [
 ];
 
 export default function HUD() {
-  const { category, setCategory, clear } = useCategory();
+  const { category, setCategory } = useCategory();
   const [scrollPct, setScrollPct] = useState(0);
   const [open, setOpen] = useState(false);
 
@@ -50,17 +50,6 @@ export default function HUD() {
                 </button>
               ))}
             </div>
-            {category && (
-              <button
-                onClick={() => {
-                  clear();
-                  setOpen(false);
-                }}
-                className="mt-2 w-full rounded-md px-3 py-1 text-xs text-muted-foreground hover:bg-secondary"
-              >
-                Show everything
-              </button>
-            )}
 
             <AudioControls />
           </div>
