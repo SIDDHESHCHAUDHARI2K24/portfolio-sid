@@ -215,6 +215,52 @@
         }
       }
     },
+    "/api/v1/admin/change-password": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Change Password",
+        "description": "Rotate the admin password. Authenticated via ``admin_auth`` (session cookie).\n\nValidates the current password, enforces 12-128 char policy on the new\npassword (Pydantic + service double-check), and UPSERTs the new Argon2id\nhash into ``admin_credentials``. Future ``/auth/login`` calls check the\nDB row first (``get_effective_password_hash`` fallback). Use this after\nfirst login or whenever you want to rotate without a Railway redeploy.",
+        "operationId": "change_password_api_v1_admin_change_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Change Password Api V1 Admin Change Password Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/certifications": {
       "get": {
         "tags": [
@@ -3010,6 +3056,53 @@
         }
       }
     },
+    "/api/v1/timeline/{entry_id}/projects": {
+      "get": {
+        "tags": [
+          "timeline"
+        ],
+        "summary": "List Public Projects",
+        "operationId": "list_public_projects_api_v1_timeline__entry_id__projects_get",
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectPublic"
+                  },
+                  "title": "Response List Public Projects Api V1 Timeline  Entry Id  Projects Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/timeline": {
       "get": {
         "tags": [
@@ -3996,6 +4089,29 @@
         },
         "type": "object",
         "title": "CertificationUpdate"
+      },
+      "ChangePasswordRequest": {
+        "properties": {
+          "current_password": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Current Password",
+            "description": "Current admin password"
+          },
+          "new_password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 12,
+            "title": "New Password",
+            "description": "New password (12-128 chars)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_password",
+          "new_password"
+        ],
+        "title": "ChangePasswordRequest"
       },
       "CollectionItemAdmin": {
         "properties": {

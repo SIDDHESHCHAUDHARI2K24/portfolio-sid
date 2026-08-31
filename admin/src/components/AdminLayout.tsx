@@ -23,6 +23,7 @@ import {
   LogOutIcon,
   MenuIcon,
   XIcon,
+  SettingsIcon,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -40,6 +41,7 @@ const NAV_ITEMS = [
   { to: '/overview', label: 'Overview', icon: PresentationIcon },
   { to: '/tag-map', label: 'Tag Map', icon: TagsIcon },
   { to: '/crawlers', label: 'Crawlers', icon: BotIcon },
+  { to: '/settings', label: 'Settings', icon: SettingsIcon },
 ]
 
 export function AdminLayout() {

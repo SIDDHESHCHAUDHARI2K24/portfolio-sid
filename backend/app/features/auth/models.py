@@ -1,9 +1,9 @@
-"""Auth models: hashed OTP challenges and the DB-backed login attempt log."""
+"""Auth models: hashed OTP challenges, DB-backed attempt log, admin credential override."""
 
 import uuid
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, Index, Integer, String, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Index, Integer, String, func
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -41,6 +41,36 @@ class LoginAttempt(Base):
     )
     ip: Mapped[str] = mapped_column(String(45), nullable=False)
     outcome: Mapped[str] = mapped_column(String(8), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class AdminCredential(Base):
+    """Singleton row holding the DB-overridden admin password hash.
+
+    If no row exists the app falls back to ``ADMIN_PASSWORD_HASH`` env
+    (``app.core.config``). When present this row is the effective
+    credential, allowing password rotation via an authenticated endpoint
+    without a redeploy. Only one row is ever active (enforced by a
+    fixed ``singleton_guard`` unique constraint)."""
+
+    __tablename__ = "admin_credentials"
+
+    # Fixed singleton: application always uses ``singleton_guard = true``
+    # so a unique partial constraint would work, but a simpler unique
+    # on a constant boolean column suffices and keeps the migration
+    # autogenerate clean.
+    id: Mapped[uuid.UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    password_hash: Mapped[str] = mapped_column(String(500), nullable=False)
+    singleton_guard: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default="true", unique=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

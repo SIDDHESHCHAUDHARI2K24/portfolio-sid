@@ -102,12 +102,11 @@ async def _rate_limit_handler(request: Request, exc: Exception) -> JSONResponse:
 
 def create_app() -> FastAPI:
     """Composition root: error tracking, rate limiting, CORS, crawler logging,
-    feature routers, and the admin SPA catch-all in one place.
-
-    Ordering matters: the SPA catch-all registers LAST so explicit ``/api/*``
-    routes always win; it serves the built admin from ``admin_static_dir``
-    when present (single-container deploy) with index.html fallback for
-    client-side routing.
+    feature routers. The Vite admin SPA is no longer bundled here — it lives
+    in its own Railway `admin` service (admin/Dockerfile nginx) and proxies
+    /api + /media to the private backend (backend.railway.internal). The
+    catch-all below stays as a fallback for local dev or single-container
+    images but is inert in production once the `static` directory is absent.
     """
     settings = get_settings()
     init_glitchtip(settings.glitchtip_dsn, environment=settings.environment)

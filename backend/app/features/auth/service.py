@@ -7,6 +7,7 @@ codes never appear in logs or responses (conventions invariant 15).
 
 import hashlib
 import hmac
+import logging
 import secrets
 from datetime import UTC, datetime, timedelta
 
@@ -15,14 +16,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import email
 from app.core.config import get_settings
-from app.core.security import verify_password
+from app.core.security import hash_password, verify_password
 from app.core.session import create_session_token
 from app.features.auth.models import (
     OTP_MAX_ATTEMPTS,
     OTP_TTL_SECONDS,
+    AdminCredential,
     LoginAttempt,
     OtpChallenge,
 )
+
+logger = logging.getLogger(__name__)
+
+# Dev-only, in-memory copy of the most recently issued OTP so the local e2e
+# admin journey can complete without a configured email provider. NEVER read in
+# production — the dev endpoint that returns it is gated on ENVIRONMENT and the
+# value is cleared on the next issue. Codes are still only ever stored hashed in
+# the DB (conventions invariant #15); this mirror exists solely to drive tests.
+_DEV_LAST_CODE: str | None = None
 
 GENERIC_LOGIN_DETAIL = "If the password is correct, a code has been sent."
 GENERIC_OTP_DETAIL = "Invalid or expired code."
@@ -79,6 +90,19 @@ async def is_locked_out(session: AsyncSession, ip: str) -> bool:
     return failures >= LOCKOUT_FAILURES
 
 
+async def get_effective_password_hash(session: AsyncSession) -> str | None:
+    """Return the DB-overridden hash if present, else the env hash.
+
+    Allows password rotation via ``change_password`` without a redeploy
+    while keeping ``ADMIN_PASSWORD_HASH`` as the bootstrap fallback
+    (conventions invariant 15 — Railway env is source of truth at boot)."""
+    result = await session.execute(select(AdminCredential).limit(1))
+    credential = result.scalars().first()
+    if credential is not None:
+        return credential.password_hash
+    return get_settings().admin_password_hash
+
+
 async def request_otp(session: AsyncSession, password: str, ip: str) -> str:
     """Verify the password and deliver a fresh OTP. Wrong password and
     correct password return the identical generic detail."""
@@ -87,10 +111,8 @@ async def request_otp(session: AsyncSession, password: str, ip: str) -> str:
     if await is_locked_out(session, ip):
         raise AuthError(429, "Too many attempts. Try again later.")
 
-    password_ok = (
-        verify_password(settings.admin_password_hash, password)
-        and settings.admin_password_hash is not None
-    )
+    effective_hash = await get_effective_password_hash(session)
+    password_ok = verify_password(effective_hash, password) and effective_hash is not None
     if not password_ok:
         await _record_attempt(session, ip, "failure")
         await session.commit()
@@ -108,6 +130,24 @@ async def request_otp(session: AsyncSession, password: str, ip: str) -> str:
     session.add(challenge)
     await session.commit()
 
+    # Dev mode: expose the code via the dev-only endpoint so the admin e2e
+    # journey can run without a configured email provider. Best-effort email is
+    # still attempted when one is configured (so devs/tests that assert on
+    # delivery keep working), but a missing provider never fails the request.
+    if settings.environment == "development":
+        global _DEV_LAST_CODE
+        _DEV_LAST_CODE = code
+        logger.warning(
+            "DEV: OTP %s issued; retrieve via GET /api/v1/auth/dev/otp", code
+        )
+        recipient = settings.admin_email
+        if recipient:
+            try:
+                await email.send_otp(code, to=recipient)
+            except email.EmailSendError:
+                logger.warning("DEV: email delivery skipped (no provider configured)")
+        return GENERIC_LOGIN_DETAIL
+
     recipient = settings.admin_email
     if not recipient:
         await session.delete(challenge)
@@ -121,6 +161,12 @@ async def request_otp(session: AsyncSession, password: str, ip: str) -> str:
         raise AuthError(502, "Code delivery failed; try again later.") from exc
 
     return GENERIC_LOGIN_DETAIL
+
+
+def get_dev_last_code() -> str | None:
+    """Dev-only accessor for the most recently issued OTP. Returns ``None``
+    unless a code has been issued in the current dev process."""
+    return _DEV_LAST_CODE
 
 
 async def verify_otp(session: AsyncSession, code: str, ip: str) -> str:
@@ -150,3 +196,33 @@ async def verify_otp(session: AsyncSession, code: str, ip: str) -> str:
     challenge.consumed_at = _utcnow()
     await session.commit()
     return create_session_token()
+
+
+async def change_password(
+    session: AsyncSession, current_password: str, new_password: str
+) -> None:
+    """Verify current password against the effective hash and rotate to new.
+
+    Validates ``new_password`` length (12-128) and that it differs from
+    current. The new hash is UPSERTed into ``admin_credentials`` as the
+    singleton row, so future logins use the DB value without a redeploy.
+    The ``ADMIN_PASSWORD_HASH`` env remains as fallback if the row is
+    deleted manually."""
+    if len(new_password) < 12 or len(new_password) > 128:
+        raise AuthError(400, "New password must be 12-128 characters.")
+    if new_password == current_password:
+        raise AuthError(400, "New password must differ from current password.")
+
+    effective_hash = await get_effective_password_hash(session)
+    if effective_hash is None or not verify_password(effective_hash, current_password):
+        raise AuthError(403, "Current password is incorrect.")
+
+    new_hash = hash_password(new_password)
+    result = await session.execute(select(AdminCredential).limit(1))
+    credential = result.scalars().first()
+    if credential is None:
+        credential = AdminCredential(password_hash=new_hash)
+        session.add(credential)
+    else:
+        credential.password_hash = new_hash
+    await session.commit()

@@ -24,6 +24,10 @@ type RemotePattern = {
 const remotePatterns: RemotePattern[] = [
   { protocol: "http", hostname: "localhost", port: "9000", pathname: "/**" },
   { protocol: "http", hostname: "localhost", port: "3000", pathname: "/**" },
+  // Admin host serves /media via proxy to the private backend — allow it
+  { protocol: "https", hostname: "admin.siddhesh-chaudhari.com", pathname: "/**" },
+  // Railway internal backend also appears in MEDIA_BASE_URL during migration
+  { protocol: "http", hostname: "backend.railway.internal", pathname: "/**" },
 ];
 if (apiHost) {
   remotePatterns.push({
@@ -37,6 +41,17 @@ const nextConfig: NextConfig = {
   output: "standalone",
   images: {
     remotePatterns,
+  },
+  // Private backend: browser fetches via relative "/api" proxied to the
+  // Railway internal backend. Build/SSR fetches use BACKEND_URL directly
+  // (see lib/api.ts). This keeps the backend out of the public CORS surface
+  // while still allowing the public site to read content.
+  async rewrites() {
+    const backend = process.env.BACKEND_URL ?? "http://backend.railway.internal:8000";
+    return [
+      { source: "/api/:path*", destination: `${backend}/api/:path*` },
+      { source: "/media/:path*", destination: `${backend}/media/:path*` },
+    ];
   },
 };
 

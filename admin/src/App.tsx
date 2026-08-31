@@ -27,6 +27,7 @@ import ThesisList from '@/routes/thesis/ThesisList'
 import ThesisForm from '@/routes/thesis/ThesisForm'
 import TagMapMatrix from '@/routes/TagMapMatrix'
 import CrawlerHits from '@/routes/crawlers/CrawlerHits'
+import ChangePasswordPage from '@/routes/settings/ChangePassword'
 
 function App() {
   return (
@@ -75,6 +76,7 @@ function App() {
         <Route path="/thesis/:id/edit" element={<ThesisForm />} />
         <Route path="/tag-map" element={<TagMapMatrix />} />
         <Route path="/crawlers" element={<CrawlerHits />} />
+        <Route path="/settings" element={<ChangePasswordPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/login" replace />} />

@@ -129,6 +129,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/change-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change Password
+         * @description Rotate the admin password. Authenticated via ``admin_auth`` (session cookie).
+         *
+         *     Validates the current password, enforces 12-128 char policy on the new
+         *     password (Pydantic + service double-check), and UPSERTs the new Argon2id
+         *     hash into ``admin_credentials``. Future ``/auth/login`` calls check the
+         *     DB row first (``get_effective_password_hash`` fallback). Use this after
+         *     first login or whenever you want to rotate without a Railway redeploy.
+         */
+        post: operations["change_password_api_v1_admin_change_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/certifications": {
         parameters: {
             query?: never;
@@ -913,6 +939,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/timeline/{entry_id}/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Public Projects */
+        get: operations["list_public_projects_api_v1_timeline__entry_id__projects_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/timeline": {
         parameters: {
             query?: never;
@@ -1199,6 +1242,19 @@ export interface components {
             publish_at?: string | null;
             /** Is Pinned */
             is_pinned?: boolean | null;
+        };
+        /** ChangePasswordRequest */
+        ChangePasswordRequest: {
+            /**
+             * Current Password
+             * @description Current admin password
+             */
+            current_password: string;
+            /**
+             * New Password
+             * @description New password (12-128 chars)
+             */
+            new_password: string;
         };
         /** CollectionItemAdmin */
         CollectionItemAdmin: {
@@ -2813,6 +2869,41 @@ export interface operations {
                     "application/json": {
                         [key: string]: string;
                     };
+                };
+            };
+        };
+    };
+    change_password_api_v1_admin_change_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -4890,6 +4981,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TimelineEntryPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_public_projects_api_v1_timeline__entry_id__projects_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectPublic"][];
                 };
             };
             /** @description Validation Error */
