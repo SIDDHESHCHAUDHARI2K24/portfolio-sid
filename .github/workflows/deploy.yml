@@ -1,61 +1,99 @@
 name: Deploy
 
-# Gated production deploy. Activation prerequisites (user-side, TD-M4/M5):
-#   1. Railway services provisioned (Postgres, backend, frontend, cron)
-#   2. RAILWAY_TOKEN set as a GitHub secret on the `production` environment
-# Until both exist this workflow only runs via manual dispatch for dry-runs.
+# CI fallback deployer for Railway project portfolio-sid-v2.
+#
+# Native Railway push triggers handle normal deploys — this workflow is a
+# MANUAL fallback (workflow_dispatch only, so it never double-deploys with
+# native triggers). Deploys the four code services; pgbouncer and Postgres
+# are never deployed by CI.
+#
+# Requirements:
+#   - RAILWAY_TOKEN secret on the `production` GitHub environment (scoped to
+#     portfolio-sid-v2 project e0f5e770-6a95-41aa-99e4-3be94884d6ca)
+#   - Service build configs live on Railway (dockerfilePath/rootDirectory/
+#     builder/startCommand) — `railway up` uploads the git repo root and the
+#     service config drives the build, so every job runs from the repo root.
 
 on:
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: "Check gates without deploying"
-        default: "true"
-        type: boolean
+      service:
+        description: "Service(s) to deploy"
+        required: true
+        type: choice
+        default: "all"
+        options:
+          - all
+          - backend
+          - cron
+          - frontend
+          - admin
+
+concurrency: ci-deploy
+
+permissions:
+  contents: read
+
+env:
+  RAILWAY_PROJECT_ID: e0f5e770-6a95-41aa-99e4-3be94884d6ca
+  RAILWAY_ENVIRONMENT: production
+  RAILWAY_SILENT: "true"
 
 jobs:
   deploy:
-    name: Deploy to Railway (production environment)
+    name: deploy/${{ matrix.service }}
     runs-on: ubuntu-latest
-    environment: production # requires manual approval once configured in repo settings
+    environment: production
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [backend, cron, frontend, admin]
+    if: ${{ inputs.service == 'all' || inputs.service == matrix.service }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Verify release gates
-        run: |
-          echo "Gates that must be green before this deploy:"
-          echo " - CI workflow green on the deployed SHA"
-          echo " - E2E workflow green on the deployed SHA"
-          echo "(branch protection should require both; this job deploys main HEAD)"
 
       - uses: actions/setup-node@v4
         with:
           node-version: 24
 
       - name: Install Railway CLI
-        run: npm install -g @railway/cli
+        run: npm install -g @railway/cli@5.48.0
 
-      - name: Deploy backend + admin container
-        if: ${{ inputs.dry_run != true }}
-        working-directory: .
-        run: railway up --service backend --detach
+      - name: Deploy ${{ matrix.service }}
+        run: railway up -y -d -s ${{ matrix.service }} -e production -p ${{ env.RAILWAY_PROJECT_ID }}
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
-      - name: Deploy cron (scheduler)
-        if: ${{ inputs.dry_run != true }}
-        working-directory: .
-        run: railway up --service cron --detach
+  health:
+    name: health gate
+    runs-on: ubuntu-latest
+    environment: production
+    needs: deploy
+    if: ${{ always() && inputs.service == 'all' || inputs.service == 'admin' || inputs.service == 'frontend' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli@5.48.0
+
+      - name: Verify services healthy
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
-      - name: Deploy frontend
-        if: ${{ inputs.dry_run != true }}
-        working-directory: frontend
-        run: railway up --service frontend --detach
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
-      - name: Dry-run summary
-        if: ${{ inputs.dry_run == true }}
-        run: echo "Dry run — verified checkout and CLI availability. Set RAILWAY_TOKEN + provision services (TD-M4/M5) to enable real deploys."
+        run: |
+          set -e
+          for svc in admin frontend; do
+            url=$(railway domain list -s "$svc" --json 2>/dev/null \
+              | jq -r '.domains[] | select(.type == "service") | "https://" + .domain' | head -1)
+            if [ -z "$url" ]; then
+              echo "::error::$svc has no service domain yet"
+              continue
+            fi
+            echo "checking $url/api/v1/health"
+            curl -fsS --retry 8 --retry-delay 10 --retry-all-errors -o /dev/null \
+              -w "%{http_code}" "$url/api/v1/health" \
+              || { echo "::error::health check failed for $svc"; railway logs -s "$svc" --lines 50; exit 1; }
+          done

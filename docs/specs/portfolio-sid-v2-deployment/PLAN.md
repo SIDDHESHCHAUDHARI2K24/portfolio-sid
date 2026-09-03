@@ -20,6 +20,14 @@
 - CLI bugs: `railway volume -s <name> add` panics — pass the service ID. `railway variable set
   KEY --stdin` with empty stdin sets the var to EMPTY; always pipe a value. Values containing
   `$` must go via `--stdin` (never shell-interpolated — zsh expands `$argon2id` etc.).
+- **GOTCHA (learned P3/P5):** `railway service source connect` auto-deploys from GitHub `main`
+  immediately — if local fixes aren't pushed yet, the service gets rebuilt from stale code.
+  Push fixes BEFORE connecting sources.
+- **GOTCHA (learned P3 crash):** alembic builds its own engine in `alembic/env.py` and MUST
+  disable the asyncpg statement caches too (fixed in `3dca291` via the shared
+  `pgbouncer_connect_args` helper). Without it, redeploys crash with
+  `DuplicatePreparedStatementError` on pooled pgbouncer server connections. pgbouncer also gets
+  `SERVER_RESET_QUERY=DISCARD ALL` as defense-in-depth.
 - Never connect the Postgres plugin to the GitHub repo.
 - pgbouncer image tag is exactly `edoburu/pgbouncer:1.22.1-p0`; `AUTH_TYPE=scram-sha-256`; `POOL_MODE=transaction`.
 - Frontend start command is `npm run start` (NOT standalone).
