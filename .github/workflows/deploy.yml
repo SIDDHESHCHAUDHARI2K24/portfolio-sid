@@ -102,6 +102,11 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli@5.48.0
 
+      - name: Link project (domain list has no -p flag)
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway link -p "$RAILWAY_PROJECT_ID" -e production
+
       - name: Verify services healthy
         env:
           # v5 CLI reads RAILWAY_API_TOKEN (RAILWAY_TOKEN is ignored)
@@ -109,7 +114,7 @@ jobs:
         run: |
           set -e
           for svc in admin frontend; do
-            url=$(railway domain list -s "$svc" -e production -p "$RAILWAY_PROJECT_ID" --json 2>/dev/null \
+            url=$(railway domain list -s "$svc" -e production --json 2>/dev/null \
               | jq -r '.domains[] | select(.type == "service") | "https://" + .domain' | head -1)
             if [ -z "$url" ]; then
               echo "::error::$svc has no service domain yet"
