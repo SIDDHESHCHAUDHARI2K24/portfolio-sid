@@ -63,7 +63,8 @@ jobs:
       - name: Deploy ${{ matrix.service }}
         run: railway up -y -d -s ${{ matrix.service }} -e production -p ${{ env.RAILWAY_PROJECT_ID }}
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          # v5 CLI reads RAILWAY_API_TOKEN (RAILWAY_TOKEN is ignored)
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
   health:
     name: health gate
@@ -82,7 +83,8 @@ jobs:
 
       - name: Verify services healthy
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          # v5 CLI reads RAILWAY_API_TOKEN (RAILWAY_TOKEN is ignored)
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           set -e
           for svc in admin frontend; do
