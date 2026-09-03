@@ -183,3 +183,22 @@ def test_build_engine_keeps_prepared_statement_cache_without_pgbouncer(
     )
     db_module.build_engine(settings)
     assert captured["connect_args"] == {}
+
+
+def test_pgbouncer_connect_args_shared_helper() -> None:
+    """The shared helper is the single source of the cache-disable knobs.
+
+    ``alembic/env.py`` reuses it so alembic engines are pgbouncer-safe too
+    (production regression: redeploys crashed with
+    ``DuplicatePreparedStatementError`` because env.py's engine kept the
+    asyncpg statement caches enabled).
+    """
+    from app.core.database import pgbouncer_connect_args
+
+    enabled = Settings(_env_file=None, pgbouncer_enabled=True)
+    disabled = Settings(_env_file=None, pgbouncer_enabled=False)
+    assert pgbouncer_connect_args(enabled) == {
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0,
+    }
+    assert pgbouncer_connect_args(disabled) == {}

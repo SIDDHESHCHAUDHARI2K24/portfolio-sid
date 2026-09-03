@@ -3,7 +3,7 @@ from logging.config import fileConfig
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from alembic import context
 
@@ -12,6 +12,7 @@ from alembic import context
 # autogenerate silently produces empty migrations (conventions invariant 6).
 from app.core import models_registry
 from app.core.config import get_settings
+from app.core.database import pgbouncer_connect_args
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -67,11 +68,19 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_async_migrations() -> None:
-    """Create an async engine and run migrations via run_sync."""
-    connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+    """Create an async engine and run migrations via run_sync.
+
+    The engine reuses ``pgbouncer_connect_args``: under PgBouncer transaction
+    pooling the asyncpg statement caches must be disabled here too, otherwise
+    alembic's prepared statements collide with pooled server connections that
+    already hold the same ``__asyncpg_stmt_N__`` names
+    (``DuplicatePreparedStatementError`` — seen in production on redeploys).
+    """
+    settings = get_settings()
+    connectable = create_async_engine(
+        settings.database_url,
         poolclass=pool.NullPool,
+        connect_args=pgbouncer_connect_args(settings),
     )
 
     async with connectable.connect() as connection:

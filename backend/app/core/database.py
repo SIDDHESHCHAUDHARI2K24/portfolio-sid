@@ -5,8 +5,10 @@ PgBouncer notes
 * Local docker-compose exposes a ``pgbouncer`` sidecar on 6432 -> postgres:5432
   (``POOL_MODE=transaction``). Set ``PGBOUNCER_ENABLED=true`` and point
   ``DATABASE_URL`` at ``...@localhost:6432/...`` to route through it.
-* Railway production already has an internal pgbouncer for Postgres; no
-  sidecar service is needed — only the pool tuning below applies.
+* Railway production runs a dedicated ``pgbouncer`` service
+  (``edoburu/pgbouncer``, 6432) in front of the Postgres plugin — every
+  backend/cron connection goes through it, and ``alembic/env.py`` applies the
+  same statement-cache disable as this module (via ``pgbouncer_connect_args``).
 
 Pool choice justification
 -------------------------
@@ -57,6 +59,29 @@ from app.core.config import Settings, get_settings
 settings = get_settings()
 
 
+def pgbouncer_connect_args(settings: Settings) -> dict[str, int]:
+    """Connect args that disable asyncpg statement caches under PgBouncer.
+
+    SQLAlchemy's asyncpg dialect prepares statements by default
+    (``prepared_statement_cache_size``, default 100). Under PgBouncer
+    ``transaction`` pooling the server-side connection changes between
+    transactions, so cached ``__asyncpg_stmt_N__`` names collide with
+    statements left behind by other clients
+    (``DuplicatePreparedStatementError``). Disabling both knobs forces the
+    simple/extended protocol without server-side ``PREPARE``.
+
+    Returns an empty dict when PgBouncer is not in the path. Shared by
+    ``build_engine`` and ``alembic/env.py`` so every engine created in
+    production is pgbouncer-safe.
+    """
+    if not settings.pgbouncer_enabled:
+        return {}
+    return {
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0,
+    }
+
+
 def build_engine(settings: Settings) -> AsyncEngine:
     """Create the async engine from ``settings``.
 
@@ -69,14 +94,7 @@ def build_engine(settings: Settings) -> AsyncEngine:
         pool_size=settings.database_pool_size,
         max_overflow=settings.database_max_overflow,
         pool_pre_ping=True,
-        connect_args=(
-            {
-                "statement_cache_size": 0,
-                "prepared_statement_cache_size": 0,
-            }
-            if settings.pgbouncer_enabled
-            else {}
-        ),
+        connect_args=pgbouncer_connect_args(settings),
     )
 
 
