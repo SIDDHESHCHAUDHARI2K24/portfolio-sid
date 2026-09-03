@@ -31,6 +31,8 @@ References only — **no secret values in this file**. `STITCH_API_KEY` lives ON
 | `GLITCHTIP_DSN` | **GlitchTip** (open-source Sentry-compatible) DSN for error tracking on both backend + frontend. Set to a GlitchTip instance DSN on Railway. | TD-36 | TD-36 `app/core/glitchtip.py`, frontend sentry configs |
 | `NEXT_PUBLIC_GLITCHTIP_DSN` | Client-side GlitchTip DSN (frontend only). Both DSN vars skip init when unset, so local dev needs neither. | TD-36 | `frontend/sentry.client.config.ts` |
 | `REVALIDATION_SECRET` | Shared secret for the Next.js revalidate route; backend sends it in the webhook header | TD-M4 | TD-19 (sender side) |
+| `NEXT_PUBLIC_BASE_URL` | Canonical public site URL the backend/cron POST revalidations to (`https://siddhesh-chaudhari.com` in prod). Defaults to `http://localhost:3000` — an unset var silently breaks every revalidation | portfolio-sid-v2 | `revalidation.py` |
+| `PGBOUNCER_ENABLED` | `true` in prod — makes `database.py` disable both asyncpg statement caches (unsafe under pgbouncer transaction pooling) | portfolio-sid-v2 | `database.py::pgbouncer_connect_args`, `alembic/env.py` |
 
 > `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD` are **removed** (Access service dropped).
 > `SENTRY_DSN` removed in favour of GlitchTip. `TURNSTILE_*` removed (replaced by honeypot + rate-limit).
@@ -44,12 +46,41 @@ References only — **no secret values in this file**. `STITCH_API_KEY` lives ON
 | `REVALIDATION_SECRET` | Lives where the revalidate route reads it — **frontend build env**. Must equal the backend value | TD-M4 | TD-19 (route handler) |
 | `NEXT_PUBLIC_UMAMI_SRC` | Self-hosted Umami script URL (e.g. `https://umami.yourhost/script.js`); beacon no-ops when unset | TD-36 / prep | `frontend/app/layout.tsx` |
 | `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Umami website ID for this site; no-ops when unset | TD-36 / prep | `frontend/app/layout.tsx` |
+| `BACKEND_URL` | `http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:8080` — SSR fetches + Next rewrites target (Railway variable reference) | portfolio-sid-v2 | `next.config.ts` rewrites, `lib/api.ts` `getServerBase` |
+| `PUBLIC_API_PROXY` | Public admin origin used as the build-time prerender fallback when `*.railway.internal` is unresolvable (`https://admin-production-d152.up.railway.app`). Read server-side only | portfolio-sid-v2 | `lib/api.ts` `getFallbackServerBase` |
+| `NEXT_PUBLIC_BASE_URL` | Canonical site URL for `robots.ts`/`sitemap.ts`/`llms.txt`/JSON-LD (`https://siddhesh-chaudhari.com`) — never the generated hostname | portfolio-sid-v2 | robots/sitemap/llms.txt/contact/jsonld |
+| `NEXT_PUBLIC_API_BASE_URL` | **Unset in prod** — browser uses relative `/api` via rewrites (backend is private) | — | `lib/api.ts` client path |
 
 > `TURNSTILE_SITE_KEY` and `NEXT_PUBLIC_CF_BEACON_TOKEN` removed (Cloudflare dropped).
 
 ## Cron service (Railway)
 
-Reuses the backend image with a different start command — wire the **same env as backend**, at minimum `DATABASE_URL` (internal), `REVALIDATION_SECRET`, `STORAGE_KIND`, `LOCAL_STORAGE_DIR`, `MEDIA_BASE_URL`. Set in TD-M4; consumed by TD-19 scheduler.
+Reuses the backend image with a different start command — wire the **same env as backend**, at minimum `DATABASE_URL` (internal, via pgbouncer), `REVALIDATION_SECRET`, `STORAGE_KIND`, `LOCAL_STORAGE_DIR`, `MEDIA_BASE_URL`, `NEXT_PUBLIC_BASE_URL` (revalidation webhook target). Set in TD-M4; consumed by TD-19 scheduler. Runs one pass per `*/5` tick via `startCommand=python -m app.jobs.scheduler`; standalone (no backend API calls — see `DESIGN.md` D11).
+
+## PgBouncer service (Railway, private)
+
+`edoburu/pgbouncer:1.22.1-p0` — the ONLY service holding the Postgres URL.
+
+| Var | Value / purpose |
+|---|---|
+| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (Railway reference to the Postgres plugin) |
+| `POOL_MODE` | `transaction` |
+| `AUTH_TYPE` | `scram-sha-256` (image derives SCRAM from the plaintext password; `md5`/`any` fail) |
+| `MAX_CLIENT_CONN` / `DEFAULT_POOL_SIZE` / `RESERVE_POOL_SIZE` | `100` / `20` / `5` |
+| `LISTEN_ADDR` / `LISTEN_PORT` | `*` / `6432` |
+| `ADMIN_USERS` | `postgres` |
+| `IGNORE_STARTUP_PARAMETERS` | `extra_float_digits` |
+| `SERVER_RESET_QUERY` | `DISCARD ALL` — deallocates prepared statements on pooled server connections between clients |
+
+## Admin service (Railway, public)
+
+| Var | Value / purpose |
+|---|---|
+| `BACKEND_UPSTREAM` | `http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:8080` — nginx upstream, templated into `admin/nginx.conf` at container start (`admin/Dockerfile` CMD defaults to `http://backend.railway.internal:8080` when unset) |
+
+## Railway variable references
+
+Cross-service env values use `${{Service.VAR}}` references (dashboard dependency edges + auto-updates). Gotcha: the Railway **CLI and GraphQL API resolve references at write time** — references must be picked in the dashboard variable editor; the CLI stores the resolved literal. Literal-only by design: `NEXT_PUBLIC_BASE_URL`, `MEDIA_BASE_URL` (canonical custom domains), secrets.
 
 ## GitHub environment secrets
 

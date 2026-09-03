@@ -203,6 +203,9 @@ new token in the Railway dashboard (flagged user action).
 | D8 | `NEXT_PUBLIC_BASE_URL` added to backend/cron/frontend env | agent (noted) | Gap: revalidation + robots/sitemap/llms.txt would target localhost:3000 |
 | D9 | Seed runs in-container via `railway ssh` | agent (noted) | `railway run` is local-only; PDFs must land on `/data` volume |
 | D10 | Admin pre-deployed in P3 (before frontend's first build) | agent (noted) | `PUBLIC_API_PROXY` must be live when frontend prerenders |
+| D11 | Standalone cron confirmed (own DB connection via pgbouncer; no cron→backend edge) | explore-agent audit + user | Scheduler uses its own session factory; no backend promotion endpoint exists; local/CI run it as a standalone process; cron's only HTTP call is the frontend revalidation webhook |
+| D12 | Cross-service env values use Railway `${{Service.VAR}}` references; canonical public URLs stay literal | agent + user | Dashboard dependency edges + auto-updates. CLI/API resolve references at write, so reference picks happen in the dashboard variable editor |
+| D13 | admin nginx upstream templated via `BACKEND_UPSTREAM` env (`admin/Dockerfile` + `nginx.conf`) | user (approved) | Configurable upstream + admin→backend dashboard edge; dynamic resolver retained |
 
 ## 9. Risks & mitigations
 

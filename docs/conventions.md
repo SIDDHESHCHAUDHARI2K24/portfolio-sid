@@ -3,7 +3,8 @@
 The architectural contract. Every agent and every phase inherits these. Violations are mostly silent in a browser — that is why they are written here.
 
 ## Domain & hosts
-- Production: `siddhesh-chaudhari.com` · Admin: `admin.siddhesh-chaudhari.com` (Railway custom domain; single hostname for SPA + `/api/*`; Cloudflare Tunnel/Access dropped) · Media: served by backend at `admin.siddhesh-chaudhari.com/media` (Railway Volume; R2 dropped)
+- Production: `siddhesh-chaudhari.com` · Admin: `admin.siddhesh-chaudhari.com` (Railway custom domain on project `portfolio-sid-v2`; single hostname for SPA + `/api/*`; Cloudflare is registrar + DNS only) · Media: served by backend at `admin.siddhesh-chaudhari.com/media` (Railway Volume `/data` on backend; R2 dropped)
+- Railway generated hosts (`*.up.railway.app`) are secondary — canonical URLs always use the custom domains.
 - Domain renewal price and backup policy recorded here when confirmed (TD-M1, TD-M4).
 
 ### Domain registrar facts (TD-M1, 2026-08-28)
@@ -20,10 +21,11 @@ The architectural contract. Every agent and every phase inherits these. Violatio
 - **Restore drill:** a from-scratch restore into a throwaway scratch DB is run as part of TD-36 (see `restore-procedure.md`, created if missing). Restores never overwrite production; they target a scratch service only.
 - **Secrets:** `DATABASE_URL` lives only in Railway env / `RAILWAY_*` vars — never in git, logs, or responses (invariant #15).
 
-### Connection pooling — PgBouncer (2026-08-30)
-- **Local:** `docker-compose.yml` runs a `pgbouncer` sidecar (`edoburu/pgbouncer:1.22`) on `6432:5432`, `POOL_MODE=transaction`, `MAX_CLIENT_CONN=100`, `DEFAULT_POOL_SIZE=20`, `RESERVE_POOL=5`. Postgres stays on `5432` — tests default to direct. To opt in, set `PGBOUNCER_ENABLED=true` and `DATABASE_URL=...@localhost:6432/...` in `backend/.env` (see `LOCAL.md` §1a). Depends on `postgres` healthy; has its own `pg_isready` healthcheck.
-- **Production (Railway):** Postgres already exposes an **internal PgBouncer** — no sidecar service is deployed. Only asyncpg pool tuning applies (`backend/app/core/database.py`).
-- **Backend tuning:** `backend/app/core/config.py` exposes `database_pool_size` (default 10), `database_max_overflow` (5), `pgbouncer_enabled` (env `PGBOUNCER_ENABLED`, default false). `backend/app/core/database.py` creates the `AsyncEngine` with `pool_size`, `max_overflow`, `pool_pre_ping=True` on the default `AsyncAdaptedQueuePool` — intentionally **not** `NullPool` (see module docstring for justification: transaction mode is safe with `asyncpg` which does not use server-prepared statements by default; `NullPool` would defeat client-side pooling).
+### Connection pooling — PgBouncer (2026-08-30, updated 2026-09-02)
+- **Local:** `docker-compose.yml` runs a `pgbouncer` sidecar (`edoburu/pgbouncer:1.22.1-p0`) on `6432:5432`, `POOL_MODE=transaction`, `AUTH_TYPE=scram-sha-256`, `MAX_CLIENT_CONN=100`, `DEFAULT_POOL_SIZE=20`, `RESERVE_POOL_SIZE=5`. Postgres stays on `5432` — tests default to direct. To opt in, set `PGBOUNCER_ENABLED=true` and `DATABASE_URL=...@localhost:6432/...` in `backend/.env` (see `LOCAL.md` §1a). Depends on `postgres` healthy; has its own `pg_isready` healthcheck.
+- **Production (Railway `portfolio-sid-v2`):** a dedicated `pgbouncer` service (`edoburu/pgbouncer:1.22.1-p0`, private, `LISTEN_PORT=6432`) sits in front of the Postgres plugin. **Every** backend/cron connection goes `backend/cron → pgbouncer.railway.internal:6432 → postgres.railway.internal:5432`; nothing connects to Postgres directly. pgbouncer env: `DATABASE_URL=${{Postgres.DATABASE_URL}}`, `POOL_MODE=transaction`, `AUTH_TYPE=scram-sha-256`, pools 100/20/5, `SERVER_RESET_QUERY=DISCARD ALL` (cleans pooled server connections between clients).
+- **Backend tuning:** `backend/app/core/config.py` exposes `database_pool_size` (default 10), `database_max_overflow` (5), `pgbouncer_enabled` (env `PGBOUNCER_ENABLED`, default false). `backend/app/core/database.py` creates the `AsyncEngine` with `pool_size`, `max_overflow`, `pool_pre_ping=True` on the default `AsyncAdaptedQueuePool` — intentionally **not** `NullPool` (see module docstring). `pgbouncer_connect_args()` disables **both** asyncpg statement caches (`statement_cache_size=0` + `prepared_statement_cache_size=0`) when `PGBOUNCER_ENABLED=true`, and is used by **both** `build_engine` and `alembic/env.py` — an engine that forgets it crashes on redeploy with `DuplicatePreparedStatementError` on pooled pgbouncer connections (learned the hard way: alembic's standalone engine did exactly this on the first two deploys).
+- **Service references:** cross-service env values use Railway `${{Service.VAR}}` references (frontend `BACKEND_URL`, admin `BACKEND_UPSTREAM`, pgbouncer `DATABASE_URL`). Public-facing URLs (`NEXT_PUBLIC_BASE_URL`, `MEDIA_BASE_URL`) stay literal canonical domains, never generated hostnames.
 
 ## Invariants
 

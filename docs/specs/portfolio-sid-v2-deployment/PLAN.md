@@ -28,6 +28,16 @@
   `pgbouncer_connect_args` helper). Without it, redeploys crash with
   `DuplicatePreparedStatementError` on pooled pgbouncer server connections. pgbouncer also gets
   `SERVER_RESET_QUERY=DISCARD ALL` as defense-in-depth.
+- **GOTCHA (learned P4/P5):** a GitHub-connected service's builds stay pinned to the commit
+  recorded at source-connect time until a trigger push or `railway redeploy --from-source`
+  advances it. Cron ticks rebuilt `595b57e` for hours (crashing on the pre-fix code) until
+  `redeploy --from-source` moved it to latest main. **Push fixes BEFORE connecting sources**;
+  after re-authorizing GitHub, re-run `railway service source connect` per service — it creates
+  the deployment trigger (GraphQL `deploymentTriggerCreate` returns `Not Authorized` for the
+  CLI token even when the account is authorized).
+- **GOTCHA (learned Step 2):** Railway CLI `variable set` AND GraphQL `variableUpsert` both
+  resolve `${{Service.VAR}}` references at write time (unresolvable ones become empty strings).
+  References for dashboard dependency edges must be picked in the dashboard variable editor.
 - Never connect the Postgres plugin to the GitHub repo.
 - pgbouncer image tag is exactly `edoburu/pgbouncer:1.22.1-p0`; `AUTH_TYPE=scram-sha-256`; `POOL_MODE=transaction`.
 - Frontend start command is `npm run start` (NOT standalone).
