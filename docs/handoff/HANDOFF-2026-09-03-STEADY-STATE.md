@@ -30,7 +30,7 @@
 - Umami analytics (`NEXT_PUBLIC_UMAMI_*`) — deferred.
 - Untracked local files: `doctor.config.ts`, `.agents/`, `.claude/`, `.openhands/` — react-doctor hook prints a warning on every commit ("configuration differs between index and worktree"); harmless but noisy. Resolve or gitignore.
 - Dashboard canvas: variable-reference edges were created via IaC — confirm they render (cosmetic only).
-- Contact content editing feature — planned and implemented this session (`backend/app/features/contact/`, admin → Contact sidebar item). Content seeded by migration with defaults; admin edits persist + revalidate the `/contact` page.
+- Contact content editing — **LIVE** (`backend/app/features/contact/` singleton profile, seeded by migration `cc8619b8d037`, public `GET /api/v1/contact`, admin `GET/PUT /api/v1/admin/contact`, admin → Contact sidebar form). Edits revalidate the `contact` cache tag; the `/contact` page falls back to inline defaults if the row is missing.
 
 ## Secrets
 
