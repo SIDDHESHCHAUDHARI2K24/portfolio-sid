@@ -1,0 +1,9 @@
+{
+  "name": "portfolio-sid",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Railway Infrastructure-as-Code authoring for portfolio-sid-v2 (.railway/railway.ts)",
+  "devDependencies": {
+    "railway": "^3.11.0"
+  }
+}
