@@ -7,6 +7,7 @@ mismatched tag means revalidation silently does nothing.
 
 CERTS = "certifications"
 COLLECTIONS = "collections"
+CONTACT = "contact"
 FORMS = "forms"
 OVERVIEW = "overview"
 PROJECTS = "projects"
@@ -21,6 +22,7 @@ TIMELINE = "timeline"
 ALL_TAGS: tuple[str, ...] = (
     CERTS,
     COLLECTIONS,
+    CONTACT,
     FORMS,
     OVERVIEW,
     POSTS,

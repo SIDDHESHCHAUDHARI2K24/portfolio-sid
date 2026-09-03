@@ -27,6 +27,7 @@ metadata = Base.metadata
 from app.features.auth.models import LoginAttempt, OtpChallenge  # noqa: E402
 from app.features.certifications.models import Certification  # noqa: E402
 from app.features.collections.models import CollectionItem  # noqa: E402
+from app.features.contact.models import ContactProfile  # noqa: E402
 from app.features.crawlers.models import CrawlerHit  # noqa: E402
 from app.features.forms.models import FormSubmission  # noqa: E402
 from app.features.overview.models import OverviewIntro  # noqa: E402

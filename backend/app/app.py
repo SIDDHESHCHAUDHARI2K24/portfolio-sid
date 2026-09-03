@@ -17,6 +17,8 @@ from app.features.certifications.endpoints.router import admin_router as certs_a
 from app.features.certifications.endpoints.router import public_router as certs_public_router
 from app.features.collections.endpoints.router import admin_router as collections_admin_router
 from app.features.collections.endpoints.router import public_router as collections_public_router
+from app.features.contact.endpoints.router import admin_router as contact_admin_router
+from app.features.contact.endpoints.router import public_router as contact_public_router
 from app.features.crawlers.endpoints.router import admin_router as crawlers_admin_router
 from app.features.crawlers.middleware import crawler_middleware
 from app.features.forms.endpoints.router import admin_router as forms_admin_router
@@ -65,6 +67,8 @@ def register_routers(app: FastAPI) -> None:
     app.include_router(certs_admin_router)
     app.include_router(collections_public_router)
     app.include_router(collections_admin_router)
+    app.include_router(contact_public_router)
+    app.include_router(contact_admin_router)
     app.include_router(crawlers_admin_router)
     app.include_router(forms_public_router)
     app.include_router(forms_admin_router)
