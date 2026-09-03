@@ -41,3 +41,6 @@ resumes/*.pdf
 .DS_Store
 .idea/
 .vscode/
+
+# local disk storage (dev runs with STORAGE_KIND=local)
+backend/.storage/
