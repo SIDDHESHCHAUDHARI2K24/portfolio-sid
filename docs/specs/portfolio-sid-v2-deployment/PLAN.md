@@ -12,6 +12,14 @@
 
 - Never commit secrets; secret values live only in Railway env, gh `production` environment secrets, and local gitignored `backend/.env`. Never echo secret values in chat/logs/output.
 - Deploys build from `main` HEAD only (≥ `cb98d15`; intermediate commits `2bd928f..7527153` have a broken alembic chain).
+- **GOTCHA (learned P3):** `railway up` uploads the **git repo root** regardless of CWD. Deploys
+  of non-root build contexts MUST pass `--path-as-root <dir>` (e.g.
+  `railway up -s admin admin --path-as-root`); passing `.` as PATH panics with
+  "prefix not found". Without `--path-as-root`, admin built the repo-root `/Dockerfile`
+  (backend image) — the wrong service. Backend/cron (repo-root Dockerfile) need no PATH args.
+- CLI bugs: `railway volume -s <name> add` panics — pass the service ID. `railway variable set
+  KEY --stdin` with empty stdin sets the var to EMPTY; always pipe a value. Values containing
+  `$` must go via `--stdin` (never shell-interpolated — zsh expands `$argon2id` etc.).
 - Never connect the Postgres plugin to the GitHub repo.
 - pgbouncer image tag is exactly `edoburu/pgbouncer:1.22.1-p0`; `AUTH_TYPE=scram-sha-256`; `POOL_MODE=transaction`.
 - Frontend start command is `npm run start` (NOT standalone).
@@ -244,7 +252,9 @@ railway up --service backend --detach
 - [ ] **Step 5: Deploy admin (pre-deploy so PUBLIC_API_PROXY is live before frontend's first build)**
 
 ```bash
-cd admin && railway up --service admin --detach && cd ..
+# MUST pass --path-as-root: the CLI uploads the git repo root regardless of CWD (see Global Constraints)
+railway up -y -d -s admin admin --path-as-root
+railway domain -s admin   # generates the service domain (e.g. https://admin-production-XXXX.up.railway.app)
 ```
 
 - [ ] **Step 6: Backend gates (verifier sub-agent A)**
@@ -373,7 +383,7 @@ railway logs --service admin | tail -10      # nginx started
 
 - [ ] **Step 1: Draft the workflow** (code sub-agent)
 
-Key elements (handoff §6): `workflow_dispatch` with `service` choice input (`all|backend|cron|frontend|admin`); `environment: production`; Railway CLI pinned via `npx @railway/cli@<pinned>`; `RAILWAY_PROJECT_ID` env = portfolio-sid-v2 id; per-service jobs with correct workdir (`backend`/`cron`: repo root; `frontend`: `frontend/`; `admin`: `admin/`) → `railway up --service <s> --detach`; post-deploy health gate: `railway status` + `curl -f https://<frontend-host>/api/v1/health`; `concurrency: ci-deploy`; `timeout-minutes: 30`; `permissions: contents: read`; `RAILWAY_SILENT=true`; never echo the token.
+Key elements (handoff §6): `workflow_dispatch` with `service` choice input (`all|backend|cron|frontend|admin`); `environment: production`; Railway CLI pinned via `npx @railway/cli@<pinned>`; `RAILWAY_PROJECT_ID` env = portfolio-sid-v2 id; per-service jobs all run from the **repo root** workdir: `backend`/`cron` → `railway up -s <s> --detach` (root Dockerfile); `admin` → `railway up -s admin admin --path-as-root --detach` (MUST use `--path-as-root` — the CLI uploads the git repo root regardless of workdir); `frontend` → `railway up -s frontend frontend --path-as-root --detach`; post-deploy health gate: `railway status` + `curl -f https://<frontend-host>/api/v1/health`; `concurrency: ci-deploy`; `timeout-minutes: 30`; `permissions: contents: read`; `RAILWAY_SILENT=true`; never echo the token.
 
 - [ ] **Step 2: Verify token scope** (before any gh secret write)
 
