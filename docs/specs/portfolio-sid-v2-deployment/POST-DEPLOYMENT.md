@@ -65,6 +65,19 @@ Project `e0f5e770-6a95-41aa-99e4-3be94884d6ca` · env production `a6f89029-ec4a-
 
 Recorded in `docs/conventions.md` §Postgres backup policy. Restore-procedure.md caveat: use `postgres:18` scratch for a 18.x dump; the doc's `postgres:16-alpine` example applies to older servers only.
 
+## Infrastructure as Code (adopted 2026-09-02)
+
+- `railway.toml` (root) + `frontend/railway.toml` (deprecated Config-as-Code) **deleted**; their settings were already mirrored in per-service configs (`healthcheckPath=/` re-set on frontend before removal).
+- `.railway/railway.ts` (committed, `468c183`) is now the single source of truth for the project: 6 services with sources/build configs, cron schedule, volumes, custom domains, and **variable references** (`Postgres.env.DATABASE_URL`, composed `${{...}}` markers for backend/cron DATABASE_URL, `backend.RAILWAY_PRIVATE_DOMAIN` for frontend/admin upstreams) — these create the dashboard dependency edges. Secrets stay on Railway via `preserve()`.
+- Applied via `railway config plan` → `apply --yes`: **0 add / 2 change / 0 destroy** (only backend + cron DATABASE_URL moved to composed references). Post-apply monitoring: backend alembic + Uvicorn clean, cron tick clean, untouched services kept their baseline deployment IDs, full gate suite green.
+- `railway config plan --detailed-exit-code` is the CI drift gate if wanted later (`railwayapp/config` action).
+
+## CI fallback (deploy.yml)
+
+- Rewritten for portfolio-sid-v2: matrix over the 4 code services, `RAILWAY_PROJECT_ID` targeting, **`RAILWAY_API_TOKEN` env (v5 CLI ignores `RAILWAY_TOKEN`)** — learned the hard way, per-service wait-for-SUCCESS step, health gate (domain via `railway link` first — `domain list` has no `-p` flag), `concurrency: ci-deploy`, dispatch-only.
+- Token: account-level token (project tokens are rejected by the CLI even though the raw API accepts them). Stored ONLY as the gh `production` environment secret.
+- Dispatch test (service=all): 4× deploy SUCCESS + health gate green (`33706687516`).
+
 ## DoD checklist (final)
 
 - [x] All 4 code services deploy from a GitHub push (native trigger) — SUCCESS

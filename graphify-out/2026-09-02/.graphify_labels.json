@@ -24,14 +24,14 @@
   "22": "test_storage.py",
   "23": "4. Gaps Identified",
   "24": "4. Gaps Identified",
-  "25": "layout.tsx",
+  "25": "CategoryProvider.tsx",
   "26": "HANDOFF — Session 3 (P0 design + P2 content tracks A–F)",
   "27": "StorageAdapter",
   "28": "CertsForm.tsx",
   "29": "apiFetch",
   "30": "conftest.py",
   "31": "test_auth.py",
-  "32": "CategoryProvider.tsx",
+  "32": "useCategory",
   "33": "src/lib/api.ts",
   "34": "collections/service.py",
   "35": "compilerOptions",
@@ -242,7 +242,7 @@
   "240": "graphify reference: GitHub clone and cross-repo merge",
   "241": "graphify reference: transcribe video and audio",
   "242": "React Doctor",
-  "243": "clsx",
+  "243": "AudioPlayer.tsx",
   "244": "revalidate",
   "245": "react-dom",
   "246": "react-router-dom",
@@ -339,5 +339,6 @@
   "337": "test_overview.py",
   "338": "test_resumes.py",
   "339": "POST-DEPLOYMENT — portfolio-sid-v2",
-  "340": "class-variance-authority"
+  "340": "class-variance-authority",
+  "341": "lucide-react"
 }

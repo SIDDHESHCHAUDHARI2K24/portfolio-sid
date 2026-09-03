@@ -1700,8 +1700,8 @@
     "semantic_hash": ""
   },
   ".github/workflows/deploy.yml": {
-    "mtime": 1788395606.2467883,
-    "ast_hash": "f45544d1e52e3969b3f450c2cc1235fa",
+    "mtime": 1788401485.0303383,
+    "ast_hash": "0462488880def1cb033ae59a72aa24b5",
     "semantic_hash": ""
   },
   ".github/workflows/e2e.yml": {
@@ -2605,8 +2605,23 @@
     "semantic_hash": ""
   },
   "docs/specs/portfolio-sid-v2-deployment/POST-DEPLOYMENT.md": {
-    "mtime": 1788399499.6680584,
-    "ast_hash": "44282c4e7baead7979a5f8ae1551dea3",
+    "mtime": 1788401746.8354177,
+    "ast_hash": "f5ffd887272dbd400106681c51f1427e",
+    "semantic_hash": ""
+  },
+  ".railway/railway.ts": {
+    "mtime": 1788400514.217623,
+    "ast_hash": "b71c55da5c7b96a443e301f74e760434",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1788400355.6827314,
+    "ast_hash": "45a405ffcf97a269cdfd8ca838108497",
+    "semantic_hash": ""
+  },
+  ".railway/README.md": {
+    "mtime": 1788400433.007456,
+    "ast_hash": "668be168e7dcb25577ef32e217652cab",
     "semantic_hash": ""
   }
 }
