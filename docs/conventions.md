@@ -15,10 +15,10 @@ The architectural contract. Every agent and every phase inherits these. Violatio
 - **Renewal price:** `TBD` — owner to confirm in Cloudflare Domains dashboard and replace this
   placeholder. Price is a dashboard fact only; never committed as a secret.
 
-### Postgres backup policy (TD-M4, 2026-08-29)
-- **Provider:** Railway-managed Postgres (`Postgres` service in project `awake-success`, production environment).
+### Postgres backup policy (TD-M4, 2026-08-29 · drill 2026-09-02)
+- **Provider:** Railway-managed Postgres (`Postgres` service in project `portfolio-sid-v2`, production environment). Server version: Postgres **18**.
 - **Automated backups:** Railway performs automated daily backups with point-in-time recovery. Exact retention is per Railway's current plan — owner to confirm the window in Railway dashboard → `Postgres` → Settings and update this note. The dashboard value is the source of truth.
-- **Restore drill:** a from-scratch restore into a throwaway scratch DB is run as part of TD-36 (see `restore-procedure.md`, created if missing). Restores never overwrite production; they target a scratch service only.
+- **Restore drill (executed 2026-09-02, PASS):** logical dump via `railway connect Postgres --tunnel-only -P 5434` + `pg_dump --format=custom` (Docker `postgres:18` — must match the server major version), restored into scratch `postgres:18` container with `pg_restore --no-owner --clean --if-exists`. Verified row counts (timeline=14, projects=5, skills=43, overview=6, topic_tags=20, resumes=6) and `alembic_version = 3acf873925fa` (single head). Restores never overwrite production; they target a scratch service only.
 - **Secrets:** `DATABASE_URL` lives only in Railway env / `RAILWAY_*` vars — never in git, logs, or responses (invariant #15).
 
 ### Connection pooling — PgBouncer (2026-08-30, updated 2026-09-02)

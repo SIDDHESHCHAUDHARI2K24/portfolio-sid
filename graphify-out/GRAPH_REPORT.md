@@ -1,16 +1,16 @@
 # Graph Report - Portfolio  (2026-09-02)
 
 ## Corpus Check
-- 498 files · ~309,482 words
+- 498 files · ~309,636 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4290 nodes · 7734 edges · 341 communities (300 shown, 41 thin omitted)
+- 4290 nodes · 7734 edges · 342 communities (301 shown, 41 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 219 edges (avg confidence: 0.53)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f1be0961`
+- Built from commit: `d5c91140`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -40,14 +40,14 @@
 - test_storage.py
 - 4. Gaps Identified
 - 4. Gaps Identified
-- layout.tsx
+- CategoryProvider.tsx
 - HANDOFF — Session 3 (P0 design + P2 content tracks A–F)
 - StorageAdapter
 - CertsForm.tsx
 - apiFetch
 - conftest.py
 - test_auth.py
-- CategoryProvider.tsx
+- useCategory
 - src/lib/api.ts
 - collections/service.py
 - compilerOptions
@@ -248,7 +248,7 @@
 - graphify reference: GitHub clone and cross-repo merge
 - graphify reference: transcribe video and audio
 - React Doctor
-- clsx
+- AudioPlayer.tsx
 - revalidate
 - react-dom
 - react-router-dom
@@ -313,6 +313,7 @@
 - test_resumes.py
 - POST-DEPLOYMENT — portfolio-sid-v2
 - class-variance-authority
+- lucide-react
 
 ## God Nodes (most connected - your core abstractions)
 1. `Settings` - 97 edges
@@ -341,7 +342,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (341 total, 41 thin omitted)
+## Communities (342 total, 41 thin omitted)
 
 ### Community 0 - "thesis/endpoints/router.py"
 Cohesion: 0.19
@@ -365,7 +366,7 @@ Nodes (33): public_filter(), Any, Published rows, plus scheduled rows whose ``pu
 
 ### Community 5 - "apiFetch"
 Cohesion: 0.06
-Nodes (42): BooksClient(), Item, SECTION_CONFIG, Item, metadata, HowIUseAiPage(), metadata, PostItem (+34 more)
+Nodes (39): BooksClient(), Item, SECTION_CONFIG, Item, metadata, HowIUseAiPage(), metadata, PostItem (+31 more)
 
 ### Community 6 - "projects/service.py"
 Cohesion: 0.09
@@ -443,9 +444,9 @@ Nodes (36): 1. Purpose, 2.1 Application Layer, 2.2 Data & Storage, 2.3 Infrastru
 Cohesion: 0.05
 Nodes (36): 1. Purpose, 2.1 Application Layer, 2.2 Data & Storage, 2.3 Infrastructure & Third-Party, 2. Stack Components, 3.1 Discoverability & SEO — *the constraint that shaped the stack*, 3.2 Content Domain, 3.3 Interaction & Presentation (+28 more)
 
-### Community 25 - "layout.tsx"
-Cohesion: 0.10
-Nodes (23): geistMono, geistSans, metadata, AUDIO_TRACKS, AudioTrack, AudioContext, AudioControls, AudioProvider() (+15 more)
+### Community 25 - "CategoryProvider.tsx"
+Cohesion: 0.13
+Nodes (17): geistMono, geistSans, metadata, CategoryContext, CategoryProvider(), CategoryState, clearCookie(), readCookie() (+9 more)
 
 ### Community 26 - "HANDOFF — Session 3 (P0 design + P2 content tracks A–F)"
 Cohesion: 0.06
@@ -471,9 +472,9 @@ Nodes (21): admin_settings(), _base_url(), clean_auth_tables(), client(), db_eng
 Cohesion: 0.20
 Nodes (25): injected_jwks(), _mock_send(), AsyncClient, AsyncSession, fixture, MonkeyPatch, Auth flow: login, OTP lifecycle, lockout, rate limit, Cloudflare Access., Replace the Resend send; record (code, to). No live email in tests. (+17 more)
 
-### Community 32 - "CategoryProvider.tsx"
-Cohesion: 0.07
-Nodes (34): CategoryContext, CategoryProvider(), CategoryState, clearCookie(), readCookie(), useCategory(), writeCookie(), Props (+26 more)
+### Community 32 - "useCategory"
+Cohesion: 0.09
+Nodes (25): useCategory(), Props, TagMap, TagRef, ThesisClient(), ThesisEntry, Intro, Props (+17 more)
 
 ### Community 33 - "src/lib/api.ts"
 Cohesion: 0.15
@@ -617,7 +618,7 @@ Nodes (17): Accessibility, Category Selector, Changelog, Colour Semantics, Colou
 
 ### Community 68 - "dependencies"
 Cohesion: 0.12
-Nodes (17): dependencies, lucide-react, radix-ui, react, shadcn, tailwind-merge, tailwindcss, @tailwindcss/vite (+9 more)
+Nodes (17): dependencies, clsx, radix-ui, react, shadcn, tailwind-merge, tailwindcss, @tailwindcss/vite (+9 more)
 
 ### Community 69 - "devDependencies"
 Cohesion: 0.12
@@ -700,8 +701,8 @@ Cohesion: 0.17
 Nodes (11): Global Constraints, P2 Execution Plan — Sessions 3+, Pre-dispatch checklist, Sub-agent: TD-25 (Track A — Projects), Sub-agent: TD-30 (Track F — Intro + Audio), Task 1: GitHub Authentication + Push Pending Commits, Task 2: TD-10 — Stitch MCP Verification + DESIGN.md Export, Task 3: TD-11 — Design Tokens → Tailwind/shadcn Both Apps (+3 more)
 
 ### Community 89 - "projects/[slug]/page.tsx"
-Cohesion: 0.26
-Nodes (9): ProjectPage(), Props, extractYouTubeId(), ProjectDetail(), Props, AttachmentRef, Project, TagRef (+1 more)
+Cohesion: 0.16
+Nodes (15): metadata, ProjectsPage(), TagMapResponse, ProjectPage(), Props, extractYouTubeId(), ProjectDetail(), Props (+7 more)
 
 ### Community 90 - "TD-M1: Verify Cloudflare Zone Active + Renewal/WHOIS Record"
 Cohesion: 0.18
@@ -1234,6 +1235,10 @@ Nodes (5): apiHost, nextConfig, RemotePattern, remotePatterns, sentryConfig
 ### Community 242 - "React Doctor"
 Cohesion: 0.13
 Nodes (13): Commands, Config shape, Decision guide, Educating the user, Explaining and configuring rules, Workflow, After making React code changes:, Command (+5 more)
+
+### Community 243 - "AudioPlayer.tsx"
+Cohesion: 0.23
+Nodes (12): AUDIO_TRACKS, AudioTrack, AudioContext, AudioControls, AudioProvider(), AudioState, loadState(), saveState() (+4 more)
 
 ### Community 244 - "revalidate"
 Cohesion: 0.20

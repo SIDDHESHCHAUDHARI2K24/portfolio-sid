@@ -295,8 +295,8 @@
     "semantic_hash": ""
   },
   "backend/alembic/env.py": {
-    "mtime": 1786260939.8014812,
-    "ast_hash": "077fda39ae388c71975d87a455dcb579",
+    "mtime": 1788395376.4491003,
+    "ast_hash": "3202377bc42b5a0aaf87924d20d26483",
     "semantic_hash": ""
   },
   "backend/alembic/versions/06695a8acd9c_projects.py": {
@@ -400,8 +400,8 @@
     "semantic_hash": ""
   },
   "backend/app/core/database.py": {
-    "mtime": 1788154248.8044088,
-    "ast_hash": "d356d29e85c1a02c4a6f0ba87410c49a",
+    "mtime": 1788395365.7877293,
+    "ast_hash": "4ba29e8eb0c2ff0405d5b5bc898b77c2",
     "semantic_hash": ""
   },
   "backend/app/core/deps.py": {
@@ -1470,8 +1470,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/api.ts": {
-    "mtime": 1788148601.258261,
-    "ast_hash": "df04ee8f811c3b28a0b8135be88ba802",
+    "mtime": 1788393890.2032545,
+    "ast_hash": "977015db4a6eb53c9554e38885934e71",
     "semantic_hash": ""
   },
   "frontend/lib/cacheTags.ts": {
@@ -1700,8 +1700,8 @@
     "semantic_hash": ""
   },
   ".github/workflows/deploy.yml": {
-    "mtime": 1788047099.9523287,
-    "ast_hash": "08608a8c421ce4ab250486900c16a0d7",
+    "mtime": 1788395606.2467883,
+    "ast_hash": "f45544d1e52e3969b3f450c2cc1235fa",
     "semantic_hash": ""
   },
   ".github/workflows/e2e.yml": {
@@ -2055,8 +2055,8 @@
     "semantic_hash": ""
   },
   "docs/conventions.md": {
-    "mtime": 1788140203.3896723,
-    "ast_hash": "5c61f47fe2b5221c03e7ebcf57bda4c7",
+    "mtime": 1788398991.8249729,
+    "ast_hash": "33c69251a6a65fc4605ab9d2ad3b1b72",
     "semantic_hash": ""
   },
   "docs/dependency-map.md": {
@@ -2175,8 +2175,8 @@
     "semantic_hash": ""
   },
   "docs/handoff/env-vars-registry.md": {
-    "mtime": 1788044329.0914962,
-    "ast_hash": "1c825fc2ec3026594750b37a7ed32bd4",
+    "mtime": 1788399043.8166077,
+    "ast_hash": "60697b839b01d7c2f05b9d5dc46025c3",
     "semantic_hash": ""
   },
   "docs/handoff/manual-checklists.md": {
@@ -2405,8 +2405,8 @@
     "semantic_hash": ""
   },
   "backend/app/tests/test_pgbouncer_config.py": {
-    "mtime": 1788154253.2319913,
-    "ast_hash": "1024e28061b061d8d79f17bf700b2901",
+    "mtime": 1788395386.1577606,
+    "ast_hash": "c4e87ef4657fc457a353e92dbbedae7b",
     "semantic_hash": ""
   },
   "backend/scripts/resume_canon.json": {
@@ -2475,8 +2475,8 @@
     "semantic_hash": ""
   },
   "LOCAL.md": {
-    "mtime": 1788140199.6509356,
-    "ast_hash": "60509d21bf730fa7e3df7d3436f0ca19",
+    "mtime": 1788399055.127725,
+    "ast_hash": "25cfa237e4ff004455c1a2255b3b7809",
     "semantic_hash": ""
   },
   "docs/features/README.md": {
@@ -2570,13 +2570,13 @@
     "semantic_hash": ""
   },
   "docs/specs/portfolio-sid-v2-deployment/DESIGN.md": {
-    "mtime": 1788393513.9156559,
-    "ast_hash": "08a6e2de290c17718e17d277569e1a72",
+    "mtime": 1788399063.516995,
+    "ast_hash": "497d06211892198550524fe4af0a9356",
     "semantic_hash": ""
   },
   "docs/specs/portfolio-sid-v2-deployment/PLAN.md": {
-    "mtime": 1788393647.2947338,
-    "ast_hash": "f7f38b31d2d8b7240afba1f98a4c6526",
+    "mtime": 1788399072.5376093,
+    "ast_hash": "a1130f8c0470bc17142b8445db10d39c",
     "semantic_hash": ""
   },
   "docs/specs/resume-consolidation/PLAN.md": {
@@ -2604,34 +2604,9 @@
     "ast_hash": "23ccf3fe6525e5ccd603a094b4a0fe43",
     "semantic_hash": ""
   },
-  "backend/.storage/resumes/ai_consultant-0d204aa3f8ba.pdf": {
-    "mtime": 1788141134.8692722,
-    "ast_hash": "40669c980c459dafd84f1ef6a94cb299",
-    "semantic_hash": ""
-  },
-  "backend/.storage/resumes/ai_workflow-e3ed1e9274ac.pdf": {
-    "mtime": 1788141134.8699205,
-    "ast_hash": "b072b6f7043cf18f401a41c4f3a83c52",
-    "semantic_hash": ""
-  },
-  "backend/.storage/resumes/business-50f1c66ca317.pdf": {
-    "mtime": 1788141134.8647835,
-    "ast_hash": "053693e86d24ae0dced6f25e1d25ffdf",
-    "semantic_hash": ""
-  },
-  "backend/.storage/resumes/generic-dccb65b73d34.pdf": {
-    "mtime": 1788141134.8678472,
-    "ast_hash": "092a7fd6c7fb59cc464ac8893935c769",
-    "semantic_hash": ""
-  },
-  "backend/.storage/resumes/product_engineer-a219e2c3f80a.pdf": {
-    "mtime": 1788141134.8705235,
-    "ast_hash": "4c864312108735bf09737ac1212fb624",
-    "semantic_hash": ""
-  },
-  "backend/.storage/resumes/vc-cc4ec9e219da.pdf": {
-    "mtime": 1788141134.86864,
-    "ast_hash": "d9ff0ccf36b32ad71dd24ff95bbdd4ef",
+  "docs/specs/portfolio-sid-v2-deployment/POST-DEPLOYMENT.md": {
+    "mtime": 1788399106.3912773,
+    "ast_hash": "81116d7bc340262b2c68c3e38801910d",
     "semantic_hash": ""
   }
 }

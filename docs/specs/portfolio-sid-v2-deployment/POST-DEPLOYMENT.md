@@ -54,7 +54,16 @@ Project `e0f5e770-6a95-41aa-99e4-3be94884d6ca` · env production `a6f89029-ec4a-
 
 ## Restore drill (restore-procedure.md §3)
 
-See "Restore drill" section at the bottom — result recorded after execution.
+**Executed 2026-09-02 — PASS.**
+
+1. Tunnel: `railway connect Postgres --tunnel-only -P 5434` (SSH tunnel; the plugin has no public proxy URL).
+2. Dump: Docker `postgres:18` `pg_dump --format=custom --compress=9` through `host.docker.internal:5434` (62 KB — content is the seed dataset). **Note:** pg_dump must match the server major (plugin = Postgres 18; `postgres:16-alpine` aborts with "server version mismatch").
+3. Scratch: `docker run postgres:18` (name `restore-drill`, port 5435) → `CREATE DATABASE portfolio_restore`.
+4. Restore: `pg_restore --no-owner --clean --if-exists` → exit 0.
+5. Verified: timeline=14, projects=5, skills=43, certifications=0, posts=0, prose=0, collections=0, overview=6, topic_tags=20, audience_tag_map=14, resumes=6, form_submissions=0; `alembic_version` = `3acf873925fa` (single head, matches `alembic heads`).
+6. Teardown: container removed, tunnel closed.
+
+Recorded in `docs/conventions.md` §Postgres backup policy. Restore-procedure.md caveat: use `postgres:18` scratch for a 18.x dump; the doc's `postgres:16-alpine` example applies to older servers only.
 
 ## DoD checklist (final)
 
