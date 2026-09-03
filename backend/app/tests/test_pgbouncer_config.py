@@ -154,7 +154,10 @@ def test_build_engine_disables_prepared_statement_cache_when_pgbouncer(
         database_url="postgresql+asyncpg://portfolio:portfolio@localhost:6432/portfolio",
     )
     db_module.build_engine(settings)
-    assert captured["connect_args"] == {"prepared_statement_cache_size": 0}
+    assert captured["connect_args"] == {
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0,
+    }
     assert captured["pool_size"] == 10
     assert captured["max_overflow"] == 5
     assert captured["pool_pre_ping"] is True

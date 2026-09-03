@@ -70,7 +70,10 @@ def build_engine(settings: Settings) -> AsyncEngine:
         max_overflow=settings.database_max_overflow,
         pool_pre_ping=True,
         connect_args=(
-            {"prepared_statement_cache_size": 0}
+            {
+                "statement_cache_size": 0,
+                "prepared_statement_cache_size": 0,
+            }
             if settings.pgbouncer_enabled
             else {}
         ),

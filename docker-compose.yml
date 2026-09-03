@@ -31,6 +31,7 @@ services:
       DB_PASSWORD: portfolio
       DB_NAME: portfolio
       POOL_MODE: transaction
+      AUTH_TYPE: scram-sha-256
       MAX_CLIENT_CONN: 100
       DEFAULT_POOL_SIZE: 20
       RESERVE_POOL: 5
