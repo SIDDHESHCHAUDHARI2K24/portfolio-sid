@@ -5,11 +5,11 @@ import { CACHE_TAGS, type CacheTag } from "./cacheTags";
 // Railway private network URL (http://backend.railway.internal:8080) so
 // runtime SSR stays on the private network. The Railway builder cannot resolve
 // *.railway.internal at build time (prerender), so apiFetch retries with the
-// public admin proxy (https://admin-production-9cc7.up.railway.app) when a
-// private fetch fails with ENOTFOUND/ECONNREFUSED. Client falls back to
+// public admin proxy (PUBLIC_API_PROXY env, e.g. https://<admin>.up.railway.app)
+// when a private fetch fails with ENOTFOUND/ECONNREFUSED. Client falls back to
 // relative "/api/v1" which is proxied via Next.js rewrites to the same private
 // backend (see next.config.ts).
-const PUBLIC_PROXY = "https://admin-production-9cc7.up.railway.app";
+const PUBLIC_PROXY = process.env.PUBLIC_API_PROXY ?? "";
 
 function getServerBase(): string {
   if (process.env.BACKEND_URL) return `${process.env.BACKEND_URL}/api/v1`;
@@ -21,8 +21,10 @@ function getFallbackServerBase(primary: string): string | null {
   // Railway builder cannot resolve *.railway.internal; always retry via public proxy.
   // Ignore NEXT_PUBLIC_API_BASE_URL when it is localhost (local dev .env) to ensure
   // the builder uses the public proxy rather than a dead localhost.
-  const publicFallback = `${PUBLIC_PROXY}/api/v1`;
-  if (publicFallback !== primary) return publicFallback;
+  if (PUBLIC_PROXY) {
+    const publicFallback = `${PUBLIC_PROXY}/api/v1`;
+    if (publicFallback !== primary) return publicFallback;
+  }
   const nextPublic = process.env.NEXT_PUBLIC_API_BASE_URL;
   if (nextPublic) {
     const candidate = `${nextPublic}/api/v1`;
