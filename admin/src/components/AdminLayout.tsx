@@ -24,6 +24,7 @@ import {
   MenuIcon,
   XIcon,
   SettingsIcon,
+  MailIcon,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -38,6 +39,7 @@ const NAV_ITEMS = [
   { to: '/prose', label: 'Prose', icon: PenLineIcon },
   { to: '/resumes', label: 'Resumes', icon: FileBadgeIcon },
   { to: '/forms', label: 'Forms', icon: FormInputIcon },
+  { to: '/contact', label: 'Contact', icon: MailIcon },
   { to: '/overview', label: 'Overview', icon: PresentationIcon },
   { to: '/tag-map', label: 'Tag Map', icon: TagsIcon },
   { to: '/crawlers', label: 'Crawlers', icon: BotIcon },

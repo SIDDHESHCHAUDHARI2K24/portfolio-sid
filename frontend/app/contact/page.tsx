@@ -19,11 +19,18 @@ export const ResumeAudienceMap: Record<string, string[]> = {
 };
 
 type Resume = paths["/api/v1/resumes"]["get"]["responses"]["200"]["content"]["application/json"][number];
+type Contact = paths["/api/v1/contact"]["get"]["responses"]["200"]["content"]["application/json"];
 
-const EMAIL = "siddhesh@example.com";
-const LINKEDIN_URL = "https://www.linkedin.com/in/siddheshchaudhari/";
-const CAL_URL = "https://cal.com/siddhesh";
-const GITHUB_URL = "https://github.com/siddhesh";
+const FALLBACK_CONTACT: Contact = {
+  email: "siddhesh@example.com",
+  linkedin_url: "https://www.linkedin.com/in/siddheshchaudhari/",
+  linkedin_label: "linkedin.com/in/siddheshchaudhari",
+  cal_url: "https://cal.com/siddhesh",
+  cal_label: "https://cal.com/siddhesh",
+  github_url: "https://github.com/siddhesh",
+  consent_text: "I consent to having my data stored for the purpose of this contact submission.",
+};
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
@@ -51,6 +58,16 @@ export default async function ContactPage() {
     // if API unavailable, page still renders
   }
 
+  let contact: Contact = FALLBACK_CONTACT;
+  try {
+    contact = await apiFetch<Contact>("/contact", {
+      tags: [CACHE_TAGS.contact],
+      revalidate: 3600,
+    });
+  } catch {
+    // seeded row missing (e.g. build-time against an older backend) — render defaults
+  }
+
   // 6 canonical variants per backend/scripts/resume_canon.json:resumes
   const VARIANT_ORDER = [
     "business",
@@ -68,8 +85,8 @@ export default async function ContactPage() {
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Siddhesh Chaudhari",
-    email: EMAIL,
-    sameAs: [LINKEDIN_URL, GITHUB_URL],
+    email: contact.email,
+    sameAs: [contact.linkedin_url, contact.github_url],
     url: `${BASE_URL}/contact`,
   };
 
@@ -87,7 +104,7 @@ export default async function ContactPage() {
             <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-1">
               Email
             </h2>
-            <span className="text-lg">{EMAIL}</span>
+            <span className="text-lg">{contact.email}</span>
           </div>
 
           <div>
@@ -95,12 +112,12 @@ export default async function ContactPage() {
               LinkedIn
             </h2>
             <a
-              href={LINKEDIN_URL}
+              href={contact.linkedin_url}
               rel="noopener noreferrer"
               target="_blank"
               className="text-lg underline underline-offset-2 hover:text-primary transition-colors"
             >
-              linkedin.com/in/siddheshchaudhari
+              {contact.linkedin_label}
             </a>
           </div>
 
@@ -109,12 +126,12 @@ export default async function ContactPage() {
               Book a call
             </h2>
             <a
-              href={CAL_URL}
+              href={contact.cal_url}
               rel="noopener noreferrer"
               target="_blank"
               className="text-lg underline underline-offset-2 hover:text-primary transition-colors"
             >
-              {CAL_URL}
+              {contact.cal_label}
             </a>
           </div>
         </section>
@@ -123,7 +140,7 @@ export default async function ContactPage() {
 
         <section className="mb-10">
           <h2 className="text-lg font-semibold mb-4">Send a message</h2>
-          <ContactForm consentText="I consent to having my data stored for the purpose of this contact submission." />
+          <ContactForm consentText={contact.consent_text} />
         </section>
       </main>
     </>

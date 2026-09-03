@@ -14,6 +14,7 @@ import CertsList from '@/routes/certs/CertsList'
 import CertsForm from '@/routes/certs/CertsForm'
 import CollectionsList from '@/routes/collections/CollectionsList'
 import CollectionsForm from '@/routes/collections/CollectionsForm'
+import ContactFormPage from '@/routes/contact/ContactForm'
 import PostList from '@/routes/posts/PostList'
 import PostForm from '@/routes/posts/PostForm'
 import ProseList from '@/routes/prose/ProseList'
@@ -58,6 +59,7 @@ function App() {
         <Route path="/collections" element={<CollectionsList />} />
         <Route path="/collections/new" element={<CollectionsForm />} />
         <Route path="/collections/:id/edit" element={<CollectionsForm />} />
+        <Route path="/contact" element={<ContactFormPage />} />
         <Route path="/posts" element={<PostList />} />
         <Route path="/posts/new" element={<PostForm />} />
         <Route path="/posts/:id/edit" element={<PostForm />} />

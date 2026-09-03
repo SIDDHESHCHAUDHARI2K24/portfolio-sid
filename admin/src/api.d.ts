@@ -297,6 +297,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Public */
+        get: operations["get_public_api_v1_contact_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin */
+        get: operations["get_admin_api_v1_admin_contact_get"];
+        /** Update */
+        put: operations["update_api_v1_admin_contact_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/crawlers/hits": {
         parameters: {
             query?: never;
@@ -1419,6 +1454,57 @@ export interface components {
          * @enum {string}
          */
         CollectionStatus: "reading" | "completed" | "want_to_read";
+        /** ContactAdmin */
+        ContactAdmin: {
+            /** Email */
+            email: string;
+            /** Linkedin Url */
+            linkedin_url: string;
+            /** Linkedin Label */
+            linkedin_label: string;
+            /** Cal Url */
+            cal_url: string;
+            /** Cal Label */
+            cal_label: string;
+            /** Github Url */
+            github_url: string;
+            /** Consent Text */
+            consent_text: string;
+        };
+        /** ContactPublic */
+        ContactPublic: {
+            /** Email */
+            email: string;
+            /** Linkedin Url */
+            linkedin_url: string;
+            /** Linkedin Label */
+            linkedin_label: string;
+            /** Cal Url */
+            cal_url: string;
+            /** Cal Label */
+            cal_label: string;
+            /** Github Url */
+            github_url: string;
+            /** Consent Text */
+            consent_text: string;
+        };
+        /** ContactUpdate */
+        ContactUpdate: {
+            /** Email */
+            email?: string | null;
+            /** Linkedin Url */
+            linkedin_url?: string | null;
+            /** Linkedin Label */
+            linkedin_label?: string | null;
+            /** Cal Url */
+            cal_url?: string | null;
+            /** Cal Label */
+            cal_label?: string | null;
+            /** Github Url */
+            github_url?: string | null;
+            /** Consent Text */
+            consent_text?: string | null;
+        };
         /** CoverLookupRequest */
         CoverLookupRequest: {
             /** Title */
@@ -3295,6 +3381,79 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CoverLookupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_public_api_v1_contact_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactPublic"];
+                };
+            };
+        };
+    };
+    get_admin_api_v1_admin_contact_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactAdmin"];
+                };
+            };
+        };
+    };
+    update_api_v1_admin_contact_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactAdmin"];
                 };
             };
             /** @description Validation Error */

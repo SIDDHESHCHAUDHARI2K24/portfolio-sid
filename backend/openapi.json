@@ -779,6 +779,87 @@
         }
       }
     },
+    "/api/v1/contact": {
+      "get": {
+        "tags": [
+          "contact"
+        ],
+        "summary": "Get Public",
+        "operationId": "get_public_api_v1_contact_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactPublic"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/contact": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get Admin",
+        "operationId": "get_admin_api_v1_admin_contact_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactAdmin"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Update",
+        "operationId": "update_api_v1_admin_contact_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactAdmin"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/crawlers/hits": {
       "get": {
         "tags": [
@@ -4687,6 +4768,175 @@
           "want_to_read"
         ],
         "title": "CollectionStatus"
+      },
+      "ContactAdmin": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "linkedin_url": {
+            "type": "string",
+            "title": "Linkedin Url"
+          },
+          "linkedin_label": {
+            "type": "string",
+            "title": "Linkedin Label"
+          },
+          "cal_url": {
+            "type": "string",
+            "title": "Cal Url"
+          },
+          "cal_label": {
+            "type": "string",
+            "title": "Cal Label"
+          },
+          "github_url": {
+            "type": "string",
+            "title": "Github Url"
+          },
+          "consent_text": {
+            "type": "string",
+            "title": "Consent Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "linkedin_url",
+          "linkedin_label",
+          "cal_url",
+          "cal_label",
+          "github_url",
+          "consent_text"
+        ],
+        "title": "ContactAdmin"
+      },
+      "ContactPublic": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "linkedin_url": {
+            "type": "string",
+            "title": "Linkedin Url"
+          },
+          "linkedin_label": {
+            "type": "string",
+            "title": "Linkedin Label"
+          },
+          "cal_url": {
+            "type": "string",
+            "title": "Cal Url"
+          },
+          "cal_label": {
+            "type": "string",
+            "title": "Cal Label"
+          },
+          "github_url": {
+            "type": "string",
+            "title": "Github Url"
+          },
+          "consent_text": {
+            "type": "string",
+            "title": "Consent Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "linkedin_url",
+          "linkedin_label",
+          "cal_url",
+          "cal_label",
+          "github_url",
+          "consent_text"
+        ],
+        "title": "ContactPublic"
+      },
+      "ContactUpdate": {
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "linkedin_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Linkedin Url"
+          },
+          "linkedin_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Linkedin Label"
+          },
+          "cal_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cal Url"
+          },
+          "cal_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cal Label"
+          },
+          "github_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Github Url"
+          },
+          "consent_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consent Text"
+          }
+        },
+        "type": "object",
+        "title": "ContactUpdate"
       },
       "CoverLookupRequest": {
         "properties": {
