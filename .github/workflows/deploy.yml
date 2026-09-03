@@ -66,6 +66,27 @@ jobs:
           # v5 CLI reads RAILWAY_API_TOKEN (RAILWAY_TOKEN is ignored)
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
+      - name: Wait for ${{ matrix.service }} deployment
+        if: ${{ (inputs.service == 'all' || inputs.service == matrix.service) && !cancelled() }}
+        run: |
+          for i in $(seq 1 60); do
+            status=$(railway service status -s ${{ matrix.service }} -e production -p ${{ env.RAILWAY_PROJECT_ID }} \
+              | awk '/Status:/ {print $2; exit}')
+            echo "attempt $i: $status"
+            case "$status" in
+              SUCCESS) exit 0 ;;
+              STOPPED) exit 0 ;;  # cron between ticks
+              CRASHED|FAILED|BUILD_FAILED)
+                railway logs -s ${{ matrix.service }} --lines 50
+                exit 1 ;;
+            esac
+            sleep 15
+          done
+          echo "::error::timed out waiting for ${{ matrix.service }} deployment"
+          exit 1
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
   health:
     name: health gate
     runs-on: ubuntu-latest
