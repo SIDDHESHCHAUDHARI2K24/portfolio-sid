@@ -1,4 +1,4 @@
-"""ContactProfile routers: public read-only, admin get/update singleton."""
+"""Contact routers: public read-only, admin get/update singleton + items."""
 
 from typing import Annotated
 
@@ -45,4 +45,4 @@ async def update(body: ContactUpdate, session: DbSession) -> ContactAdmin:
         await revalidate([CONTACT])
         return ContactAdmin(**profile)
     except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
+        raise HTTPException(status_code=422, detail=str(exc)) from exc

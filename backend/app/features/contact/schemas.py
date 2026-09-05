@@ -1,16 +1,40 @@
 """Contact Pydantic schemas."""
 
-from pydantic import BaseModel
+from uuid import UUID
+
+from pydantic import BaseModel, field_validator
+
+from app.features.contact.models import ContactItemKind
+
+ALLOWED_KINDS = sorted(k.value for k in ContactItemKind)
+
+
+class ContactItemPublic(BaseModel):
+    id: UUID
+    kind: str
+    label: str
+    url: str
+    sort_order: int
+
+
+class ContactItemUpdate(BaseModel):
+    id: UUID | None = None
+    kind: str
+    label: str
+    url: str
+
+    @field_validator("kind")
+    @classmethod
+    def _validate_kind(cls, v: str) -> str:
+        if v not in ALLOWED_KINDS:
+            allowed = ", ".join(ALLOWED_KINDS)
+            raise ValueError(f"kind must be one of: {allowed} (got {v!r})")
+        return v
 
 
 class ContactPublic(BaseModel):
-    email: str
-    linkedin_url: str
-    linkedin_label: str
-    cal_url: str
-    cal_label: str
-    github_url: str
     consent_text: str
+    items: list[ContactItemPublic]
 
 
 class ContactAdmin(ContactPublic):
@@ -18,10 +42,5 @@ class ContactAdmin(ContactPublic):
 
 
 class ContactUpdate(BaseModel):
-    email: str | None = None
-    linkedin_url: str | None = None
-    linkedin_label: str | None = None
-    cal_url: str | None = None
-    cal_label: str | None = None
-    github_url: str | None = None
     consent_text: str | None = None
+    items: list[ContactItemUpdate] | None = None

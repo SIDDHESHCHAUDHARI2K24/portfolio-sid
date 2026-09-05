@@ -1,43 +1,66 @@
-"""ContactProfile service: dicts in, dicts out (never ORM across the router)."""
+"""Contact service: dicts in, dicts out (never ORM across the router)."""
 
 from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.features.contact import repository
-from app.features.contact.models import ContactProfile
-from app.features.contact.schemas import ContactUpdate
+from app.features.contact.models import ContactItem, ContactItemKind, ContactProfile
+from app.features.contact.schemas import ContactItemUpdate, ContactUpdate
 
 
-def _profile_to_dict(profile: ContactProfile) -> dict[str, str]:
+def _item_to_dict(item: ContactItem) -> dict[str, object]:
     return {
-        "email": profile.email,
-        "linkedin_url": profile.linkedin_url,
-        "linkedin_label": profile.linkedin_label,
-        "cal_url": profile.cal_url,
-        "cal_label": profile.cal_label,
-        "github_url": profile.github_url,
-        "consent_text": profile.consent_text,
+        "id": item.id,
+        "kind": item.kind,
+        "label": item.label,
+        "url": item.url,
+        "sort_order": item.sort_order,
     }
 
 
-async def get_dict(session: AsyncSession) -> dict[str, str] | None:
-    profile = await repository.get(session)
+async def get_dict(session: AsyncSession) -> dict[str, object] | None:
+    profile = await repository.get_profile(session)
     if profile is None:
         return None
-    return _profile_to_dict(profile)
+    items = await repository.list_items(session)
+    return {
+        "consent_text": profile.consent_text,
+        "items": [_item_to_dict(i) for i in items],
+    }
 
 
-async def update_dict(session: AsyncSession, data: ContactUpdate) -> dict[str, str]:
-    profile = await repository.get(session)
+async def update_dict(session: AsyncSession, data: ContactUpdate) -> dict[str, object]:
+    profile = await repository.get_profile(session)
     if profile is None:
         raise ValueError("contact profile not found")
 
-    for key, value in data.model_dump(exclude_unset=True).items():
-        if value is not None:
-            setattr(profile, key, value)
+    if data.consent_text is not None:
+        profile.consent_text = data.consent_text
+        profile.updated_at = datetime.now(UTC)
+        await repository.update_profile(session, profile)
 
-    profile.updated_at = datetime.now(UTC)
-    await repository.update(session, profile)
+    if data.items is not None:
+        await _replace_items(session, data.items)
+
     await session.commit()
-    return _profile_to_dict(profile)
+    return await get_dict(session)  # type: ignore[return-value]
+
+
+async def _replace_items(session: AsyncSession, updates: list[ContactItemUpdate]) -> None:
+    """Full replace: array order becomes sort_order; rows are recreated.
+
+    Delete-and-insert keeps the semantics dead simple for a single-admin
+    editor (ids in the payload are advisory only — nothing is upserted).
+    """
+    await repository.delete_all_items(session)
+    for index, entry in enumerate(updates):
+        session.add(
+            ContactItem(
+                kind=ContactItemKind(entry.kind),
+                label=entry.label,
+                url=entry.url,
+                sort_order=index,
+            )
+        )
+    await session.flush()

@@ -1,26 +1,35 @@
-"""ContactProfile: public read + admin update with revalidation."""
+"""Contact: public read + admin full-replace update with revalidation."""
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import httpx
 import pytest
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import email
 from app.features.contact.endpoints import router as contact_router
-from app.features.contact.models import ContactProfile
+from app.features.contact.models import ContactItem, ContactProfile
 from app.tests.helpers import TEST_ADMIN_PASSWORD
 
-DEFAULT_PROFILE = {
-    "email": "siddhesh@example.com",
-    "linkedin_url": "https://www.linkedin.com/in/siddheshchaudhari/",
-    "linkedin_label": "linkedin.com/in/siddheshchaudhari",
-    "cal_url": "https://cal.com/siddhesh",
-    "cal_label": "https://cal.com/siddhesh",
-    "github_url": "https://github.com/siddhesh",
-    "consent_text": "I consent to having my data stored for the purpose of this contact submission.",
-}
+DEFAULT_ITEMS = [
+    {
+        "kind": "email",
+        "label": "s.chaudhari2k24@gmail.com",
+        "url": "mailto:s.chaudhari2k24@gmail.com",
+    },
+    {
+        "kind": "linkedin",
+        "label": "linkedin.com/in/siddheshchaudhari",
+        "url": "https://www.linkedin.com/in/siddheshchaudhari/",
+    },
+    {"kind": "cal", "label": "https://cal.com/siddhesh", "url": "https://cal.com/siddhesh"},
+]
+
+DEFAULT_CONSENT = (
+    "I consent to having my data stored for the purpose of this contact submission."
+)
 
 
 async def _login(client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -38,30 +47,34 @@ async def _login(client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch) -> 
     assert resp.status_code == 200
 
 
-async def _seed_profile(session: AsyncSession) -> ContactProfile:
-    profile = ContactProfile(**DEFAULT_PROFILE)
+async def _seed(session: AsyncSession) -> None:
+    profile = ContactProfile(consent_text=DEFAULT_CONSENT)
     session.add(profile)
+    for index, entry in enumerate(DEFAULT_ITEMS):
+        session.add(ContactItem(**entry, sort_order=index))
     await session.commit()
-    await session.refresh(profile)
-    return profile
 
 
 async def _clear(session: AsyncSession) -> None:
+    await session.execute(text("DELETE FROM contact_items"))
     await session.execute(text("DELETE FROM contact_profiles"))
     await session.commit()
 
 
 @pytest.mark.asyncio
-async def test_public_get_returns_profile(client: httpx.AsyncClient, session: AsyncSession) -> None:
+async def test_public_get_returns_profile_and_ordered_items(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
     await _clear(session)
-    await _seed_profile(session)
+    await _seed(session)
 
     resp = await client.get("http://test/api/v1/contact")
     assert resp.status_code == 200
     body = resp.json()
-    assert body["email"] == DEFAULT_PROFILE["email"]
-    assert body["linkedin_url"] == DEFAULT_PROFILE["linkedin_url"]
-    assert body["consent_text"] == DEFAULT_PROFILE["consent_text"]
+    assert body["consent_text"] == DEFAULT_CONSENT
+    assert [i["kind"] for i in body["items"]] == ["email", "linkedin", "cal"]
+    assert [i["sort_order"] for i in body["items"]] == [0, 1, 2]
+    assert body["items"][0]["url"] == "mailto:s.chaudhari2k24@gmail.com"
 
 
 @pytest.mark.asyncio
@@ -78,20 +91,20 @@ async def test_admin_update_requires_auth(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     await _clear(session)
-    await _seed_profile(session)
+    await _seed(session)
 
-    resp = await client.put("http://test/api/v1/admin/contact", json={"email": "x@y.com"})
+    resp = await client.put("http://test/api/v1/admin/contact", json={"consent_text": "x"})
     assert resp.status_code == 401
 
 
 @pytest.mark.asyncio
-async def test_admin_update_persists_and_revalidates(
+async def test_admin_update_replaces_items_in_order(
     client: httpx.AsyncClient,
     session: AsyncSession,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     await _clear(session)
-    await _seed_profile(session)
+    await _seed(session)
     await _login(client, monkeypatch)
 
     revalidated: list[Sequence[str]] = []
@@ -103,40 +116,73 @@ async def test_admin_update_persists_and_revalidates(
 
     resp = await client.put(
         "http://test/api/v1/admin/contact",
-        json={"email": "new@example.com", "cal_label": "Book time with me"},
+        json={
+            "consent_text": "Updated consent",
+            "items": [
+                {
+                    "kind": "instagram",
+                    "label": "@siddhesh",
+                    "url": "https://instagram.com/siddhesh",
+                },
+                {"kind": "generic", "label": "My site", "url": "https://example.com"},
+            ],
+        },
     )
     assert resp.status_code == 200
     body = resp.json()
-    assert body["email"] == "new@example.com"
-    assert body["cal_label"] == "Book time with me"
-    # untouched fields preserved
-    assert body["linkedin_url"] == DEFAULT_PROFILE["linkedin_url"]
+    assert body["consent_text"] == "Updated consent"
+    assert [(i["kind"], i["sort_order"]) for i in body["items"]] == [
+        ("instagram", 0),
+        ("generic", 1),
+    ]
     assert revalidated == [["contact"]]
 
     public = await client.get("http://test/api/v1/contact")
-    assert public.json()["email"] == "new@example.com"
+    assert public.json()["items"][0]["label"] == "@siddhesh"
 
 
 @pytest.mark.asyncio
-async def test_admin_update_404_when_missing(
+async def test_admin_update_rejects_unknown_kind(
     client: httpx.AsyncClient,
     session: AsyncSession,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     await _clear(session)
+    await _seed(session)
     await _login(client, monkeypatch)
 
-    resp = await client.put("http://test/api/v1/admin/contact", json={"email": "x@y.com"})
-    assert resp.status_code == 404
+    resp = await client.put(
+        "http://test/api/v1/admin/contact",
+        json={"items": [{"kind": "myspace", "label": "x", "url": "https://x.com"}]},
+    )
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_admin_update_can_clear_items(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    await _clear(session)
+    await _seed(session)
+    await _login(client, monkeypatch)
+
+    resp = await client.put(
+        "http://test/api/v1/admin/contact", json={"consent_text": "Only text", "items": []}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["items"] == []
+    assert resp.json()["consent_text"] == "Only text"
 
 
 @pytest.mark.asyncio
 async def test_singleton_guard_constraint(session: AsyncSession) -> None:
-    """Two rows must be impossible — the singleton_guard unique constraint."""
+    """Two profile rows must be impossible — the singleton_guard unique constraint."""
     await _clear(session)
-    await _seed_profile(session)
-    with pytest.raises(Exception):
-        duplicate = ContactProfile(**DEFAULT_PROFILE)
+    await _seed(session)
+    with pytest.raises(IntegrityError):
+        duplicate = ContactProfile(consent_text="dupe")
         session.add(duplicate)
         await session.commit()
     await session.rollback()
