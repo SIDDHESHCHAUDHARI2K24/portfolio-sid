@@ -45,8 +45,8 @@
     "semantic_hash": ""
   },
   "admin/src/api.d.ts": {
-    "mtime": 1788402956.4254665,
-    "ast_hash": "fa5c72b84baae128c6aa2dee5b18187d",
+    "mtime": 1788646668.5890388,
+    "ast_hash": "2548aefa9fa3ef81be91b1a4f2a7e355",
     "semantic_hash": ""
   },
   "admin/src/components/AdminLayout.tsx": {
@@ -430,8 +430,8 @@
     "semantic_hash": ""
   },
   "backend/app/core/models_registry.py": {
-    "mtime": 1788402883.4772875,
-    "ast_hash": "7b903fb71422df3d7b1cdeb9306151e4",
+    "mtime": 1788646536.7854342,
+    "ast_hash": "2971973074e3cb882bbe97fd1655266b",
     "semantic_hash": ""
   },
   "backend/app/core/queries.py": {
@@ -1150,8 +1150,8 @@
     "semantic_hash": ""
   },
   "backend/openapi.json": {
-    "mtime": 1788402926.7197964,
-    "ast_hash": "a48236405c6eada820575e67802075f2",
+    "mtime": 1788646667.198098,
+    "ast_hash": "948f89d6ff607308e359e82acc84a0eb",
     "semantic_hash": ""
   },
   "backend/pyproject.toml": {
@@ -1205,8 +1205,8 @@
     "semantic_hash": ""
   },
   "frontend/app/contact/page.tsx": {
-    "mtime": 1788402978.852875,
-    "ast_hash": "df0e9155bbe67581dafd2bf94b03ca0b",
+    "mtime": 1788646829.2350125,
+    "ast_hash": "e2d6187340d3c865d55095eaa9209572",
     "semantic_hash": ""
   },
   "frontend/app/dealflow/page.tsx": {
@@ -1545,8 +1545,8 @@
     "semantic_hash": ""
   },
   "frontend/src/api.d.ts": {
-    "mtime": 1788402957.486195,
-    "ast_hash": "fa5c72b84baae128c6aa2dee5b18187d",
+    "mtime": 1788646670.5274704,
+    "ast_hash": "2548aefa9fa3ef81be91b1a4f2a7e355",
     "semantic_hash": ""
   },
   "frontend/tests/accessibility/a11y.spec.ts": {
@@ -2625,8 +2625,8 @@
     "semantic_hash": ""
   },
   "admin/src/routes/contact/ContactForm.tsx": {
-    "mtime": 1788402999.9451509,
-    "ast_hash": "bc10127d7d0be8cf87949f79b9af498b",
+    "mtime": 1788646727.2488985,
+    "ast_hash": "3ae286b708be001d9b3764770d9cea48",
     "semantic_hash": ""
   },
   "backend/alembic/versions/cc8619b8d037_contact_profile_model_and_default_seed.py": {
@@ -2645,28 +2645,28 @@
     "semantic_hash": ""
   },
   "backend/app/features/contact/endpoints/router.py": {
-    "mtime": 1788402737.9407017,
-    "ast_hash": "1e601b6f5fde9a47d635f10cf31f4dd4",
+    "mtime": 1788646503.927258,
+    "ast_hash": "5074650df39ad769fa245ad1a4e9365c",
     "semantic_hash": ""
   },
   "backend/app/features/contact/models.py": {
-    "mtime": 1788402714.9454815,
-    "ast_hash": "ed37852d4b8a0206ec2d8aa797d9851c",
+    "mtime": 1788646475.000095,
+    "ast_hash": "c4d67f6b2b40deeca5503cb0a1ac6368",
     "semantic_hash": ""
   },
   "backend/app/features/contact/repository.py": {
-    "mtime": 1788402724.6729505,
-    "ast_hash": "034edb28d43bdc7b0be9e08bd95f93cc",
+    "mtime": 1788646488.3802226,
+    "ast_hash": "cbfa3e68897a0cb25ea1e2c800ab522f",
     "semantic_hash": ""
   },
   "backend/app/features/contact/schemas.py": {
-    "mtime": 1788402719.8190653,
-    "ast_hash": "cc23637bbaef539ed20385d43134f7d0",
+    "mtime": 1788646483.3931355,
+    "ast_hash": "228c1d8808ed3bba3976769831886ac6",
     "semantic_hash": ""
   },
   "backend/app/features/contact/service.py": {
-    "mtime": 1788402731.103062,
-    "ast_hash": "c3bbccc456182b54fcc67c84e78a1d3c",
+    "mtime": 1788646640.8611295,
+    "ast_hash": "9342e49bd5efecf4c8ec57826d8010f0",
     "semantic_hash": ""
   },
   "backend/app/features/contact/tests/__init__.py": {
@@ -2675,8 +2675,8 @@
     "semantic_hash": ""
   },
   "backend/app/features/contact/tests/test_contact.py": {
-    "mtime": 1788402943.34199,
-    "ast_hash": "b06cd3910e0a75896a2c518b1b23e533",
+    "mtime": 1788646527.0831888,
+    "ast_hash": "a2bbc7762cd253b1d5e482cac310ebb5",
     "semantic_hash": ""
   },
   "docs/DEPLOYMENT.md": {
@@ -2685,8 +2685,18 @@
     "semantic_hash": ""
   },
   "docs/handoff/HANDOFF-2026-09-03-STEADY-STATE.md": {
-    "mtime": 1788403205.0922043,
-    "ast_hash": "2394950a8fc574a69047d2a0a84efcd1",
+    "mtime": 1788647208.4449556,
+    "ast_hash": "fdea08c0f6f05fcd9b0f76b80fe29288",
+    "semantic_hash": ""
+  },
+  "backend/alembic/versions/a605878385db_contact_items_dynamic_list.py": {
+    "mtime": 1788646640.860894,
+    "ast_hash": "17d08881512bba296cf60f56dfff76cf",
+    "semantic_hash": ""
+  },
+  "frontend/components/icons/BrandIcons.tsx": {
+    "mtime": 1788646788.6473308,
+    "ast_hash": "e9fd9c1bc2d932bfbb13c4d91b9c0291",
     "semantic_hash": ""
   }
 }

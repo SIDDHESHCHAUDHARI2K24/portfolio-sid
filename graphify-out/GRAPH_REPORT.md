@@ -1,16 +1,16 @@
-# Graph Report - Portfolio  (2026-09-02)
+# Graph Report - Portfolio  (2026-09-05)
 
 ## Corpus Check
-- 514 files · ~314,950 words
+- 516 files · ~316,477 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4383 nodes · 7927 edges · 345 communities (303 shown, 42 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 222 edges (avg confidence: 0.53)
+- 4413 nodes · 8005 edges · 353 communities (312 shown, 41 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 237 edges (avg confidence: 0.54)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6501c1d2`
+- Built from commit: `af3adee6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -21,8 +21,8 @@
 - Audience
 - public_filter
 - apiFetch
-- projects/service.py
-- posts/service.py
+- timeline/endpoints/router.py
+- posts/endpoints/router.py
 - app/page.tsx
 - certifications/service.py
 - test_crawlers.py
@@ -30,7 +30,7 @@
 - Development Plan — Phase 0: Foundations
 - react
 - resumes/endpoints/router.py
-- ProjectList.tsx
+- certifications/endpoints/router.py
 - contact/endpoints/router.py
 - skills/endpoints/router.py
 - Development Plan — Phase 2: Parallel Replication
@@ -42,11 +42,11 @@
 - 4. Gaps Identified
 - IntroOverlay.tsx
 - HANDOFF — Session 3 (P0 design + P2 content tracks A–F)
-- test_static_mount.py
+- collections/service.py
 - CollectionsForm.tsx
 - apiFetch
-- conftest.py
-- FakeAsyncClient
+- database.py
+- deps.py
 - CategoryProvider.tsx
 - card.tsx
 - collections/endpoints/router.py
@@ -61,8 +61,8 @@
 - What You Must Do When Invoked
 - What You Must Do When Invoked
 - auth/endpoints/router.py
-- relevance/service.py
-- timeline/endpoints/router.py
+- revalidate
+- timeline/service.py
 - devDependencies
 - test_projects.py
 - PublishStatus
@@ -87,20 +87,20 @@
 - devDependencies
 - Railway Infra Bootstrap — Session Handoff
 - skills/page.tsx
-- database.py
+- admin_auth
 - Railway configuration
 - 2. Gaps vs. existing models/admin/frontend
 - HANDOFF — Session 1 (P0 foundations + P1 backend spine through TD-19)
 - [id]/page.tsx
 - src/components/ui/button.tsx
-- clsx
-- email.py
+- test_certifications.py
+- test_collections.py
 - Content Authoring Checklist (TD-36 / P3.T6.S6)
 - thesis/endpoints/router.py
-- test_change_password.py
-- CertsClient.tsx
 - auth/service.py
-- test_core_models.py
+- certifications/page.tsx
+- test_contact.py
+- TopicTag
 - Post-Development Report — Initial Build-Out (Phases P0–P3)
 - Global Constraints
 - projects/[slug]/page.tsx
@@ -114,7 +114,7 @@
 - scripts
 - .oxlintrc.json
 - Design — portfolio-sid-v2 Clean Railway Deployment
-- revalidate
+- test_revalidation.py
 - TD-00: Repo Init + Git Hygiene + Secrets Guardrails
 - TD-01: Agent Tooling — Graphify, CodeGraph, Superpowers
 - TD-02: Canonical Docs Set + Conventions + Pointer Files
@@ -187,7 +187,7 @@
 - dealflow/page.tsx
 - 2. Remaining tasks (priority order — do not reorder, pause for User where noted)
 - 4fc2a3dab90d_overview_intro_model_and_seeds.py
-- posts/endpoints/router.py
+- test_forms.py
 - Postgres Backup & Restore Procedure (TD-36 / gap G12)
 - Spec Catalog — Session 1 (Initial Build-Out, Phases P0–P3)
 - S2_T01 — Baseline Verification of Uncommitted P3 Work
@@ -248,7 +248,7 @@
 - graphify reference: transcribe video and audio
 - React Doctor
 - layout.tsx
-- resumes/service.py
+- covers.py
 - react-dom
 - react-router-dom
 - @tanstack/react-query
@@ -279,15 +279,15 @@
 - React Doctor
 - 2. Proposed design — Timeline Detail Page (Option 2)
 - LOCAL.md — Run the whole stack without any cloud secrets
-- test_seed_resumes.py
-- DbSession
+- scheduler.py
+- relevance/endpoints/router.py
 - Handoff — Cloudflare Removal & Revised Launch Plan
 - _classify_agent
 - HANDOFF — Session 5 (Engagement Session 2: Rescue, CI, Docs Architecture)
 - Post-Development Recap — 2026-08-30 (Resume Canon + Timeline Detail + pgBouncer)
 - LOCAL-01: Local Dev Runbook + Smoke Test
 - relevance/repository.py
-- env.py
+- core/__init__.py
 - Crawlers — AI-crawler hit analytics without storing IP addresses
 - Resumes — audience-variant resume registry over object storage keys
 - React Doctor Baseline
@@ -297,7 +297,7 @@
 - Session Prompt — Railway Infra & Hosting (Cloudflare-removal follow-up)
 - S2_T07 — Docstrings & Feature Docs Post-Development
 - Post-Development — Resume Consolidation (2026-08-30)
-- anime-manga/page.tsx
+- PostForm.tsx
 - S2_T05 / S2_T06 — CI Pipeline Post-Development
 - Session-2 Summary — What Shipped
 - src/lib/api.ts
@@ -306,26 +306,34 @@
 - @fontsource-variable/geist
 - features/README.md
 - doctor.config.ts
-- replace_map
+- crawlers/endpoints/router.py
 - test_skills.py
 - CertsForm.tsx
 - Handoff — Steady State (2026-09-03)
 - POST-DEPLOYMENT — portfolio-sid-v2
 - cc8619b8d037_contact_profile_model_and_default_seed.py
 - lucide-react
-- tileArrangement.ts
-- clean_relevance_tables
+- TileGrid.tsx
+- LocalDiskStorage
+- middleware.py
+- crawlers/repository.py
+- SkillsForm.tsx
+- email.py
+- a605878385db_contact_items_dynamic_list.py
+- clean_timeline_tables
+- clean_crawler_tables
+- class-variance-authority
 
 ## God Nodes (most connected - your core abstractions)
 1. `Settings` - 97 edges
 2. `apiFetch()` - 63 edges
 3. `Audience` - 63 edges
 4. `revalidate()` - 60 edges
-5. `Base` - 56 edges
-6. `TopicTag` - 55 edges
-7. `UUIDMixin` - 53 edges
-8. `TimestampMixin` - 53 edges
-9. `react` - 50 edges
+5. `Base` - 58 edges
+6. `UUIDMixin` - 55 edges
+7. `TimestampMixin` - 55 edges
+8. `TopicTag` - 55 edges
+9. `react` - 52 edges
 10. `PublishStatus` - 50 edges
 
 ## Surprising Connections (you probably didn't know these)
@@ -343,23 +351,23 @@
 ## Import Cycles
 - None detected.
 
-## Communities (345 total, 42 thin omitted)
+## Communities (353 total, 41 thin omitted)
 
 ### Community 0 - "Settings"
-Cohesion: 0.11
-Nodes (25): field_validator, Settings, build_engine(), AsyncEngine, Create the async engine from ``settings``. See module docstring for…, MonkeyPatch, PgBouncer pool-tuning regression tests (no DB required). Verifies ``Settings``…, The module-level engine in app.core.database respects Settings tuning. (+17 more)
+Cohesion: 0.12
+Nodes (25): field_validator, Settings, build_engine(), pgbouncer_connect_args(), AsyncEngine, Connect args that disable asyncpg statement caches under PgBouncer.…, Create the async engine from ``settings``. See module docstring for…, MonkeyPatch (+17 more)
 
 ### Community 1 - "overview/endpoints/router.py"
 Cohesion: 0.08
 Nodes (60): create(), delete(), get_admin(), get_public(), list_admin(), list_public(), DbSession, delete (+52 more)
 
 ### Community 2 - "forms/endpoints/router.py"
-Cohesion: 0.08
-Nodes (55): _check_rate_limit(), export_csv(), get_admin(), list_admin(), AsyncSession, DbSession, get, patch (+47 more)
+Cohesion: 0.11
+Nodes (40): _check_rate_limit(), export_csv(), get_admin(), list_admin(), AsyncSession, DbSession, get, patch (+32 more)
 
 ### Community 3 - "Audience"
 Cohesion: 0.10
-Nodes (62): Audience, Shared enums. ``DEFAULT_AUDIENCE`` is a Python-only sentinel for the…, Base, PublishableMixin, Declarative base, shared mixins, and core models. Every feature slice imports…, UUID primary key. Never a string column (index efficiency, rejects malformed…, UTC timestamps (stored timezone-aware, rendered viewer-local)., Manual ordering for lists (Books, Skills, Certifications...). (+54 more)
+Nodes (60): Audience, Shared enums. ``DEFAULT_AUDIENCE`` is a Python-only sentinel for the…, Base, PublishableMixin, Declarative base, shared mixins, and core models. Every feature slice imports…, UUID primary key. Never a string column (index efficiency, rejects malformed…, UTC timestamps (stored timezone-aware, rendered viewer-local)., Manual ordering for lists (Books, Skills, Certifications...). (+52 more)
 
 ### Community 4 - "public_filter"
 Cohesion: 0.10
@@ -367,27 +375,27 @@ Nodes (49): public_filter(), Any, Published rows, plus scheduled rows whose ``pu
 
 ### Community 5 - "apiFetch"
 Cohesion: 0.06
-Nodes (40): BooksClient(), Item, SECTION_CONFIG, Item, metadata, Cert, metadata, HowIUseAiPage() (+32 more)
+Nodes (41): AnimeMangaClient(), Item, Item, metadata, BooksClient(), Item, SECTION_CONFIG, Item (+33 more)
 
-### Community 6 - "projects/service.py"
-Cohesion: 0.09
-Nodes (51): create(), delete(), get_admin(), get_public(), list_admin(), list_public(), DbSession, delete (+43 more)
+### Community 6 - "timeline/endpoints/router.py"
+Cohesion: 0.06
+Nodes (75): Revalidation tag names (conventions invariant 11). One source for backend tag…, create(), delete(), get_admin(), get_public(), list_admin(), list_public(), DbSession (+67 more)
 
-### Community 7 - "posts/service.py"
-Cohesion: 0.21
-Nodes (25): PostCollection, create(), delete(), get(), list_admin(), list_by_collection(), list_public(), AsyncSession (+17 more)
+### Community 7 - "posts/endpoints/router.py"
+Cohesion: 0.11
+Nodes (47): create(), delete(), get_admin(), get_public(), list_admin(), list_public(), DbSession, delete (+39 more)
 
 ### Community 8 - "app/page.tsx"
 Cohesion: 0.08
-Nodes (38): Cert, CollectionItem, Entry, Home(), Intro, metadata, PostItem, ProjectItem (+30 more)
+Nodes (37): Cert, CollectionItem, Entry, Home(), Intro, metadata, PostItem, ProjectItem (+29 more)
 
 ### Community 9 - "certifications/service.py"
-Cohesion: 0.11
-Nodes (43): create(), delete(), get_admin(), get_public(), list_admin(), list_public(), DbSession, delete (+35 more)
+Cohesion: 0.21
+Nodes (24): CertFileType, CertKind, create(), delete(), get(), list_admin(), list_public(), AsyncSession (+16 more)
 
 ### Community 10 - "test_crawlers.py"
-Cohesion: 0.16
-Nodes (19): crawler_middleware(), _hash_ip(), async_sessionmaker, AsyncSession, Request, Response, FastAPI middleware: log AI crawler visits as fire-and-forget records. Never…, _write_hit() (+11 more)
+Cohesion: 0.33
+Nodes (9): _hash_ip(), CrawlerHit, One logged read by a known AI crawler., _login(), AsyncClient, AsyncSession, MonkeyPatch, Crawler: admin endpoint tests and middleware classification tests. (+1 more)
 
 ### Community 11 - "Development Plan — Phase 0: Foundations"
 Cohesion: 0.04
@@ -399,19 +407,19 @@ Nodes (47): Development Plan — Phase 0: Foundations, Exit Checklist, P0.T1.S1:
 
 ### Community 13 - "react"
 Cohesion: 0.08
-Nodes (57): AudienceOverrideSelect(), AudienceOverrideSelectProps, AUDIENCES, COLLECTIONS, CollectionsSelect(), CollectionsSelectProps, MarkdownField(), MarkdownFieldProps (+49 more)
+Nodes (50): AudienceOverrideSelect(), AudienceOverrideSelectProps, AUDIENCES, MarkdownField(), MarkdownFieldProps, renderMarkdown(), PublishStatusField(), PublishStatusFieldProps (+42 more)
 
 ### Community 14 - "resumes/endpoints/router.py"
-Cohesion: 0.16
-Nodes (20): create(), delete(), get_admin(), list_admin(), list_public(), DbSession, delete, get (+12 more)
+Cohesion: 0.05
+Nodes (69): create(), delete(), get_admin(), list_admin(), list_public(), DbSession, delete, get (+61 more)
 
-### Community 15 - "ProjectList.tsx"
-Cohesion: 0.40
-Nodes (4): statusColors, AttachmentRef, Project, TagRef
+### Community 15 - "certifications/endpoints/router.py"
+Cohesion: 0.19
+Nodes (21): create(), delete(), get_admin(), get_public(), list_admin(), list_public(), DbSession, delete (+13 more)
 
 ### Community 16 - "contact/endpoints/router.py"
-Cohesion: 0.15
-Nodes (22): get_admin(), get_public(), DbSession, get, put, ContactProfile routers: public read-only, admin get/update singleton., update(), get() (+14 more)
+Cohesion: 0.11
+Nodes (31): get_admin(), get_public(), DbSession, get, put, Contact routers: public read-only, admin get/update singleton + items., update(), delete_all_items() (+23 more)
 
 ### Community 17 - "skills/endpoints/router.py"
 Cohesion: 0.12
@@ -434,8 +442,8 @@ Cohesion: 0.05
 Nodes (39): Development Plan — Phase 3: Integration, Discoverability & Launch, Exit Checklist, P3.T1.S1: Define per-audience tile arrangement, P3.T1.S2: Implement latest-content selection and pinning, P3.T1.S3: Verify empty-state behaviour, P3.T1.S4: Add hero image support to OverviewIntro, P3.T2.S1: Generate the Person JSON-LD from live data, P3.T2.S2: Build sitemap and robots (+31 more)
 
 ### Community 22 - "test_storage.py"
-Cohesion: 0.05
-Nodes (50): ABC, get_storage_adapter(), content_hashed_key(), get_storage(), LocalDiskStorage, Path, S3-compatible object storage (Cloudflare R2 / local MinIO) plus local-disk…, Factory selected by ``settings.storage_kind``: ``s3`` (default) or ``local``. (+42 more)
+Cohesion: 0.13
+Nodes (18): content_hashed_key(), Return ``<prefix>-<sha256(data)[:12]>.<extension>``. Replacing a file changes…, One implementation for Cloudflare R2 (prod) and MinIO (dev) — only the endpoint…, S3Storage, fresh_storage_caches(), local_storage(), _minio_reachable(), fixture (+10 more)
 
 ### Community 23 - "4. Gaps Identified"
 Cohesion: 0.05
@@ -453,9 +461,9 @@ Nodes (6): CATEGORY_TILES, CategoryTile, ease, IntroPlayer(), IntroPlayerProps, 
 Cohesion: 0.06
 Nodes (33): 10. Lessons learned from errors, 1. What was done this session, 2. Overall project completion status, 3. What was developed this session (detail), 4. Deviations from existing design, 5. Documents referred, 6. What is pending, 7. Issues needing attention (first priority) (+25 more)
 
-### Community 27 - "test_static_mount.py"
-Cohesion: 0.27
-Nodes (12): ASGITransport, fixture, MonkeyPatch, Path, static_app(), test_api_v1_health_still_200(), test_deep_route_returns_spa_index(), test_existing_static_file_served() (+4 more)
+### Community 27 - "collections/service.py"
+Cohesion: 0.20
+Nodes (21): create(), delete(), get(), list_admin(), list_public(), AsyncSession, CollectionItem, UUID (+13 more)
 
 ### Community 28 - "CollectionsForm.tsx"
 Cohesion: 0.24
@@ -465,41 +473,41 @@ Nodes (9): CollectionsForm(), CoverLookupResult, emptyForm(), FormState, Item, K
 Cohesion: 0.10
 Nodes (30): AdminLayout(), NAV_ITEMS, AuthGuard(), apiFetch(), Certification, CertsList(), formatDate(), statusColors (+22 more)
 
-### Community 30 - "conftest.py"
-Cohesion: 0.17
-Nodes (21): admin_settings(), _base_url(), clean_auth_tables(), client(), db_engine(), _ensure_test_database(), async_sessionmaker, AsyncClient (+13 more)
+### Community 30 - "database.py"
+Cohesion: 0.14
+Nodes (24): admin_settings(), _base_url(), clean_auth_tables(), client(), db_engine(), _ensure_test_database(), async_sessionmaker, AsyncClient (+16 more)
 
-### Community 31 - "FakeAsyncClient"
-Cohesion: 0.28
-Nodes (4): FakeAsyncClient, FakeResponse, Any, Records the request; configurable status or exception.
+### Community 31 - "deps.py"
+Cohesion: 0.13
+Nodes (15): ABC, get_storage_adapter(), Shared FastAPI dependencies. Feature slices import dependencies from core only,…, get_storage(), S3-compatible object storage (Cloudflare R2 / local MinIO) plus local-disk…, Factory selected by ``settings.storage_kind``: ``s3`` (default) or ``local``., Sync interface: boto3 is sync. Wrap in ``asyncio.to_thread`` from async code., Store ``data`` at ``key`` with the given content type and immutable cache… (+7 more)
 
 ### Community 32 - "CategoryProvider.tsx"
 Cohesion: 0.08
 Nodes (33): Entry, metadata, TagMapResponse, TimelinePage(), CategoryContext, CategoryProvider(), CategoryState, clearCookie() (+25 more)
 
 ### Community 33 - "card.tsx"
-Cohesion: 0.26
-Nodes (13): Card(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle(), ApiError, ContactProfile (+5 more)
+Cohesion: 0.22
+Nodes (15): Card(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle(), ApiError, ContactItem (+7 more)
 
 ### Community 34 - "collections/endpoints/router.py"
-Cohesion: 0.10
-Nodes (49): cover_lookup(), create(), delete(), get_admin(), list_admin(), list_public(), DbSession, delete (+41 more)
+Cohesion: 0.18
+Nodes (23): cover_lookup(), create(), delete(), get_admin(), list_admin(), list_public(), DbSession, delete (+15 more)
 
 ### Community 35 - "compilerOptions"
 Cohesion: 0.07
 Nodes (28): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+20 more)
 
 ### Community 36 - "get_settings"
-Cohesion: 0.17
-Nodes (23): get_settings(), Application settings via pydantic-settings. Every field maps to an env var of…, clear_session_cookie(), _cookie_kwargs(), create_session_token(), Any, Response, Signed admin session cookies. ``itsdangerous.URLSafeTimedSerializer`` — one… (+15 more)
+Cohesion: 0.15
+Nodes (25): get_settings(), Application settings via pydantic-settings. Every field maps to an env var of…, clear_session_cookie(), _cookie_kwargs(), create_session_token(), Any, Response, Signed admin session cookies. ``itsdangerous.URLSafeTimedSerializer`` — one… (+17 more)
 
 ### Community 37 - "UI Design Brief — Audience-Segmented Portfolio"
 Cohesion: 0.07
 Nodes (27): 10. States and quality floor, 11. Stitch prompt pack, 12. What Stitch must not produce, 1. How to use this document, 2. Design thesis, 3. Fixed constraints, 4. Colour, 5. Typography (+19 more)
 
 ### Community 38 - "app.py"
-Cohesion: 0.14
-Nodes (19): api_v1_health(), _auth_error_handler(), create_app(), Exception, get, Request, _rate_limit_handler(), FastAPI application factory. (+11 more)
+Cohesion: 0.09
+Nodes (32): ASGITransport, api_v1_health(), _auth_error_handler(), create_app(), Exception, get, Request, _rate_limit_handler() (+24 more)
 
 ### Community 39 - "package.json"
 Cohesion: 0.25
@@ -526,16 +534,16 @@ Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 45 - "auth/endpoints/router.py"
-Cohesion: 0.14
-Nodes (22): change_password(), login(), logout(), me(), DbSession, get, post, Request (+14 more)
+Cohesion: 0.11
+Nodes (27): change_password(), dev_otp(), login(), logout(), me(), DbSession, get, post (+19 more)
 
-### Community 46 - "relevance/service.py"
-Cohesion: 0.16
-Nodes (21): create_tag(), patch, post, UUID, Relevance routes: public cached map, admin matrix read/replace, tag CRUD., rename_tag(), Relevance feature: audience-tag map, pure resolver, map endpoints., AdminMapUpdate (+13 more)
+### Community 46 - "revalidate"
+Cohesion: 0.19
+Nodes (19): Post-commit cache revalidation client (conventions invariant 8). Call…, POST ``tags`` to the frontend revalidation webhook. Never raises., revalidate(), BaseModel, Relevance request/response schemas., TagCreate, TagOut, TagUpdate (+11 more)
 
-### Community 47 - "timeline/endpoints/router.py"
-Cohesion: 0.10
-Nodes (47): create(), delete(), get_admin(), get_public(), list_admin(), list_public(), list_public_projects(), DbSession (+39 more)
+### Community 47 - "timeline/service.py"
+Cohesion: 0.21
+Nodes (25): TimelineKind, create(), delete(), get(), get_public(), list_admin(), list_public(), AsyncSession (+17 more)
 
 ### Community 48 - "devDependencies"
 Cohesion: 0.09
@@ -546,8 +554,8 @@ Cohesion: 0.22
 Nodes (21): clean_projects_tables(), _login(), AsyncClient, AsyncEngine, AsyncSession, fixture, MonkeyPatch, Projects: full API suite with auth assertions, draft-leak guards, query-count… (+13 more)
 
 ### Community 50 - "PublishStatus"
-Cohesion: 0.10
-Nodes (34): Revalidation tag names (conventions invariant 11). One source for backend tag…, PublishStatus, Skills feature: one model grouped by section/subsection, no relevance logic.…, Skill, SkillSection, content_hash(), ensure_topic_tags(), main() (+26 more)
+Cohesion: 0.12
+Nodes (30): PublishStatus, content_hash(), ensure_topic_tags(), main(), main_async(), parse_args(), _parse_date(), Any (+22 more)
 
 ### Community 51 - "admin/components.json"
 Cohesion: 0.09
@@ -558,12 +566,12 @@ Cohesion: 0.09
 Nodes (21): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+13 more)
 
 ### Community 53 - "test_relevance.py"
-Cohesion: 0.20
-Nodes (20): is_relevant(), _login(), AsyncClient, MonkeyPatch, Relevance: pure resolver unit cases + real-Postgres map persistence. Resolver…, Full auth flow with mocked email send (same pattern as test_auth)., test_admin_map_requires_session(), test_admin_put_invalid_audience_key_422() (+12 more)
+Cohesion: 0.16
+Nodes (23): is_relevant(), clean_relevance_tables(), _login(), AsyncClient, AsyncEngine, fixture, MonkeyPatch, Relevance: pure resolver unit cases + real-Postgres map persistence. Resolver… (+15 more)
 
 ### Community 54 - "test_timeline.py"
-Cohesion: 0.11
-Nodes (41): clean_certs_tables(), _login(), AsyncClient, AsyncEngine, AsyncSession, fixture, MonkeyPatch, Certifications: full API suite with auth, draft-leak guards, CRUD. (+33 more)
+Cohesion: 0.26
+Nodes (21): _login(), AsyncClient, AsyncSession, MonkeyPatch, Timeline: full API suite with auth assertions, draft-leak guards, query-count…, test_admin_crud_lifecycle(), test_admin_detail_returns_draft(), test_admin_routes_require_auth() (+13 more)
 
 ### Community 55 - "dependencies"
 Cohesion: 0.10
@@ -587,7 +595,7 @@ Nodes (19): 1. What was done this session, 2. Overall project completion status,
 
 ### Community 60 - "test_posts.py"
 Cohesion: 0.23
-Nodes (16): clean_posts_tables(), _login(), AsyncClient, AsyncEngine, AsyncSession, fixture, MonkeyPatch, Posts: full API suite with auth, draft-leak guards, collection routing, CRUD. (+8 more)
+Nodes (17): Post, clean_posts_tables(), _login(), AsyncClient, AsyncEngine, AsyncSession, fixture, MonkeyPatch (+9 more)
 
 ### Community 61 - "Dependency Map — Audience-Segmented Portfolio Platform"
 Cohesion: 0.11
@@ -619,7 +627,7 @@ Nodes (17): Accessibility, Category Selector, Changelog, Colour Semantics, Colou
 
 ### Community 68 - "dependencies"
 Cohesion: 0.12
-Nodes (17): dependencies, class-variance-authority, radix-ui, react, shadcn, tailwind-merge, tailwindcss, @tailwindcss/vite (+9 more)
+Nodes (17): dependencies, clsx, radix-ui, react, shadcn, tailwind-merge, tailwindcss, @tailwindcss/vite (+9 more)
 
 ### Community 69 - "devDependencies"
 Cohesion: 0.12
@@ -633,9 +641,9 @@ Nodes (22): 1. Services Created (CLI), 2. Environment Variables (CLI, `--skip-de
 Cohesion: 0.14
 Nodes (13): metadata, SECTION_CONFIG, Skill, Props, SkillIcon(), slugToUrl(), GroupedSkills, Props (+5 more)
 
-### Community 72 - "database.py"
-Cohesion: 0.11
-Nodes (23): _fetch_jwks(), _get_jwks(), _jwks_url(), Request, Cloudflare Access JWT verification, gated on ``CF_ACCESS_ENABLED``. Defense in…, verify_cf_access(), get_session(), AsyncSession (+15 more)
+### Community 72 - "admin_auth"
+Cohesion: 0.19
+Nodes (13): _fetch_jwks(), _get_jwks(), _jwks_url(), Request, Cloudflare Access JWT verification, gated on ``CF_ACCESS_ENABLED``. Defense in…, verify_cf_access(), admin_auth(), Depends (+5 more)
 
 ### Community 73 - "Railway configuration"
 Cohesion: 0.50
@@ -651,15 +659,19 @@ Nodes (14): 1. Snapshot, 2. What was developed (done To-Dos), 3. Feature-based s
 
 ### Community 76 - "[id]/page.tsx"
 Cohesion: 0.11
-Nodes (19): Props, ProsePage, ProsePageRoute(), ProseClient(), formatDate(), Project, Props, revalidate (+11 more)
+Nodes (18): Props, ProsePage, ProsePageRoute(), ProseClient(), formatDate(), Project, Props, revalidate (+10 more)
 
 ### Community 77 - "src/components/ui/button.tsx"
 Cohesion: 0.07
-Nodes (37): Tag, TagSelect(), TagSelectProps, Badge(), Button(), buttonVariants, Item, KIND_LABELS (+29 more)
+Nodes (34): Tag, TagSelect(), TagSelectProps, Badge(), Button(), buttonVariants, Item, KIND_LABELS (+26 more)
 
-### Community 79 - "email.py"
-Cohesion: 0.08
-Nodes (49): EmailSendError, Exception, Email delivery via Resend. One client reused by OTP sign-in and (Phase 2) form…, Raised when an email cannot be delivered., send_email(), send_otp(), clean_collections(), _login() (+41 more)
+### Community 78 - "test_certifications.py"
+Cohesion: 0.24
+Nodes (16): clean_certs_tables(), _login(), AsyncClient, AsyncEngine, AsyncSession, fixture, MonkeyPatch, Certifications: full API suite with auth, draft-leak guards, CRUD. (+8 more)
+
+### Community 79 - "test_collections.py"
+Cohesion: 0.30
+Nodes (13): clean_collections(), _login(), AsyncClient, AsyncEngine, asyncio, AsyncSession, fixture, MonkeyPatch (+5 more)
 
 ### Community 80 - "Content Authoring Checklist (TD-36 / P3.T6.S6)"
 Cohesion: 0.14
@@ -669,21 +681,21 @@ Nodes (13): Audience-tag matrix (admin → Tag Map), Certifications, Collections
 Cohesion: 0.08
 Nodes (56): create(), delete(), get_admin(), get_public(), list_admin(), list_public(), DbSession, delete (+48 more)
 
-### Community 82 - "test_change_password.py"
-Cohesion: 0.16
-Nodes (20): main(), Admin CLI. Usage: ``uv run python -m app.cli hash-password [password]`` Prints…, hash_password(), Argon2id password hashing and verification. The admin password hash lives only…, Verified against when no admin hash is configured, so the endpoint cost is…, _timing_decoy_hash(), verify_password(), Auth feature slice: password login, hashed OTP, DB-backed lockout. (+12 more)
+### Community 82 - "auth/service.py"
+Cohesion: 0.10
+Nodes (37): main(), Admin CLI. Usage: ``uv run python -m app.cli hash-password [password]`` Prints…, hash_password(), Argon2id password hashing and verification. The admin password hash lives only…, Verified against when no admin hash is configured, so the endpoint cost is…, _timing_decoy_hash(), verify_password(), AuthError (+29 more)
 
-### Community 83 - "CertsClient.tsx"
-Cohesion: 0.28
-Nodes (7): Cert, CertCard(), CertsClient(), formatDate(), Props, CertViewer(), Props
+### Community 83 - "certifications/page.tsx"
+Cohesion: 0.19
+Nodes (9): Cert, metadata, Cert, CertCard(), CertsClient(), formatDate(), Props, CertViewer() (+1 more)
 
-### Community 85 - "auth/service.py"
-Cohesion: 0.15
-Nodes (22): dev_otp(), Dev-only: return the most recently issued OTP so the local e2e admin journey…, AuthError, change_password(), get_dev_last_code(), get_effective_password_hash(), _hash_code(), is_locked_out() (+14 more)
+### Community 85 - "test_contact.py"
+Cohesion: 0.37
+Nodes (16): _clear(), _login(), AsyncClient, asyncio, AsyncSession, MonkeyPatch, Contact: public read + admin full-replace update with revalidation., Two profile rows must be impossible — the singleton_guard unique constraint. (+8 more)
 
-### Community 86 - "test_core_models.py"
-Cohesion: 0.25
-Nodes (12): Sanctioned query helpers (conventions invariant 8). ``public_filter`` is the…, AsyncSession, Core data foundations: mixins, timestamps, public_filter, TopicTag, enums., Scratch model exercising every mixin; lives only in the test DB., test_audience_enum_round_trip(), test_public_filter(), test_timestamps_auto_populate(), test_topic_tag_duplicate_slug_rejected() (+4 more)
+### Community 86 - "TopicTag"
+Cohesion: 0.20
+Nodes (16): Topic tags (#ai, #fundraising) driving audience relevance. Shared across…, TopicTag, Sanctioned query helpers (conventions invariant 8). ``public_filter`` is the…, async_sessionmaker, test_duplicate_audience_tag_pair_rejected(), AsyncSession, Core data foundations: mixins, timestamps, public_filter, TopicTag, enums., Scratch model exercising every mixin; lives only in the test DB. (+8 more)
 
 ### Community 87 - "Post-Development Report — Initial Build-Out (Phases P0–P3)"
 Cohesion: 0.17
@@ -737,9 +749,9 @@ Nodes (9): overrides, plugins, rules, react/only-export-components, react/rules-
 Cohesion: 0.12
 Nodes (16): 1. Architecture, 2. Services & builds, 3. Env inventory, 4. Code changes (3 small commits, before any Railway mutation), 5. Phases (gates: record PASS/FAIL, never advance on FAIL), 6. Execution model, 7. User actions checklist (flag each when reached), 8. Decisions log (+8 more)
 
-### Community 100 - "revalidate"
-Cohesion: 0.18
-Nodes (12): Post-commit cache revalidation client (conventions invariant 8). Call…, POST ``tags`` to the frontend revalidation webhook. Never raises., revalidate(), fake_httpx(), fixture, MonkeyPatch, Revalidation client: URL/header/payload contract; failures never raise., test_connection_failure_logs_error_and_does_not_raise() (+4 more)
+### Community 100 - "test_revalidation.py"
+Cohesion: 0.13
+Nodes (13): fake_httpx(), FakeAsyncClient, FakeResponse, Any, fixture, MonkeyPatch, Revalidation client: URL/header/payload contract; failures never raise., Records the request; configurable status or exception. (+5 more)
 
 ### Community 101 - "TD-00: Repo Init + Git Hygiene + Secrets Guardrails"
 Cohesion: 0.20
@@ -934,8 +946,8 @@ Cohesion: 0.22
 Nodes (8): Dependencies, Expected changes / where, Functionality & example, Purpose, References, S2_T08 — Post-Development Documentation (Session-2 Tasks), Testing & acceptance criteria, What to do
 
 ### Community 149 - "contact/page.tsx"
-Cohesion: 0.15
-Nodes (12): ContactResumes(), Resume, ResumeAudienceMap, VARIANT_LABELS, variantMatches(), Contact, FALLBACK_CONTACT, metadata (+4 more)
+Cohesion: 0.10
+Nodes (21): ContactResumes(), Resume, ResumeAudienceMap, VARIANT_LABELS, variantMatches(), Contact, ContactItem, FALLBACK_CONTACT (+13 more)
 
 ### Community 150 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
@@ -1029,9 +1041,9 @@ Nodes (15): 0. What is DONE (code phase, 2026-08-30 build session), 1. TL;DR —
 Cohesion: 0.43
 Nodes (6): downgrade(), _intro_id(), UUID, Delete seeded rows, then drop the table., Upgrade schema, then seed all six intro rows., upgrade()
 
-### Community 173 - "posts/endpoints/router.py"
-Cohesion: 0.19
-Nodes (21): create(), delete(), get_admin(), get_public(), list_admin(), list_public(), DbSession, delete (+13 more)
+### Community 173 - "test_forms.py"
+Cohesion: 0.29
+Nodes (16): clean_forms(), _login(), AsyncClient, AsyncEngine, AsyncSession, fixture, MonkeyPatch, Form submission feature tests. (+8 more)
 
 ### Community 174 - "Postgres Backup & Restore Procedure (TD-36 / gap G12)"
 Cohesion: 0.29
@@ -1233,9 +1245,9 @@ Nodes (13): Commands, Config shape, Decision guide, Educating the user, Explaini
 Cohesion: 0.14
 Nodes (17): geistMono, geistSans, metadata, AUDIO_TRACKS, AudioTrack, AudioContext, AudioControls, AudioProvider() (+9 more)
 
-### Community 244 - "resumes/service.py"
-Cohesion: 0.21
-Nodes (21): create(), delete(), get(), list_active(), list_all(), AsyncSession, Resume, UUID (+13 more)
+### Community 244 - "covers.py"
+Cohesion: 0.23
+Nodes (14): CoverResult, _download_image(), _extract_jikan_image_url(), _extract_ol_image_url(), fetch_and_store_cover(), _neg_cached(), _neg_set(), Any (+6 more)
 
 ### Community 302 - "React Doctor"
 Cohesion: 0.13
@@ -1257,13 +1269,13 @@ Nodes (13): 1.1 Project → Timeline (exists, one-way), 1.2 Timeline → Project
 Cohesion: 0.15
 Nodes (12): 0. Prerequisites, 1. Start infrastructure (Postgres + MinIO), 1a. PgBouncer — optional local sidecar (future agent load), 2. Backend env (gitignored — do NOT commit), 3. Migrate + seed, 4. Start the three servers (3 terminals, or background with `&`), 5. Smoke test (proves crawlers see content + admin renders), 6. What to click through (manual) (+4 more)
 
-### Community 307 - "test_seed_resumes.py"
-Cohesion: 0.14
-Nodes (13): clean_resumes_and_tags(), AsyncEngine, AsyncSession, fixture, Seed-resumes helpers: hash determinism, idempotent upsert, variant allowlist.…, Direct model upsert by variant — seed logic idempotent (same key)., TopicTag upsert idempotent (second seed updates label)., Run seed_resume_pdfs twice with same fake PDF — count stays 1. (+5 more)
+### Community 307 - "scheduler.py"
+Cohesion: 0.23
+Nodes (13): publishables(), Any, Register a publishable model for the scheduled-publish cron. APPEND-ONLY zone,…, Snapshot of registered ``(model, tag)`` pairs., register_publishable(), main(), async_sessionmaker, AsyncSession (+5 more)
 
-### Community 308 - "DbSession"
-Cohesion: 0.16
-Nodes (16): admin_get_map(), admin_update_map(), delete_tag(), get_map(), list_tags(), DbSession, delete, get (+8 more)
+### Community 308 - "relevance/endpoints/router.py"
+Cohesion: 0.12
+Nodes (21): admin_get_map(), admin_update_map(), create_tag(), delete_tag(), get_map(), list_tags(), DbSession, delete (+13 more)
 
 ### Community 309 - "Handoff — Cloudflare Removal & Revised Launch Plan"
 Cohesion: 0.17
@@ -1282,12 +1294,12 @@ Cohesion: 0.22
 Nodes (8): Commit, Invariants, LOCAL-01: Local Dev Runbook + Smoke Test, Paths, Purpose, Steps, Tests / Acceptance, Verify
 
 ### Community 314 - "relevance/repository.py"
-Cohesion: 0.32
-Nodes (11): create_tag(), delete_tag(), get_tag(), list_map_rows(), list_tags(), AsyncSession, UUID, Relevance repository: tag-map reads and atomic replace. Never imports FastAPI… (+3 more)
+Cohesion: 0.19
+Nodes (20): create_tag(), delete_tag(), get_tag(), list_map_rows(), list_tags(), load_tag_map(), AsyncSession, UUID (+12 more)
 
-### Community 315 - "env.py"
+### Community 315 - "core/__init__.py"
 Cohesion: 0.24
-Nodes (10): do_run_migrations(), Run migrations in 'offline' mode. This configures the context with just a URL…, Create an async engine and run migrations via run_sync. The engine reuses…, Run migrations in 'online' mode., run_async_migrations(), run_migrations_offline(), run_migrations_online(), pgbouncer_connect_args() (+2 more)
+Nodes (8): do_run_migrations(), Run migrations in 'offline' mode. This configures the context with just a URL…, Create an async engine and run migrations via run_sync. The engine reuses…, Run migrations in 'online' mode., run_async_migrations(), run_migrations_offline(), run_migrations_online(), Connection
 
 ### Community 316 - "Crawlers — AI-crawler hit analytics without storing IP addresses"
 Cohesion: 0.25
@@ -1310,8 +1322,8 @@ Cohesion: 0.25
 Nodes (7): Backend, Changes, Codegraph evidence (rechecked before code), Frontend, Open items you are being asked about (per your "ask me more context"), Post-Development — Timeline Detail + Reverse Project Linking (Option 2), Verification
 
 ### Community 321 - "test_scheduler.py"
-Cohesion: 0.07
-Nodes (43): publishables(), Any, Register a publishable model for the scheduled-publish cron. APPEND-ONLY zone,…, Snapshot of registered ``(model, tag)`` pairs., register_publishable(), get_summary(), list_hits(), DbSession (+35 more)
+Cohesion: 0.17
+Nodes (18): Background jobs. Currently the scheduled-publish cron (scheduler.py)., assert_public_query_excludes_drafts(), Any, AsyncSession, Assert ``public_filter`` on ``model`` leaks nothing. Inserts one row per…, async_sessionmaker, AsyncSession, fixture (+10 more)
 
 ### Community 322 - "Session Prompt — Railway Infra & Hosting (Cloudflare-removal follow-up)"
 Cohesion: 0.29
@@ -1325,9 +1337,9 @@ Nodes (6): Decision recorded (with user-approved scope), Measured docstring stat
 Cohesion: 0.29
 Nodes (6): Artifacts, Decisions recorded, Follow-ups (admin-editable), Local verification (real Postgres, no mocks per conventions 5), Post-Development — Resume Consolidation (2026-08-30), Production seeding (repeat after secrets set)
 
-### Community 325 - "anime-manga/page.tsx"
-Cohesion: 0.33
-Nodes (4): AnimeMangaClient(), Item, Item, metadata
+### Community 325 - "PostForm.tsx"
+Cohesion: 0.23
+Nodes (10): COLLECTIONS, CollectionsSelect(), CollectionsSelectProps, emptyForm(), FormState, Post, PostForm(), TagRef (+2 more)
 
 ### Community 326 - "S2_T05 / S2_T06 — CI Pipeline Post-Development"
 Cohesion: 0.33
@@ -1338,8 +1350,8 @@ Cohesion: 0.33
 Nodes (5): Blockers / carries, Commits (this session, oldest → newest), Key decisions made this session, Session-2 Summary — What Shipped, Verification state at close
 
 ### Community 328 - "src/lib/api.ts"
-Cohesion: 0.12
-Nodes (15): App(), Select(), apiBase, AuthRedirect, setNavigate(), queryClient, Root(), FORM_TYPE_LABELS (+7 more)
+Cohesion: 0.14
+Nodes (13): App(), apiBase, AuthRedirect, setNavigate(), queryClient, Root(), collectionLabels, formatDate() (+5 more)
 
 ### Community 329 - "869fc8d8c856_widen_resume_variant_to_string.py"
 Cohesion: 0.40
@@ -1349,9 +1361,9 @@ Nodes (4): downgrade(), Widen resumes.variant from native enum to VARCHAR(50)., 
 Cohesion: 0.20
 Nodes (9): 1. Architecture, 2. Build matrix, 3. Env essentials, 4. Deploy paths, 5. Troubleshooting (symptom → cause → fix), 6. Verification gate suite (after any change), 7. Restore, 8. Secrets (+1 more)
 
-### Community 335 - "replace_map"
-Cohesion: 0.42
-Nodes (9): load_tag_map(), Full audience → tag-slug map in ONE query. Loaded once per request; per-item…, Delete every row and insert the new mapping in ONE transaction. The caller…, replace_map(), _create_tags(), AsyncSession, test_load_tag_map_shape(), test_replace_map_old_rows_gone_new_present() (+1 more)
+### Community 335 - "crawlers/endpoints/router.py"
+Cohesion: 0.26
+Nodes (10): get_summary(), list_hits(), DbSession, get, Crawler admin endpoints: hits list + per-agent weekly summary., CrawlerHitOut, CrawlerSummaryRow, BaseModel (+2 more)
 
 ### Community 336 - "test_skills.py"
 Cohesion: 0.24
@@ -1373,29 +1385,61 @@ Nodes (10): CI fallback (deploy.yml), Cutover, DoD checklist (final), Gates (rec
 Cohesion: 0.40
 Nodes (4): downgrade(), Upgrade schema, then seed the singleton row., Delete the seeded row, then drop the table., upgrade()
 
-### Community 343 - "clean_relevance_tables"
+### Community 342 - "TileGrid.tsx"
+Cohesion: 0.32
+Nodes (5): Intro, Props, TileGrid(), AUDIENCES, tileArrangement
+
+### Community 343 - "LocalDiskStorage"
+Cohesion: 0.29
+Nodes (4): LocalDiskStorage, Path, Dev/CI fallback per dependency-map F3. Files land under…, test_local_delete_missing_key_is_noop()
+
+### Community 345 - "middleware.py"
+Cohesion: 0.25
+Nodes (7): crawler_middleware(), async_sessionmaker, AsyncSession, Request, Response, FastAPI middleware: log AI crawler visits as fire-and-forget records. Never…, _write_hit()
+
+### Community 346 - "crawlers/repository.py"
+Cohesion: 0.39
+Nodes (7): count_by_agent_weekly(), create(), delete_older_than(), list_recent(), AsyncSession, Crawler repository: queries only, never imports FastAPI., CrawlerHit
+
+### Community 347 - "SkillsForm.tsx"
+Cohesion: 0.38
+Nodes (6): cdnPreviewUrl(), emptyForm(), FormState, SECTIONS, Skill, SkillsForm()
+
+### Community 348 - "email.py"
+Cohesion: 0.38
+Nodes (6): EmailSendError, Exception, Email delivery via Resend. One client reused by OTP sign-in and (Phase 2) form…, Raised when an email cannot be delivered., send_email(), send_otp()
+
+### Community 349 - "a605878385db_contact_items_dynamic_list.py"
+Cohesion: 0.40
+Nodes (4): downgrade(), Re-add the fixed columns, backfill from contact_items, drop the table., Create contact_items, move fixed link columns into rows, seed the three public…, upgrade()
+
+### Community 350 - "clean_timeline_tables"
 Cohesion: 0.67
-Nodes (3): clean_relevance_tables(), AsyncEngine, fixture
+Nodes (4): clean_timeline_tables(), AsyncEngine, fixture, seeded_tags()
+
+### Community 351 - "clean_crawler_tables"
+Cohesion: 0.67
+Nodes (3): clean_crawler_tables(), AsyncEngine, fixture
 
 ## Knowledge Gaps
-- **1931 isolated node(s):** `stitch`, `$schema`, `typescript`, `oxc`, `react/rules-of-hooks` (+1926 more)
+- **1935 isolated node(s):** `stitch`, `$schema`, `typescript`, `oxc`, `react/rules-of-hooks` (+1930 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **42 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **41 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `revalidate()` connect `revalidate` to `overview/endpoints/router.py`, `collections/endpoints/router.py`, `forms/endpoints/router.py`, `get_settings`, `public_filter`, `projects/service.py`, `test_scheduler.py`, `certifications/service.py`, `posts/endpoints/router.py`, `relevance/service.py`, `resumes/endpoints/router.py`, `contact/endpoints/router.py`, `skills/endpoints/router.py`, `thesis/endpoints/router.py`, `timeline/endpoints/router.py`, `DbSession`, `PublishStatus`?**
+- **Why does `revalidate()` connect `revalidate` to `overview/endpoints/router.py`, `collections/endpoints/router.py`, `forms/endpoints/router.py`, `get_settings`, `public_filter`, `timeline/endpoints/router.py`, `posts/endpoints/router.py`, `test_revalidation.py`, `resumes/endpoints/router.py`, `certifications/endpoints/router.py`, `contact/endpoints/router.py`, `skills/endpoints/router.py`, `thesis/endpoints/router.py`, `scheduler.py`, `PublishStatus`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `Settings` connect `Settings` to `test_auth.py`, `get_settings`, `test_crawlers.py`, `test_forms.py`, `test_certifications.py`, `resumes/endpoints/router.py`, `test_skills.py`, `test_projects.py`, `thesis/endpoints/router.py`, `test_relevance.py`, `test_storage.py`, `LocalDiskStorage`, `_classify_agent`, `test_timeline.py`, `test_posts.py`, `database.py`, `deps.py`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `react` connect `react` to `apiFetch`, `contact/page.tsx`, `ThesisForm.tsx`, `IntroOverlay.tsx`, `CollectionsForm.tsx`, `apiFetch`, `CategoryProvider.tsx`, `card.tsx`, `dealflow/page.tsx`, `PostForm.tsx`, `skills/page.tsx`, `src/lib/api.ts`, `src/components/ui/button.tsx`, `CertsForm.tsx`, `certifications/page.tsx`, `projects/[slug]/page.tsx`, `SkillsForm.tsx`, `.oxlintrc.json`, `layout.tsx`?**
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
-- **Why does `Settings` connect `Settings` to `test_auth.py`, `forms/endpoints/router.py`, `get_settings`, `database.py`, `test_crawlers.py`, `email.py`, `test_skills.py`, `test_projects.py`, `thesis/endpoints/router.py`, `test_relevance.py`, `test_storage.py`, `test_timeline.py`, `_classify_agent`, `env.py`, `test_posts.py`, `conftest.py`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
-- **Why does `PublishStatus` connect `PublishStatus` to `overview/endpoints/router.py`, `collections/endpoints/router.py`, `Audience`, `public_filter`, `test_scheduler.py`, `projects/service.py`, `posts/service.py`, `certifications/service.py`, `timeline/endpoints/router.py`, `test_projects.py`, `thesis/endpoints/router.py`, `test_timeline.py`, `test_core_models.py`, `test_posts.py`?**
-  _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `Settings` (e.g. with `LocalDiskStorage` and `S3Storage`) actually correct?**
   _`Settings` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 26 inferred relationships involving `Audience` (e.g. with `Base` and `PublishableMixin`) actually correct?**
   _`Audience` has 26 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 35 inferred relationships involving `Base` (e.g. with `Audience` and `PublishStatus`) actually correct?**
-  _`Base` has 35 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 37 inferred relationships involving `Base` (e.g. with `Audience` and `PublishStatus`) actually correct?**
+  _`Base` has 37 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `stitch`, `$schema`, `typescript` to the rest of the system?**
-  _1931 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1935 weakly-connected nodes found - possible documentation gaps or missing edges._

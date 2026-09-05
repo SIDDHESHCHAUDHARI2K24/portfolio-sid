@@ -30,7 +30,7 @@
 - Umami analytics (`NEXT_PUBLIC_UMAMI_*`) — deferred.
 - Untracked local files: `doctor.config.ts`, `.agents/`, `.claude/`, `.openhands/` — react-doctor hook prints a warning on every commit ("configuration differs between index and worktree"); harmless but noisy. Resolve or gitignore.
 - Dashboard canvas: variable-reference edges were created via IaC — confirm they render (cosmetic only).
-- Contact content editing — **LIVE** (`backend/app/features/contact/` singleton profile, seeded by migration `cc8619b8d037`, public `GET /api/v1/contact`, admin `GET/PUT /api/v1/admin/contact`, admin → Contact sidebar form). Edits revalidate the `contact` cache tag; the `/contact` page falls back to inline defaults if the row is missing.
+- Contact content editing — **LIVE v2** (`backend/app/features/contact/`): singleton `ContactProfile` (consent text) + ordered `ContactItem` list (kind/label/url/sort_order — emails, socials, booking links, phone…). Public `GET /api/v1/contact` returns `{consent_text, items}`; admin `PUT /api/v1/admin/contact` full-replaces items (array order = sort_order) and revalidates the `contact` tag. Admin → Contact sidebar form has add/remove/reorder + kind select. Frontend `/contact` renders icons per kind (brand icons inlined in `frontend/components/icons/BrandIcons.tsx` — lucide dropped brand icons) and falls back to inline defaults if the row is missing. Seeded via migrations `cc8619b8d037` → `a605878385db` (3 public emails + LinkedIn/Cal/GitHub).
 
 ## Secrets
 
