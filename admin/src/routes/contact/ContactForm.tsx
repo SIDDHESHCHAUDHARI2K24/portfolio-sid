@@ -5,32 +5,43 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { SaveIcon, CheckIcon, AlertCircleIcon } from 'lucide-react'
+import { SaveIcon, CheckIcon, AlertCircleIcon, PlusIcon, Trash2Icon, ArrowUpIcon, ArrowDownIcon } from 'lucide-react'
+
+interface ContactItem {
+  id?: string
+  kind: string
+  label: string
+  url: string
+}
 
 interface ContactProfile {
-  email: string
-  linkedin_url: string
-  linkedin_label: string
-  cal_url: string
-  cal_label: string
-  github_url: string
   consent_text: string
+  items: ContactItem[]
 }
 
-const EMPTY: ContactProfile = {
-  email: '',
-  linkedin_url: '',
-  linkedin_label: '',
-  cal_url: '',
-  cal_label: '',
-  github_url: '',
-  consent_text: '',
-}
+const KIND_OPTIONS = [
+  { value: 'email', label: 'Email' },
+  { value: 'linkedin', label: 'LinkedIn' },
+  { value: 'github', label: 'GitHub' },
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'tiktok', label: 'TikTok' },
+  { value: 'x', label: 'X / Twitter' },
+  { value: 'youtube', label: 'YouTube' },
+  { value: 'facebook', label: 'Facebook' },
+  { value: 'cal', label: 'Book a call' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'website', label: 'Website' },
+  { value: 'generic', label: 'Other' },
+]
+
+const EMPTY_ITEM: ContactItem = { kind: 'generic', label: '', url: '' }
 
 export default function ContactFormPage() {
   const queryClient = useQueryClient()
-  const [form, setForm] = useState<ContactProfile>(EMPTY)
+  const [consentText, setConsentText] = useState('')
+  const [items, setItems] = useState<ContactItem[]>([])
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
 
@@ -40,17 +51,21 @@ export default function ContactFormPage() {
   })
 
   useEffect(() => {
-    if (data) setForm(data)
+    if (data) {
+      setConsentText(data.consent_text)
+      setItems(data.items.map(({ id, kind, label, url }) => ({ id, kind, label, url })))
+    }
   }, [data])
 
   const mutation = useMutation({
-    mutationFn: (body: ContactProfile) =>
+    mutationFn: (body: { consent_text: string; items: ContactItem[] }) =>
       apiFetch<ContactProfile>('/admin/contact', {
         method: 'PUT',
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, items: body.items.map(({ kind, label, url }) => ({ kind, label, url })) }),
       }),
     onSuccess: (updated) => {
-      setForm(updated)
+      setConsentText(updated.consent_text)
+      setItems(updated.items.map(({ id, kind, label, url }) => ({ id, kind, label, url })))
       setSaved(true)
       setError(null)
       queryClient.invalidateQueries({ queryKey: ['admin', 'contact'] })
@@ -64,11 +79,33 @@ export default function ContactFormPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setSaved(false)
-    mutation.mutate(form)
+    mutation.mutate({ consent_text: consentText, items })
   }
 
-  const set = (key: keyof ContactProfile) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm((prev) => ({ ...prev, [key]: e.target.value }))
+  const setItem = (index: number, patch: Partial<ContactItem>) => {
+    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)))
+    setSaved(false)
+  }
+
+  const addItem = () => {
+    setItems((prev) => [...prev, { ...EMPTY_ITEM }])
+    setSaved(false)
+  }
+
+  const removeItem = (index: number) => {
+    setItems((prev) => prev.filter((_, i) => i !== index))
+    setSaved(false)
+  }
+
+  const moveItem = (index: number, direction: -1 | 1) => {
+    setItems((prev) => {
+      const target = index + direction
+      if (target < 0 || target >= prev.length) return prev
+      const next = [...prev]
+      const [item] = next.splice(index, 1)
+      next.splice(target, 0, item)
+      return next
+    })
     setSaved(false)
   }
 
@@ -79,47 +116,98 @@ export default function ContactFormPage() {
           <CardTitle>Contact details</CardTitle>
           <CardDescription>
             Content shown on the public <span className="font-medium">/contact</span> page —
-            email, links, and the form consent text. Saving revalidates the page.
+            emails and links in the order below. Saving revalidates the page.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <p className="text-muted-foreground">Loading contact details...</p>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={form.email} onChange={set('email')} />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="linkedin_url">LinkedIn URL</Label>
-                <Input id="linkedin_url" value={form.linkedin_url} onChange={set('linkedin_url')} />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="linkedin_label">LinkedIn display label</Label>
-                <Input id="linkedin_label" value={form.linkedin_label} onChange={set('linkedin_label')} />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cal_url">Booking (Cal.com) URL</Label>
-                <Input id="cal_url" value={form.cal_url} onChange={set('cal_url')} />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cal_label">Booking display label</Label>
-                <Input id="cal_label" value={form.cal_label} onChange={set('cal_label')} />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="github_url">GitHub URL</Label>
-                <Input id="github_url" value={form.github_url} onChange={set('github_url')} />
-              </div>
-
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="consent_text">Consent text</Label>
-                <Textarea id="consent_text" rows={3} value={form.consent_text} onChange={set('consent_text')} />
+                <Textarea
+                  id="consent_text"
+                  rows={3}
+                  value={consentText}
+                  onChange={(e) => {
+                    setConsentText(e.target.value)
+                    setSaved(false)
+                  }}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label>Contact items</Label>
+                {items.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No items yet — add one below.</p>
+                )}
+                {items.map((item, index) => (
+                  <div key={index} className="rounded-md border border-border p-3 space-y-2">
+                    <div className="grid grid-cols-[1fr_auto] gap-2">
+                      <Select
+                        value={item.kind}
+                        onValueChange={(v) => setItem(index, { kind: v })}
+                      >
+                        <Select.Trigger>
+                          <Select.Value />
+                        </Select.Trigger>
+                        <Select.Content>
+                          {KIND_OPTIONS.map((option) => (
+                            <Select.Item key={option.value} value={option.value}>
+                              {option.label}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          disabled={index === 0}
+                          onClick={() => moveItem(index, -1)}
+                          aria-label="Move up"
+                        >
+                          <ArrowUpIcon className="size-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          disabled={index === items.length - 1}
+                          onClick={() => moveItem(index, 1)}
+                          aria-label="Move down"
+                        >
+                          <ArrowDownIcon className="size-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => removeItem(index)}
+                          aria-label="Remove item"
+                        >
+                          <Trash2Icon className="size-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <Input
+                      placeholder="Label (e.g. siddheshcoursemail@gmail.com)"
+                      value={item.label}
+                      onChange={(e) => setItem(index, { label: e.target.value })}
+                    />
+                    <Input
+                      placeholder="URL (https://…, mailto:…, tel:…)"
+                      value={item.url}
+                      onChange={(e) => setItem(index, { url: e.target.value })}
+                    />
+                  </div>
+                ))}
+                <Button type="button" variant="outline" onClick={addItem}>
+                  <PlusIcon className="mr-2 size-4" />
+                  Add item
+                </Button>
               </div>
 
               <div className="flex items-center gap-3">

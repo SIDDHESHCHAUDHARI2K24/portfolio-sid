@@ -4,6 +4,23 @@ import type { paths } from "@/src/api";
 import ContactForm from "@/features/forms/ContactForm";
 import ContactResumes from "./ContactResumes";
 import type { Metadata } from "next";
+import type { ComponentType, SVGProps } from "react";
+import {
+  Calendar,
+  Globe,
+  Link as LinkIcon,
+  Mail,
+  Phone,
+} from "lucide-react";
+import {
+  Facebook,
+  Github,
+  Instagram,
+  Linkedin,
+  Tiktok as TikTok,
+  XIcon,
+  Youtube,
+} from "@/components/icons/BrandIcons";
 
 /**
  * Audience → resume variant mapping (D2).
@@ -20,16 +37,39 @@ export const ResumeAudienceMap: Record<string, string[]> = {
 
 type Resume = paths["/api/v1/resumes"]["get"]["responses"]["200"]["content"]["application/json"][number];
 type Contact = paths["/api/v1/contact"]["get"]["responses"]["200"]["content"]["application/json"];
+type ContactItem = Contact["items"][number];
 
 const FALLBACK_CONTACT: Contact = {
-  email: "siddhesh@example.com",
-  linkedin_url: "https://www.linkedin.com/in/siddheshchaudhari/",
-  linkedin_label: "linkedin.com/in/siddheshchaudhari",
-  cal_url: "https://cal.com/siddhesh",
-  cal_label: "https://cal.com/siddhesh",
-  github_url: "https://github.com/siddhesh",
   consent_text: "I consent to having my data stored for the purpose of this contact submission.",
+  items: [
+    {
+      id: "fallback-email",
+      kind: "email",
+      label: "siddhesh@example.com",
+      url: "mailto:siddhesh@example.com",
+      sort_order: 0,
+    },
+  ],
 };
+
+const KIND_ICONS: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
+  email: Mail,
+  linkedin: Linkedin,
+  github: Github,
+  instagram: Instagram,
+  tiktok: TikTok,
+  x: XIcon,
+  youtube: Youtube,
+  facebook: Facebook,
+  cal: Calendar,
+  phone: Phone,
+  website: Globe,
+};
+
+function KindIcon({ kind }: { kind: string }) {
+  const Icon = KIND_ICONS[kind] ?? LinkIcon;
+  return <Icon className="size-4 shrink-0" aria-hidden />;
+}
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
@@ -68,6 +108,15 @@ export default async function ContactPage() {
     // seeded row missing (e.g. build-time against an older backend) — render defaults
   }
 
+  const items: ContactItem[] = [...contact.items].sort(
+    (a, b) => a.sort_order - b.sort_order,
+  );
+  const emails = items.filter((i) => i.kind === "email").map((i) => i.label);
+  const sameAs = items
+    .filter((i) => i.kind !== "email")
+    .map((i) => i.url)
+    .filter((url) => url.startsWith("https://") || url.startsWith("http://"));
+
   // 6 canonical variants per backend/scripts/resume_canon.json:resumes
   const VARIANT_ORDER = [
     "business",
@@ -85,8 +134,8 @@ export default async function ContactPage() {
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Siddhesh Chaudhari",
-    email: contact.email,
-    sameAs: [contact.linkedin_url, contact.github_url],
+    email: emails,
+    sameAs,
     url: `${BASE_URL}/contact`,
   };
 
@@ -100,40 +149,19 @@ export default async function ContactPage() {
         <h1 className="text-3xl font-semibold mb-8">Contact</h1>
 
         <section className="mb-10 space-y-4">
-          <div>
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-1">
-              Email
-            </h2>
-            <span className="text-lg">{contact.email}</span>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-1">
-              LinkedIn
-            </h2>
-            <a
-              href={contact.linkedin_url}
-              rel="noopener noreferrer"
-              target="_blank"
-              className="text-lg underline underline-offset-2 hover:text-primary transition-colors"
-            >
-              {contact.linkedin_label}
-            </a>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-1">
-              Book a call
-            </h2>
-            <a
-              href={contact.cal_url}
-              rel="noopener noreferrer"
-              target="_blank"
-              className="text-lg underline underline-offset-2 hover:text-primary transition-colors"
-            >
-              {contact.cal_label}
-            </a>
-          </div>
+          {items.map((item) => (
+            <div key={item.id} className="flex items-center gap-3">
+              <KindIcon kind={item.kind} />
+              <a
+                href={item.url}
+                rel="noopener noreferrer"
+                target={item.kind === "email" ? undefined : "_blank"}
+                className="text-lg underline underline-offset-2 hover:text-primary transition-colors"
+              >
+                {item.label}
+              </a>
+            </div>
+          ))}
         </section>
 
           <ContactResumes resumes={sortedResumes} />

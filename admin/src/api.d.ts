@@ -1456,54 +1456,51 @@ export interface components {
         CollectionStatus: "reading" | "completed" | "want_to_read";
         /** ContactAdmin */
         ContactAdmin: {
-            /** Email */
-            email: string;
-            /** Linkedin Url */
-            linkedin_url: string;
-            /** Linkedin Label */
-            linkedin_label: string;
-            /** Cal Url */
-            cal_url: string;
-            /** Cal Label */
-            cal_label: string;
-            /** Github Url */
-            github_url: string;
             /** Consent Text */
             consent_text: string;
+            /** Items */
+            items: components["schemas"]["ContactItemPublic"][];
+        };
+        /** ContactItemPublic */
+        ContactItemPublic: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Url */
+            url: string;
+            /** Sort Order */
+            sort_order: number;
+        };
+        /** ContactItemUpdate */
+        ContactItemUpdate: {
+            /** Id */
+            id?: string | null;
+            /** Kind */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Url */
+            url: string;
         };
         /** ContactPublic */
         ContactPublic: {
-            /** Email */
-            email: string;
-            /** Linkedin Url */
-            linkedin_url: string;
-            /** Linkedin Label */
-            linkedin_label: string;
-            /** Cal Url */
-            cal_url: string;
-            /** Cal Label */
-            cal_label: string;
-            /** Github Url */
-            github_url: string;
             /** Consent Text */
             consent_text: string;
+            /** Items */
+            items: components["schemas"]["ContactItemPublic"][];
         };
         /** ContactUpdate */
         ContactUpdate: {
-            /** Email */
-            email?: string | null;
-            /** Linkedin Url */
-            linkedin_url?: string | null;
-            /** Linkedin Label */
-            linkedin_label?: string | null;
-            /** Cal Url */
-            cal_url?: string | null;
-            /** Cal Label */
-            cal_label?: string | null;
-            /** Github Url */
-            github_url?: string | null;
             /** Consent Text */
             consent_text?: string | null;
+            /** Items */
+            items?: components["schemas"]["ContactItemUpdate"][] | null;
         };
         /** CoverLookupRequest */
         CoverLookupRequest: {

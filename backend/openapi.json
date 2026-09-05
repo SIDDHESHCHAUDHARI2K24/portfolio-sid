@@ -4771,158 +4771,117 @@
       },
       "ContactAdmin": {
         "properties": {
-          "email": {
-            "type": "string",
-            "title": "Email"
-          },
-          "linkedin_url": {
-            "type": "string",
-            "title": "Linkedin Url"
-          },
-          "linkedin_label": {
-            "type": "string",
-            "title": "Linkedin Label"
-          },
-          "cal_url": {
-            "type": "string",
-            "title": "Cal Url"
-          },
-          "cal_label": {
-            "type": "string",
-            "title": "Cal Label"
-          },
-          "github_url": {
-            "type": "string",
-            "title": "Github Url"
-          },
           "consent_text": {
             "type": "string",
             "title": "Consent Text"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ContactItemPublic"
+            },
+            "type": "array",
+            "title": "Items"
           }
         },
         "type": "object",
         "required": [
-          "email",
-          "linkedin_url",
-          "linkedin_label",
-          "cal_url",
-          "cal_label",
-          "github_url",
-          "consent_text"
+          "consent_text",
+          "items"
         ],
         "title": "ContactAdmin"
       },
-      "ContactPublic": {
+      "ContactItemPublic": {
         "properties": {
-          "email": {
+          "id": {
             "type": "string",
-            "title": "Email"
+            "format": "uuid",
+            "title": "Id"
           },
-          "linkedin_url": {
+          "kind": {
             "type": "string",
-            "title": "Linkedin Url"
+            "title": "Kind"
           },
-          "linkedin_label": {
+          "label": {
             "type": "string",
-            "title": "Linkedin Label"
+            "title": "Label"
           },
-          "cal_url": {
+          "url": {
             "type": "string",
-            "title": "Cal Url"
+            "title": "Url"
           },
-          "cal_label": {
-            "type": "string",
-            "title": "Cal Label"
-          },
-          "github_url": {
-            "type": "string",
-            "title": "Github Url"
-          },
-          "consent_text": {
-            "type": "string",
-            "title": "Consent Text"
+          "sort_order": {
+            "type": "integer",
+            "title": "Sort Order"
           }
         },
         "type": "object",
         "required": [
-          "email",
-          "linkedin_url",
-          "linkedin_label",
-          "cal_url",
-          "cal_label",
-          "github_url",
-          "consent_text"
+          "id",
+          "kind",
+          "label",
+          "url",
+          "sort_order"
+        ],
+        "title": "ContactItemPublic"
+      },
+      "ContactItemUpdate": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "label",
+          "url"
+        ],
+        "title": "ContactItemUpdate"
+      },
+      "ContactPublic": {
+        "properties": {
+          "consent_text": {
+            "type": "string",
+            "title": "Consent Text"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ContactItemPublic"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "consent_text",
+          "items"
         ],
         "title": "ContactPublic"
       },
       "ContactUpdate": {
         "properties": {
-          "email": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Email"
-          },
-          "linkedin_url": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Linkedin Url"
-          },
-          "linkedin_label": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Linkedin Label"
-          },
-          "cal_url": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Cal Url"
-          },
-          "cal_label": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Cal Label"
-          },
-          "github_url": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Github Url"
-          },
           "consent_text": {
             "anyOf": [
               {
@@ -4933,6 +4892,20 @@
               }
             ],
             "title": "Consent Text"
+          },
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ContactItemUpdate"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Items"
           }
         },
         "type": "object",
