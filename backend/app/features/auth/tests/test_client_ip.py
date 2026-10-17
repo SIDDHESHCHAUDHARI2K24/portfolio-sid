@@ -88,12 +88,12 @@ async def test_rate_limit_counts_per_real_ip_behind_trusted_proxy(
         response = await client.post(
             LOGIN_URL, json={"password": "wrong"}, headers={"X-Real-IP": IP_A}
         )
-        assert response.status_code == 200
+        assert response.status_code == 400
     blocked = await client.post(LOGIN_URL, json={"password": "wrong"}, headers={"X-Real-IP": IP_A})
     assert blocked.status_code == 429
 
     other = await client.post(LOGIN_URL, json={"password": "wrong"}, headers={"X-Real-IP": IP_B})
-    assert other.status_code == 200
+    assert other.status_code == 400
 
 
 async def test_forged_header_ignored_when_peer_untrusted(
@@ -109,7 +109,7 @@ async def test_forged_header_ignored_when_peer_untrusted(
         response = await client.post(
             LOGIN_URL, json={"password": "wrong"}, headers={"X-Real-IP": f"203.0.113.{i}"}
         )
-        assert response.status_code == 200
+        assert response.status_code == 400
     blocked = await client.post(
         LOGIN_URL, json={"password": "wrong"}, headers={"X-Real-IP": "203.0.113.200"}
     )

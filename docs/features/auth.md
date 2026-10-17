@@ -12,7 +12,7 @@ cookie.
 
 | Method | Path | Auth | Request -> Response | Notes |
 | --- | --- | --- | --- | --- |
-| POST | /api/v1/auth/login | Public, 5/min per IP | LoginRequest `{password}` -> `{detail}` | Identical generic detail on success and failure |
+| POST | /api/v1/auth/login | Public, 5/min per IP | LoginRequest `{password}` -> `{detail: "Code sent."}` | 400 `Incorrect password.` (never 401: admin `apiFetch` redirects on 401); 429 locked out or rate limited; 502 code delivery failed |
 | POST | /api/v1/auth/verify | Public, 10/min per IP | VerifyRequest `{code}` -> `{status: ok}` | Sets `admin_session` cookie on success |
 | POST | /api/v1/auth/logout | Public | none -> `{status: ok}` | Clears cookie only; no DB work |
 | GET | /api/v1/admin/me | Session cookie + Cloudflare Access | none -> `{status: ok}` | Probe that the admin gate accepts the caller |
@@ -41,12 +41,12 @@ flowchart TD
     L[POST auth login] --> K{locked out}
     K -- yes --> R429[429 AuthError]
     K -- no --> V[argon2 verify against ADMIN_PASSWORD_HASH]
-    V -- fail --> FA[record failure attempt\ngeneric detail]
+    V -- fail --> FA[record and commit failure attempt\n400 Incorrect password.]
     V -- ok --> SU[record success\ndelete unconsumed challenges]
     SU --> GEN[generate 6-digit code\nstore SHA-256 hash\nexpires in 300 seconds]
     GEN --> EM{email delivered}
     EM -- no --> X[delete challenge\n502 AuthError]
-    EM -- yes --> OK1[generic detail]
+    EM -- yes --> OK1[200 Code sent.]
     VF[POST auth verify] --> CH[latest unconsumed challenge]
     CH --> EX{expired or attempts maxed}
     EX -- yes --> RJ[400 or 429 AuthError]
@@ -70,9 +70,11 @@ flowchart TD
 
 ## Invariants
 
-- Wrong password and correct password are indistinguishable: same generic detail,
-  same HTTP 200, and every path pays the Argon2 cost (a timing decoy hash is verified
-  when no admin hash is configured).
+- Wrong password is an explicit result: HTTP 400 `Incorrect password.` (not 401), after
+  the failure row is committed; no challenge is created and no email is sent. Brute force
+  is bounded by per-IP lockout (below) and the OTP second factor. Lockout is checked
+  first, so a wrong password while locked out is 429. Every path still pays the Argon2
+  cost (a timing decoy hash is verified when no admin hash is configured).
 - OTP codes are never persisted, logged, or echoed; only their SHA-256 hex hash is
   stored (`code_hash`), compared with `hmac.compare_digest`.
 - A successful login deletes all unconsumed challenges, so only the latest

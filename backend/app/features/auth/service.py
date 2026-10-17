@@ -1,8 +1,9 @@
 """Auth service: password check, hashed OTP, DB-backed lockout.
 
-Failure modes are indistinguishable by design: wrong password returns the
-same generic detail as success, and every path pays the Argon2 cost. OTP
-codes never appear in logs or responses (conventions invariant 15).
+Wrong password is an explicit 400 ("Incorrect password."); brute force is
+bounded by per-IP lockout and the OTP second factor. Every path still pays
+the Argon2 cost (timing decoy when no hash is configured). OTP codes never
+appear in logs or responses (conventions invariant 15).
 """
 
 import hashlib
@@ -35,7 +36,8 @@ logger = logging.getLogger(__name__)
 # the DB (conventions invariant #15); this mirror exists solely to drive tests.
 _DEV_LAST_CODE: str | None = None
 
-GENERIC_LOGIN_DETAIL = "If the password is correct, a code has been sent."
+LOGIN_SENT_DETAIL = "Code sent."
+LOGIN_WRONG_PASSWORD_DETAIL = "Incorrect password."
 GENERIC_OTP_DETAIL = "Invalid or expired code."
 LOCKOUT_FAILURES = 10
 LOCKOUT_WINDOW = timedelta(minutes=15)
@@ -104,8 +106,9 @@ async def get_effective_password_hash(session: AsyncSession) -> str | None:
 
 
 async def request_otp(session: AsyncSession, password: str, ip: str) -> str:
-    """Verify the password and deliver a fresh OTP. Wrong password and
-    correct password return the identical generic detail."""
+    """Verify the password and deliver a fresh OTP. Returns ``LOGIN_SENT_DETAIL``
+    on success; a wrong password records a failure, commits it, then raises
+    ``AuthError(400)`` (not 401: the admin ``apiFetch`` redirects on 401)."""
     settings = get_settings()
 
     if await is_locked_out(session, ip):
@@ -116,7 +119,7 @@ async def request_otp(session: AsyncSession, password: str, ip: str) -> str:
     if not password_ok:
         await _record_attempt(session, ip, "failure")
         await session.commit()
-        return GENERIC_LOGIN_DETAIL
+        raise AuthError(400, LOGIN_WRONG_PASSWORD_DETAIL)
 
     await _record_attempt(session, ip, "success")
     await session.execute(delete(OtpChallenge).where(OtpChallenge.consumed_at.is_(None)))
@@ -146,7 +149,7 @@ async def request_otp(session: AsyncSession, password: str, ip: str) -> str:
                 await email.send_otp(code, to=recipient)
             except email.EmailSendError:
                 logger.warning("DEV: email delivery skipped (no provider configured)")
-        return GENERIC_LOGIN_DETAIL
+        return LOGIN_SENT_DETAIL
 
     recipient = settings.admin_email
     if not recipient:
@@ -160,7 +163,7 @@ async def request_otp(session: AsyncSession, password: str, ip: str) -> str:
         await session.commit()
         raise AuthError(502, "Code delivery failed; try again later.") from exc
 
-    return GENERIC_LOGIN_DETAIL
+    return LOGIN_SENT_DETAIL
 
 
 def get_dev_last_code() -> str | None:

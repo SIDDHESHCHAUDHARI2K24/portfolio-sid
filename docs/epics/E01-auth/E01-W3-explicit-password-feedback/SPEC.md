@@ -30,7 +30,7 @@ Correct password → code sent → OTP screen. Wrong password → error on the l
 - `docs/features/auth.md`: replace the invariant with "explicit result; brute force bounded by per-IP lockout (W2) and the OTP second factor". Update the flow diagram and API table.
 
 ## Edge cases
-- Empty or whitespace password: the UI already blocks submit; the backend schema rejects it with 422 (do not change).
+- Empty or whitespace password: the UI blocks submit. The backend treats `""` as a wrong password (400, failure row) and a missing field as 422. The schema is unchanged, so the OpenAPI is unchanged (decision 2026-10-17).
 - Wrong password while locked out → 429 (lockout check runs first).
 - The 10th failure triggers lockout on the 11th attempt, not the 10th response.
 - Slowapi limit (5/min) → 429 with the rate-limit detail; the UI shows it.

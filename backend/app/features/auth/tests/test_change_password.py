@@ -95,10 +95,7 @@ async def test_change_password_happy_path_rotates_and_login_uses_new(
     resp = await client.post(LOGIN_URL, json={"password": new_pw})
     assert resp.status_code == 200
 
-    # 5. old password still returns generic but does not send OTP (same UX)
-    # It should now be treated as wrong password
-    # We check that OTP not sent and failure recorded
-    # Login with old now is failure path — cannot create challenge
+    # 5. old password is now a wrong password: explicit 400, no new challenge
     from sqlalchemy import func
 
     # Count challenges before
@@ -106,7 +103,8 @@ async def test_change_password_happy_path_rotates_and_login_uses_new(
 
     before = (await session.execute(select(func.count()).select_from(OtpChallenge))).scalar_one()
     resp = await client.post(LOGIN_URL, json={"password": TEST_ADMIN_PASSWORD})
-    assert resp.status_code == 200
+    assert resp.status_code == 400
+    assert resp.json() == {"detail": "Incorrect password."}
     after = (await session.execute(select(func.count()).select_from(OtpChallenge))).scalar_one()
     # No new challenge for wrong password (old)
     # new_login_invalidates_previous ensures old would have created one if correct
