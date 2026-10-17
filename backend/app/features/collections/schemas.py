@@ -15,6 +15,7 @@ class CollectionItemPublic(BaseModel):
     kind: str
     section: str | None
     cover_key: str | None
+    cover_url: str | None = None
     external_id: str | None
     external_source: str | None
     status: str | None
