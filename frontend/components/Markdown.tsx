@@ -8,7 +8,7 @@ import remarkGfm from "remark-gfm";
  */
 export default function Markdown({ body }: { body: string }) {
   return (
-    <div className="prose prose-neutral dark:prose-invert max-w-none">
+    <div className="article-body">
       <ReactMarkdown remarkPlugins={[remarkGfm]}>
         {body}
       </ReactMarkdown>
