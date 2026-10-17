@@ -7,7 +7,13 @@ marked by ``[sample-demo]`` in the note; the other samples start with
 ``Sample —`` or use a ``sample-`` slug. ``--remove`` deletes only those rows.
 
 Refuses to run unless ENVIRONMENT is development/local AND the database host
-is localhost/127.0.0.1.
+is localhost/127.0.0.1 AND the database name starts with ``portfolio`` (never
+``railway``) -- checked on the URL up front and again at runtime with
+``SELECT current_database()``, so a production DB tunnelled to localhost
+(``railway connect Postgres --tunnel-only``) is refused.
+
+Collection rows are only ever updated when they carry the ``[sample-demo]``
+marker; a real (unmarked) row with the same title is left alone and reported.
 
 Usage:
     uv run python scripts/seed_demo.py                   # seed / refresh, with covers
@@ -29,7 +35,7 @@ _backend_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_backend_root))
 
 import httpx  # noqa: E402
-from sqlalchemy import or_, select  # noqa: E402
+from sqlalchemy import or_, select, text  # noqa: E402
 from sqlalchemy.engine import make_url  # noqa: E402
 from sqlalchemy.ext.asyncio import AsyncSession  # noqa: E402
 
@@ -57,17 +63,40 @@ NOW = dt.datetime.now(dt.UTC)
 A = Audience
 
 
+DB_NAME_PREFIX = "portfolio"
+FORBIDDEN_DB_NAMES = {"railway"}
+
+
+def _db_name_problem(name: str | None) -> str | None:
+    if not name or name.lower() in FORBIDDEN_DB_NAMES or not name.startswith(DB_NAME_PREFIX):
+        return f"database name {name!r} must start with {DB_NAME_PREFIX!r} (and not be 'railway')"
+    return None
+
+
+def guard_problem(environment: str, database_url: str) -> str | None:
+    """Return why seeding must be refused for this config, or None if it is allowed."""
+    url = make_url(database_url)
+    if environment not in {"development", "local"}:
+        return f"environment={environment!r} (need development/local)"
+    if url.host not in {"localhost", "127.0.0.1"}:
+        return f"db host={url.host!r} (need localhost/127.0.0.1)"
+    return _db_name_problem(url.database)
+
+
 def _guard() -> None:
     settings = get_settings()
-    host = make_url(settings.database_url).host
-    if settings.environment not in {"development", "local"} or host not in {
-        "localhost",
-        "127.0.0.1",
-    }:
-        sys.exit(
-            f"refusing to seed: environment={settings.environment!r} db host={host!r} "
-            "(need development/local + localhost)"
-        )
+    problem = guard_problem(settings.environment, settings.database_url)
+    if problem:
+        sys.exit(f"refusing to seed: {problem}")
+
+
+async def _guard_runtime(session: AsyncSession) -> None:
+    """Ask the server which database we are really connected to (tunnels, aliases)."""
+    actual = await session.scalar(text("SELECT current_database()"))
+    problem = _db_name_problem(actual)
+    if problem:
+        await session.rollback()
+        sys.exit(f"refusing to seed: connected {problem}")
 
 
 async def _tags(session: AsyncSession, slugs: list[str]) -> list[TopicTag]:
@@ -80,6 +109,13 @@ async def _tags(session: AsyncSession, slugs: list[str]) -> list[TopicTag]:
     return list(rows)
 
 
+def _apply(row: Any, data: dict[str, Any]) -> None:
+    for k, v in data.items():
+        setattr(row, k, v)
+    row.status = PublishStatus.PUBLISHED
+    row.published_at = row.published_at or NOW
+
+
 async def _upsert(
     session: AsyncSession, model: Any, key: str, value: str, data: dict[str, Any]
 ) -> None:
@@ -87,10 +123,32 @@ async def _upsert(
     if row is None:
         row = model(**{key: value})
         session.add(row)
-    for k, v in data.items():
-        setattr(row, k, v)
-    row.status = PublishStatus.PUBLISHED
-    row.published_at = row.published_at or NOW
+    _apply(row, data)
+
+
+def _is_marked(item: CollectionItem) -> bool:
+    return MARKER in (item.note or "")
+
+
+async def _upsert_collection(session: AsyncSession, title: str, data: dict[str, Any]) -> bool:
+    """Upsert a sample collection row by title AND marker.
+
+    Returns False (and touches nothing) when an unmarked row with this title exists:
+    that is real content and must never be modified by the demo seed.
+    """
+    rows = (
+        await session.scalars(select(CollectionItem).where(CollectionItem.title == title))
+    ).all()
+    marked = [r for r in rows if _is_marked(r)]
+    if marked:
+        _apply(marked[0], data)
+        return True
+    if rows:
+        return False
+    row = CollectionItem(title=title)
+    session.add(row)
+    _apply(row, data)
+    return True
 
 
 def _d(y: int, m: int, d: int) -> dt.date:
@@ -566,6 +624,7 @@ PROSE: list[tuple[str, str, ProseGroup, list[A] | None, tuple[str, str] | None]]
 
 async def remove() -> None:
     async with async_session_factory() as session:
+        await _guard_runtime(session)
         n = 0
         for model, cond in [
             (Certification, Certification.title.like(f"{PREFIX}%")),
@@ -625,7 +684,9 @@ async def _fill_covers(session: AsyncSession) -> tuple[int, list[str]]:
 
 async def seed(*, covers: bool = True) -> list[str]:
     async with async_session_factory() as session:
+        await _guard_runtime(session)
         stale = await _drop_stale_collection_samples(session)
+        skipped: list[str] = []
         for i, (t, issuer, kind, issued, exp, tags, aud) in enumerate(CERTS):
             title = PREFIX + t
             await _upsert(
@@ -645,10 +706,8 @@ async def seed(*, covers: bool = True) -> list[str]:
                 },
             )
         for i, (t, creator, kind, section, st, note) in enumerate(COLLECTION):
-            await _upsert(
+            written = await _upsert_collection(
                 session,
-                CollectionItem,
-                "title",
                 t,
                 {
                     "creator": creator,
@@ -660,6 +719,8 @@ async def seed(*, covers: bool = True) -> list[str]:
                     "sort_order": i,
                 },
             )
+            if not written:
+                skipped.append(t)
         for i, (t, summ, d, tags, aud) in enumerate(THESIS):
             await _upsert(
                 session,
@@ -739,6 +800,11 @@ async def seed(*, covers: bool = True) -> list[str]:
             f"{len(NATIVE_POSTS)} native posts, {len(PROSE)} prose pages "
             f"(dropped {stale} stale old collection samples)"
         )
+        if skipped:
+            print(
+                f"skipped {len(skipped)} collection samples: a real (unmarked) row with the "
+                f"same title exists and was left untouched: {skipped}"
+            )
         if covers:
             print(f"covers: {found} fetched this run")
             print(f"cover lookups failed: {failed or 'none'}")
