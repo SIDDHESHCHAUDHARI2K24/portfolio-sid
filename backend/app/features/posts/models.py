@@ -1,9 +1,9 @@
-"""Posts feature: external link entries routed to themed pages by collection."""
+"""Posts feature: external link and native (internal) entries routed to themed pages."""
 
 import enum
 from datetime import date
 
-from sqlalchemy import Column, Date, ForeignKey, String, Table, Text
+from sqlalchemy import CheckConstraint, Column, Date, ForeignKey, String, Table, Text
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -24,6 +24,7 @@ class PostPlatform(enum.StrEnum):
     MEDIUM = "medium"
     YOUTUBE = "youtube"
     OTHER = "other"
+    INTERNAL = "internal"
 
 
 class PostCollection(enum.StrEnum):
@@ -59,10 +60,22 @@ post_topic_tags = Table(
 
 class Post(UUIDMixin, TimestampMixin, SortableMixin, PublishableMixin, Base):
     __tablename__ = "posts"
+    __table_args__ = (
+        # internal posts live on this site (slug + markdown body); every other
+        # platform is an outbound link and needs a url. Labels are the enum
+        # member NAMES (SQLAlchemy default), hence 'INTERNAL'.
+        CheckConstraint(
+            "(platform = 'INTERNAL' AND slug IS NOT NULL AND body IS NOT NULL) "
+            "OR (platform <> 'INTERNAL' AND url IS NOT NULL)",
+            name="ck_posts_platform_fields",
+        ),
+    )
 
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     summary: Mapped[str | None] = mapped_column(Text)
-    url: Mapped[str] = mapped_column(String(2000), nullable=False)
+    url: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+    slug: Mapped[str | None] = mapped_column(String(200), unique=True, index=True)
+    body: Mapped[str | None] = mapped_column(Text)
     platform: Mapped[PostPlatform] = mapped_column(
         postgresql.ENUM(PostPlatform, name="post_platform", create_type=True),
         nullable=False,
