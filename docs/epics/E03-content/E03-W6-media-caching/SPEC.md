@@ -1,6 +1,6 @@
 # E03-W6 — Media caching: browser cache and Cloudflare edge cache
 
-**Epic:** E03 Content · **Ticket:** E03-W6 · **Status:** Part A done (local); Part B pending (user, after deploy) · **Depends on:** E03-W1
+**Epic:** E03 Content · **Ticket:** E03-W6 · **Status:** Part A done (local); Part B pending (user, after deploy; includes the `MEDIA_BASE_URL` step) · **Depends on:** E03-W1
 
 ## Purpose
 Covers are fetched once and stored (W1, W5), but `/media/*` is served from the backend volume with no `Cache-Control` (only ETag and Last-Modified, checked 2026-10-17). Repeat visitors revalidate every file, and every visitor's request reaches the backend. The S3 path already sets a cache header (`backend/app/core/storage.py:71`); the local-disk path that production uses does not.
@@ -24,9 +24,11 @@ A first visitor loads a cover from our storage; a repeat visitor loads it from t
 
 **Part B (infra, user-run, after Part A is deployed):**
 1. Cloudflare SSL/TLS mode: **Full** (not Full Strict; Railway has no Cloudflare origin cert). This is required before proxying.
-2. Turn on the proxy (orange cloud) for the **apex `siddhesh-chaudhari.com` only**.
-3. Keep `admin.siddhesh-chaudhari.com` DNS-only (grey cloud), so admin login, lockout and the forged-IP protection (E01-W2) are unchanged.
-4. Cloudflare caches `.jpg`/`.png`/`.webp` by extension by default and respects `Cache-Control`; no page rules are needed. HTML stays uncached (default).
+2. **Point cover URLs at the apex BEFORE enabling the proxy.** `cover_url` = `MEDIA_BASE_URL` + `/media/<key>` and the env registry has prod `MEDIA_BASE_URL=https://admin.siddhesh-chaudhari.com`, which stays grey-cloud, so covers would bypass Cloudflare. Set backend (and cron) `MEDIA_BASE_URL=https://siddhesh-chaudhari.com` (the frontend rewrites `/media/*` to the backend), redeploy, then verify on the live site that a cover URL (`<img src>` or `cover_url` in `/api/v1/collections`) starts with `https://siddhesh-chaudhari.com/media/` and returns 200. Code and env values are unchanged by this ticket; this is a user-run env change.
+3. Turn on the proxy (orange cloud) for the **apex `siddhesh-chaudhari.com` only**.
+4. Keep `admin.siddhesh-chaudhari.com` DNS-only (grey cloud), so admin login, lockout and the forged-IP protection (E01-W2) are unchanged.
+5. Cloudflare caches `.jpg`/`.png`/`.webp` by extension by default and respects `Cache-Control`; no page rules are needed. HTML stays uncached (default).
+6. Rollback note: grey-cloud the apex; `MEDIA_BASE_URL` may stay on the apex (covers keep loading, uncached) or be set back to the admin host.
 
 ## Edge cases
 - **Client IP behind Cloudflare (main risk):** with the proxy on, Railway's edge sees Cloudflare's address. Railway staff say the edge then sets `X-Real-IP` from `CF-Connecting-IP`, but this is not documented. **Gate:** after enabling, submit one public form and check that the backend log/IP shows your public IP, not a Cloudflare range. If it shows a Cloudflare IP, turn the proxy off (grey cloud): public forms' per-IP anti-abuse would otherwise become global.
@@ -42,7 +44,7 @@ A first visitor loads a cover from our storage; a repeat visitor loads it from t
 ## Acceptance criteria
 - [x] Part A: header served; audit recorded; tests pass.
 - [ ] Part B: `cf-cache-status: HIT` on covers; the client-IP gate passes, or the proxy is reverted with a note.
-- [ ] `docs/DEPLOYMENT.md` documents the Cloudflare settings and the rollback.
+- [x] `docs/DEPLOYMENT.md` documents the Cloudflare settings (including the `MEDIA_BASE_URL` step) and the rollback.
 
 ## Storage key audit
 
@@ -63,6 +65,6 @@ Verified locally (preview backend 24785, frontend 24735 rewrite, admin 24755 pro
 
 ## Rollback
 - **Part A:** revert.
-- **Part B:** grey-cloud the apex in Cloudflare (takes effect in minutes).
+- **Part B:** grey-cloud the apex in Cloudflare (takes effect in minutes). `MEDIA_BASE_URL` can stay on the apex (covers just stop being edge-cached) or be set back to `https://admin.siddhesh-chaudhari.com` and redeployed.
 
 Sources: [Railway public networking](https://docs.railway.com/deploy/exposing-your-app); Railway forum on [Cloudflare and client IP](https://station.railway.com/questions/reveal-real-ip-address-when-using-cloudf-dec5795d) and [Full (Strict)](https://station.railway.com/questions/cloudflare-ssl-full-strict-does-not-ab35244a).

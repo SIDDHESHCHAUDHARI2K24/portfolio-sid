@@ -29,12 +29,13 @@ One command fills every content type locally with realistic, clearly marked samp
 ## Testing
 - Run twice locally: identical counts; `/books` and `/anime-manga` show covers; three `/writing/sample-…` pages render.
 - `uv run ruff check scripts/seed_demo.py` and mypy pass.
-- The guard refuses `ENVIRONMENT=production` and a non-localhost DB (quick manual check).
+- The guard refuses `ENVIRONMENT=production`, a non-localhost DB, and any database whose name (URL and runtime `SELECT current_database()`) does not start with `portfolio` or is `railway` (e.g. a prod DB tunnelled to localhost). Tested in `backend/app/tests/test_seed_demo.py`.
+- Collection rows are only upserted when marked `[sample-demo]`; an unmarked real row with the same title is skipped and reported.
 
 ## Acceptance criteria
 - [x] EPIC criterion 6 holds (book covers and native articles verified locally).
 - [x] The script is committed; usage is in its docstring (`LOCAL.md` untouched, awaiting approval).
-- [ ] Anime/manhwa covers: Jikan (api.jikan.moe) was unreachable from the dev network on 2026-10-17; rerun the seed where it is reachable.
+- [x] Anime/manhwa covers: Jikan (api.jikan.moe) was unreachable from the dev network on 2026-10-17; fixed in E03-W5 (AniList fallback, short Jikan timeout), so the seed now fetches anime/manhwa covers.
 
 ## Rollback
 `uv run python scripts/seed_demo.py --remove`.

@@ -16,7 +16,7 @@ References only — **no secret values in this file**. `STITCH_API_KEY` lives ON
 | `DATABASE_URL` | Postgres 16 connection — use Railway **internal** URL (no egress) | TD-M4 | TD-07, TD-16+ (all models/queries) |
 | `STORAGE_KIND` | `local` (prod, Railway Volume) or `s3` (local dev, MinIO) | TD-M4 / code | `storage.py` factory |
 | `LOCAL_STORAGE_DIR` | Disk path for local storage; mounted Railway Volume in prod (e.g. `/data`) | TD-M4 | `storage.py` `LocalDiskStorage` |
-| `MEDIA_BASE_URL` | Absolute base for `/media` URLs so the separate frontend can load them, e.g. `https://admin.siddhesh-chaudhari.com` | TD-M4 | `storage.py` `LocalDiskStorage.get_url` |
+| `MEDIA_BASE_URL` | Absolute base for `/media` URLs so the separate frontend can load them, e.g. `https://admin.siddhesh-chaudhari.com`. Current prod value (admin host, grey-cloud): covers bypass Cloudflare. Before proxying the apex for edge caching, change it to `https://siddhesh-chaudhari.com` (frontend rewrites `/media`); see DEPLOYMENT.md Cloudflare section / E03-W6 Part B. No change made yet | TD-M4 | `storage.py` `LocalDiskStorage.get_url` |
 | `R2_ENDPOINT` | **Dev only** — MinIO S3 endpoint `http://localhost:24790` (unused in prod `local` mode) | local dev | `storage.py` (s3 path) |
 | `R2_ACCESS_KEY_ID` | **Dev only** — MinIO access key | local dev | `storage.py` (s3 path) |
 | `R2_SECRET_ACCESS_KEY` | **Dev only** — MinIO secret key | local dev | `storage.py` (s3 path) |

@@ -1,6 +1,6 @@
 # Epic E03: Content — collection covers, native articles, local samples
 
-**Status:** Draft, awaiting user approval
+**Status:** Implemented locally; review fixes applied; awaiting deploy approval
 **Coordinator:** Coordinator 1 (session `fd08bb3a-b07e-4a18-a7f4-032a1fb0a404`)
 **Opened:** 2026-10-17 · **Branch:** `epic/E03-content` in worktree `../Portfolio-E03`
 
