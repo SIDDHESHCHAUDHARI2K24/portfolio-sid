@@ -14,9 +14,9 @@ export default function AnimeMangaClient({ anime, manhwa }: { anime: Item[]; man
             {anime.map((item) => (
               <div key={item.id} className="flex flex-col items-center text-center group">
                 <div className="relative aspect-[2/3] w-full overflow-hidden rounded-md border border-border bg-muted/30 mb-2">
-                  {item.cover_key ? (
+                  {item.cover_url ? (
                     <img
-                      src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${item.cover_key}`}
+                      src={item.cover_url}
                       alt={item.title}
                       className="object-cover w-full h-full"
                       loading="lazy"
@@ -49,9 +49,9 @@ export default function AnimeMangaClient({ anime, manhwa }: { anime: Item[]; man
             {manhwa.map((item) => (
               <div key={item.id} className="flex flex-col items-center text-center group">
                 <div className="relative aspect-[2/3] w-full overflow-hidden rounded-md border border-border bg-muted/30 mb-2">
-                  {item.cover_key ? (
+                  {item.cover_url ? (
                     <img
-                      src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${item.cover_key}`}
+                      src={item.cover_url}
                       alt={item.title}
                       className="object-cover w-full h-full"
                       loading="lazy"

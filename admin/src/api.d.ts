@@ -1308,6 +1308,8 @@ export interface components {
             section: string | null;
             /** Cover Key */
             cover_key: string | null;
+            /** Cover Url */
+            cover_url?: string | null;
             /** External Id */
             external_id: string | null;
             /** External Source */
@@ -1392,6 +1394,8 @@ export interface components {
             section: string | null;
             /** Cover Key */
             cover_key: string | null;
+            /** Cover Url */
+            cover_url?: string | null;
             /** External Id */
             external_id: string | null;
             /** External Source */

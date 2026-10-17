@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -37,6 +37,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function CollectionsList() {
   const queryClient = useQueryClient()
+  const coverNotice = (useLocation().state as { coverNotice?: string } | null)?.coverNotice
 
   const { data: items = [], isLoading } = useQuery<Item[]>({
     queryKey: ['admin', 'collections'],
@@ -78,6 +79,7 @@ export default function CollectionsList() {
           </Button>
         </Link>
       </div>
+      {coverNotice && <p className="text-sm text-muted-foreground">{coverNotice}</p>}
 
       {items.length === 0 ? (
         <Card>

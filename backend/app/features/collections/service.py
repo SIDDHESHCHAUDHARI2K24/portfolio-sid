@@ -1,5 +1,6 @@
 """Collections service: returns dicts (not ORM), triggered cover lookup on create."""
 
+import logging
 from datetime import UTC, datetime
 from uuid import UUID
 
@@ -7,7 +8,7 @@ import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.enums import PublishStatus
-from app.core.storage import StorageAdapter
+from app.core.storage import StorageAdapter, get_storage
 from app.features.collections import repository
 from app.features.collections.covers import CoverResult, fetch_and_store_cover
 from app.features.collections.models import (
@@ -17,6 +18,8 @@ from app.features.collections.models import (
     ExternalSource,
 )
 from app.features.collections.schemas import CollectionItemCreate, CollectionItemUpdate
+
+logger = logging.getLogger(__name__)
 
 
 def _item_to_dict(item: CollectionItem) -> dict[str, object]:
@@ -30,6 +33,7 @@ def _item_to_dict(item: CollectionItem) -> dict[str, object]:
         "kind": _s(item.kind),
         "section": item.section,
         "cover_key": item.cover_key,
+        "cover_url": get_storage().get_url(item.cover_key) if item.cover_key else None,
         "external_id": item.external_id,
         "external_source": _s(item.external_source) if item.external_source else None,
         "status": _s(item.status_) if item.status_ else None,
@@ -60,6 +64,21 @@ async def get_dict(session: AsyncSession, item_id: UUID) -> dict[str, object] | 
     return _item_to_dict(item)
 
 
+def _kind_value(kind: object) -> str:
+    return kind.value if isinstance(kind, CollectionKind) else str(kind)
+
+
+async def _auto_cover(title: str, kind: str) -> str | None:
+    """Best-effort cover lookup; any failure yields no cover, never an error."""
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            result = await fetch_and_store_cover(title, kind, get_storage(), client)
+    except Exception as exc:
+        logger.info("auto cover lookup failed title=%r err=%s", title, exc)
+        return None
+    return result.cover_key if result.status == "found" else None
+
+
 async def create_dict(session: AsyncSession, data: CollectionItemCreate) -> dict[str, object]:
     entry_data = data.model_dump(exclude={"publish_status"})
     raw_kind = entry_data["kind"]
@@ -77,6 +96,9 @@ async def create_dict(session: AsyncSession, data: CollectionItemCreate) -> dict
     entry_data["status"] = pub_status
     if pub_status == PublishStatus.PUBLISHED:
         entry_data["published_at"] = datetime.now(UTC)
+
+    if not entry_data.get("cover_key"):
+        entry_data["cover_key"] = await _auto_cover(data.title, data.kind.value)
 
     item = CollectionItem(**entry_data)
     item = await repository.create(session, item)
@@ -112,6 +134,9 @@ async def update_dict(
 
     for key, value in update_data.items():
         setattr(item, key, value)
+
+    if "cover_key" not in data.model_fields_set and not item.cover_key:
+        item.cover_key = await _auto_cover(item.title, _kind_value(item.kind))
 
     item.updated_at = datetime.now(UTC)
     await repository.update(session, item)

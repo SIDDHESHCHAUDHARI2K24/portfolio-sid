@@ -4270,6 +4270,17 @@
             ],
             "title": "Cover Key"
           },
+          "cover_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover Url"
+          },
           "external_id": {
             "anyOf": [
               {
@@ -4549,6 +4560,17 @@
               }
             ],
             "title": "Cover Key"
+          },
+          "cover_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover Url"
           },
           "external_id": {
             "anyOf": [
