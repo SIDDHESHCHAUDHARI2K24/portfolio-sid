@@ -1,5 +1,7 @@
 """Collections: API tests covering CRUD, draft exclusion, kind/section handling."""
 
+import asyncio
+
 import httpx
 import pytest
 import pytest_asyncio
@@ -331,3 +333,80 @@ async def test_explicit_null_cover_clears_without_refetch(
     assert resp.json()["cover_key"] is None
     assert resp.json()["cover_url"] is None
     assert cover_spy.calls == []
+
+
+@pytest.mark.asyncio
+async def test_lookup_timeout_saves_without_cover(
+    client: httpx.AsyncClient,
+    clean_collections: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def hang(title: str, kind: str, adapter: object, http: object) -> CoverResult:
+        await asyncio.sleep(30)
+        return CoverResult(status="found", cover_key="never.jpg")
+
+    monkeypatch.setattr(service, "fetch_and_store_cover", hang)
+    monkeypatch.setattr(service, "COVER_LOOKUP_TIMEOUT", 0.05)
+    await _login(client, monkeypatch)
+    created = await _create(client)
+    assert created["cover_key"] is None
+    resp = await client.patch(f"{_URL}/{created['id']}", json={"note": "slow"})
+    assert resp.status_code == 200
+    assert resp.json()["cover_key"] is None
+    assert resp.json()["note"] == "slow"
+
+
+def test_lookup_timeout_is_ten_seconds() -> None:
+    assert service.COVER_LOOKUP_TIMEOUT == 10
+
+
+@pytest.mark.asyncio
+async def test_update_lookup_does_not_hold_db_transaction(
+    client: httpx.AsyncClient,
+    db_engine: AsyncEngine,
+    clean_collections: None,
+    monkeypatch: pytest.MonkeyPatch,
+    cover_spy: _CoverSpy,
+) -> None:
+    await _login(client, monkeypatch)
+    created = await _create(client)
+    idle_during_lookup: list[int] = []
+
+    async def spy(title: str, kind: str, adapter: object, http: object) -> CoverResult:
+        async with db_engine.connect() as conn:
+            n = await conn.scalar(
+                text(
+                    "SELECT count(*) FROM pg_stat_activity "
+                    "WHERE datname = current_database() "
+                    "AND state LIKE 'idle in transaction%'"
+                )
+            )
+        idle_during_lookup.append(int(n or 0))
+        return CoverResult(status="found", cover_key="book-tx.jpg")
+
+    monkeypatch.setattr(service, "fetch_and_store_cover", spy)
+    resp = await client.patch(f"{_URL}/{created['id']}", json={"title": "Dune Messiah"})
+    assert resp.status_code == 200
+    assert idle_during_lookup == [0]
+    assert resp.json()["cover_key"] == "book-tx.jpg"
+    assert resp.json()["title"] == "Dune Messiah"
+
+
+@pytest.mark.asyncio
+async def test_update_lookup_item_deleted_meanwhile_is_rejected(
+    client: httpx.AsyncClient,
+    db_engine: AsyncEngine,
+    clean_collections: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    await _login(client, monkeypatch)
+    created = await _create(client)
+
+    async def deleting(title: str, kind: str, adapter: object, http: object) -> CoverResult:
+        async with db_engine.begin() as conn:
+            await conn.execute(text("DELETE FROM collection_items"))
+        return CoverResult(status="found", cover_key="x.jpg")
+
+    monkeypatch.setattr(service, "fetch_and_store_cover", deleting)
+    resp = await client.patch(f"{_URL}/{created['id']}", json={"title": "Gone"})
+    assert resp.status_code == 422  # same as any missing item on update

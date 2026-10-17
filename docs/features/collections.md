@@ -45,6 +45,17 @@ best-effort: `found` sets `cover_key`; `no_match`, `failed` or any exception
   result is `failed`, so a later save retries; AniList 429 is a failure with no
   retry loop. The chosen image uses the same download, validation and storage
   path, so covers are always served from our storage.
+- Hard limits: the save-time lookup is wrapped in `asyncio.wait_for(..., COVER_LOOKUP_TIMEOUT = 10)`
+  (timeout = failed, item saves). On update the DB transaction is ended
+  (`rollback`) before the lookup and the item is reloaded afterwards, so no
+  connection is held during network I/O.
+- Download hardening (`covers._download_image`): https on port 443 only; host
+  allowlist `covers.openlibrary.org`, `archive.org`, `*.archive.org` (Open Library
+  covers 302 to archive.org then an `ia<N>.us.archive.org` node),
+  `cdn.myanimelist.net` (Jikan) and `s4.anilist.co` (AniList). Redirects are
+  followed manually (max 3) and every hop is checked before it is requested. The
+  body is streamed with a Content-Length pre-check and an incremental
+  `MAX_COVER_BYTES` (5 MiB) cap. The negative-cache key is `<kind>:<title>`.
 - The admin form omits `cover_key` unless it was set/changed, then shows
   "Cover found." / "No cover found." on the list after save. The manual
   "Look up cover" button remains for re-fetching.

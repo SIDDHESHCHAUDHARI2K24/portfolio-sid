@@ -1,5 +1,6 @@
 """Collections service: returns dicts (not ORM), triggered cover lookup on create."""
 
+import asyncio
 import logging
 from datetime import UTC, datetime
 from uuid import UUID
@@ -20,6 +21,9 @@ from app.features.collections.models import (
 from app.features.collections.schemas import CollectionItemCreate, CollectionItemUpdate
 
 logger = logging.getLogger(__name__)
+
+# Hard cap on the whole save-time cover lookup (search + download + store).
+COVER_LOOKUP_TIMEOUT = 10
 
 
 def _item_to_dict(item: CollectionItem) -> dict[str, object]:
@@ -72,7 +76,13 @@ async def _auto_cover(title: str, kind: str) -> str | None:
     """Best-effort cover lookup; any failure yields no cover, never an error."""
     try:
         async with httpx.AsyncClient(timeout=20) as client:
-            result = await fetch_and_store_cover(title, kind, get_storage(), client)
+            result = await asyncio.wait_for(
+                fetch_and_store_cover(title, kind, get_storage(), client),
+                COVER_LOOKUP_TIMEOUT,
+            )
+    except TimeoutError:
+        logger.info("auto cover lookup timed out title=%r", title)
+        return None
     except Exception as exc:
         logger.info("auto cover lookup failed title=%r err=%s", title, exc)
         return None
@@ -124,6 +134,18 @@ async def update_dict(
         update_data["status_"] = CollectionStatus(val) if val else None
         del update_data["status"]
 
+    # Cover lookup happens with no DB transaction open: read what we need, end the
+    # read transaction (releases the pooled connection), look up, then reload.
+    auto_cover_key: str | None = None
+    if "cover_key" not in data.model_fields_set and not item.cover_key:
+        lookup_title = update_data.get("title") or item.title
+        lookup_kind = _kind_value(update_data.get("kind") or item.kind)
+        await session.rollback()
+        auto_cover_key = await _auto_cover(lookup_title, lookup_kind)
+        item = await repository.get(session, item_id)
+        if item is None:
+            raise ValueError("collection item not found")
+
     if data.publish_status is not None:
         update_data["status"] = PublishStatus(data.publish_status)
         if (
@@ -135,8 +157,8 @@ async def update_dict(
     for key, value in update_data.items():
         setattr(item, key, value)
 
-    if "cover_key" not in data.model_fields_set and not item.cover_key:
-        item.cover_key = await _auto_cover(item.title, _kind_value(item.kind))
+    if auto_cover_key and not item.cover_key:
+        item.cover_key = auto_cover_key
 
     item.updated_at = datetime.now(UTC)
     await repository.update(session, item)

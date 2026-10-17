@@ -201,3 +201,148 @@ async def test_books_never_touch_anilist() -> None:
 
 def test_anilist_error_is_exception() -> None:
     assert issubclass(AniListError, Exception)
+
+
+# --- download hardening: https only, host allowlist, redirects, streamed size cap ---
+
+
+async def _download(handler: Callable[[httpx.Request], httpx.Response], url: str) -> bytes | None:
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        return await covers._download_image(url, client)
+
+
+def _img(request: httpx.Request) -> httpx.Response:
+    return httpx.Response(200, content=JPEG, headers={"content-type": "image/jpeg"})
+
+
+async def test_download_allowed_hosts_ok() -> None:
+    for url in (
+        "https://covers.openlibrary.org/b/id/1-L.jpg",
+        "https://cdn.myanimelist.net/images/a.jpg",
+        "https://s4.anilist.co/file/a.jpg",
+        "https://archive.org/download/x/y.jpg",
+        "https://ia802809.us.archive.org/view_archive.php?file=y.jpg",
+    ):
+        assert await _download(_img, url) == JPEG, url
+
+
+async def test_download_rejects_http() -> None:
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return _img(request)
+
+    assert await _download(handler, "http://covers.openlibrary.org/b/id/1-L.jpg") is None
+    assert seen == []
+
+
+async def test_download_rejects_disallowed_host_without_request() -> None:
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return _img(request)
+
+    for url in (
+        "https://evil.example.com/a.jpg",
+        "https://169.254.169.254/latest/meta-data",
+        "https://covers.openlibrary.org.evil.com/a.jpg",
+        "https://notarchive.org/a.jpg",
+    ):
+        assert await _download(handler, url) is None, url
+    assert seen == []
+
+
+async def test_download_redirect_to_disallowed_host_rejected_before_request() -> None:
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        if request.url.host == "covers.openlibrary.org":
+            return httpx.Response(302, headers={"location": "https://internal.example/secret"})
+        return _img(request)
+
+    assert await _download(handler, "https://covers.openlibrary.org/b/id/1-L.jpg") is None
+    assert _hosts(seen) == ["covers.openlibrary.org"]
+
+
+async def test_download_redirect_to_http_rejected() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(302, headers={"location": "http://archive.org/a.jpg"})
+
+    assert await _download(handler, "https://covers.openlibrary.org/b/id/1-L.jpg") is None
+
+
+async def test_download_follows_open_library_redirect_chain() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.host == "covers.openlibrary.org":
+            return httpx.Response(302, headers={"location": "https://archive.org/download/a.jpg"})
+        if request.url.host == "archive.org":
+            return httpx.Response(
+                302, headers={"location": "https://ia802809.us.archive.org/view.php?f=a.jpg"}
+            )
+        return _img(request)
+
+    assert await _download(handler, "https://covers.openlibrary.org/b/id/1-L.jpg") == JPEG
+
+
+async def test_download_max_three_redirects() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        n = int(request.url.params.get("n", "0"))
+        if n < 4:
+            return httpx.Response(302, headers={"location": f"https://archive.org/loop?n={n + 1}"})
+        return _img(request)
+
+    assert await _download(handler, "https://archive.org/loop?n=0") is None
+    assert await _download(handler, "https://archive.org/loop?n=1") == JPEG  # 3 redirects ok
+
+
+async def test_download_content_length_precheck_skips_body() -> None:
+    class Boom(httpx.AsyncByteStream):
+        async def __aiter__(self):  # type: ignore[no-untyped-def]
+            raise AssertionError("body must not be read")
+            yield b""  # pragma: no cover
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            headers={
+                "content-type": "image/jpeg",
+                "content-length": str(covers.MAX_COVER_BYTES + 1),
+            },
+            stream=Boom(),
+        )
+
+    assert await _download(handler, "https://s4.anilist.co/a.jpg") is None
+
+
+async def test_download_oversized_stream_aborted_incrementally() -> None:
+    chunk = b"x" * (1024 * 1024)
+    yielded = 0
+
+    class Endless(httpx.AsyncByteStream):
+        async def __aiter__(self):  # type: ignore[no-untyped-def]
+            nonlocal yielded
+            for _ in range(100):  # no content-length: only the incremental cap can stop it
+                yielded += 1
+                yield chunk
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, headers={"content-type": "image/png"}, stream=Endless())
+
+    assert await _download(handler, "https://s4.anilist.co/a.png") is None
+    assert yielded <= covers.MAX_COVER_BYTES // len(chunk) + 1
+
+
+async def test_negative_cache_key_includes_kind() -> None:
+    seen: list[httpx.Request] = []
+    async with _make_client(_jikan_miss, _anilist_null, seen) as client:
+        r1 = await fetch_and_store_cover("Same Title", "anime", FakeStorage(), client)
+        assert r1.status == "no_match"
+        n = len(seen)
+        r2 = await fetch_and_store_cover("Same Title", "manhwa", FakeStorage(), client)
+        assert r2.status == "no_match"
+        assert len(seen) > n  # manhwa was actually looked up, not served from anime's cache
+    assert "anime:same title" in covers._negative_cache
+    assert "manhwa:same title" in covers._negative_cache

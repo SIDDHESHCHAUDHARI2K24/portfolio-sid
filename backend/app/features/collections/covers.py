@@ -16,6 +16,14 @@ from app.core.storage import StorageAdapter, content_hashed_key
 logger = logging.getLogger(__name__)
 
 MAX_COVER_BYTES = 5 * 1024 * 1024
+MAX_COVER_REDIRECTS = 3
+# Hosts cover images may be fetched from. Open Library covers 302 to archive.org,
+# which 302s again to an ia<N>.us.archive.org node (verified with curl); Jikan
+# serves cdn.myanimelist.net and AniList serves s4.anilist.co (no redirects).
+ALLOWED_COVER_HOSTS = frozenset(
+    {"covers.openlibrary.org", "archive.org", "cdn.myanimelist.net", "s4.anilist.co"}
+)
+ALLOWED_COVER_HOST_SUFFIXES = (".archive.org",)
 OPEN_LIBRARY_SEARCH = "https://openlibrary.org/search.json"
 JIKAN_ANIME = "https://api.jikan.moe/v4/anime"
 JIKAN_MANGA = "https://api.jikan.moe/v4/manga"
@@ -53,25 +61,57 @@ class CoverResult:
     cover_key: str | None = None
 
 
+def _cover_url_allowed(url: httpx.URL) -> bool:
+    """https on the default port, to an allowlisted CDN host only."""
+    if url.scheme != "https" or url.port not in (None, 443):
+        return False
+    host = url.host.lower()
+    return host in ALLOWED_COVER_HOSTS or host.endswith(ALLOWED_COVER_HOST_SUFFIXES)
+
+
 async def _download_image(url: str, client: httpx.AsyncClient) -> bytes | None:
+    """Download a cover from an allowlisted https host.
+
+    Redirects are followed manually (max ``MAX_COVER_REDIRECTS``) so every hop is
+    checked against the allowlist *before* it is requested. The body is streamed
+    with a Content-Length pre-check and an incremental byte cap.
+    """
     try:
-        resp = await client.get(url, follow_redirects=True, timeout=15)
-        resp.raise_for_status()
+        current = httpx.URL(url)
+        for _ in range(MAX_COVER_REDIRECTS + 1):
+            if not _cover_url_allowed(current):
+                logger.info("cover download blocked url=%s", current)
+                return None
+            async with client.stream("GET", current, follow_redirects=False, timeout=15) as resp:
+                if resp.has_redirect_location:
+                    current = resp.url.join(resp.headers["location"])
+                    continue
+                resp.raise_for_status()
+                return await _read_image_body(resp, str(current))
+        logger.info("cover download too many redirects url=%s", url)
     except Exception as exc:
         logger.info("cover download failed url=%s err=%s", url, exc)
-        return None
+    return None
 
+
+async def _read_image_body(resp: httpx.Response, url: str) -> bytes | None:
     ct = resp.headers.get("content-type", "")
     if not ct.startswith("image/"):
         logger.info("cover download non-image content-type=%s url=%s", ct, url)
         return None
 
-    body = resp.content
-    if len(body) > MAX_COVER_BYTES:
-        logger.info("cover download too large size=%d url=%s", len(body), url)
+    declared = resp.headers.get("content-length", "")
+    if declared.isdigit() and int(declared) > MAX_COVER_BYTES:
+        logger.info("cover download too large content-length=%s url=%s", declared, url)
         return None
 
-    return body
+    body = bytearray()
+    async for chunk in resp.aiter_bytes():
+        body.extend(chunk)
+        if len(body) > MAX_COVER_BYTES:
+            logger.info("cover download exceeded %d bytes url=%s", MAX_COVER_BYTES, url)
+            return None
+    return bytes(body)
 
 
 def _extract_ol_image_url(data: dict[str, Any]) -> str | None:
@@ -143,7 +183,7 @@ async def fetch_and_store_cover(
     and store it in R2. Return a structured result."""
 
     if kind == "book":
-        cache_key = f"ol:{title.lower()}"
+        cache_key = f"{kind}:{title.lower()}"
         if _neg_cached(cache_key):
             return CoverResult(status="no_match")
 
@@ -157,7 +197,7 @@ async def fetch_and_store_cover(
         image_url = _extract_ol_image_url(resp.json())
         prefix = "book"
     else:
-        cache_key = f"anime:{title.lower()}"
+        cache_key = f"{kind}:{title.lower()}"
         if _neg_cached(cache_key):
             return CoverResult(status="no_match")
 
