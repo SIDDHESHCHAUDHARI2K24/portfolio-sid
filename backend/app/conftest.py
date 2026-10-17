@@ -5,6 +5,7 @@ maintenance db (owner = dev db user) and the full schema comes from
 ``models_registry`` metadata — never mocked, never the dev database.
 """
 
+import os
 from collections.abc import AsyncIterator
 
 import httpx
@@ -27,7 +28,8 @@ from app.core.security import hash_password
 from app.features.auth.endpoints.router import limiter
 from app.tests.helpers import TEST_ADMIN_PASSWORD
 
-TEST_DB_NAME = "portfolio_test"
+# TEST_DB_NAME override lets parallel worktrees use separate test databases.
+TEST_DB_NAME = os.environ.get("TEST_DB_NAME", "portfolio_test")
 
 
 def _base_url() -> URL:
