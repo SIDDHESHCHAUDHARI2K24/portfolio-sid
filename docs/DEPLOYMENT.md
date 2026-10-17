@@ -68,6 +68,19 @@ These values live in `.railway/railway.ts` (IaC, committed). `railway config pla
 | `railway run` behaves like a local command | It IS local (env injection only) — not in-container | In-container execution = `railway ssh -s <service>` (register a key: `railway ssh keys add`; one key per Railway account); DB shells/tunnels = `railway connect Postgres [--tunnel-only -P <port>]` |
 | CLI panic `volume -s <name> add` / empty `variable set --stdin` writes | CLI bugs | Pass service IDs, always pipe a real value via `--stdin`; values containing `$` must go via `--stdin` |
 
+## Cloudflare edge caching (optional)
+
+Backend sends `Cache-Control: public, max-age=31536000, immutable` for content-hashed `/media` keys and `max-age=300` otherwise (E03-W6 Part A). Enabling the Cloudflare proxy adds edge caching, free plan. Do this only after Part A is deployed.
+
+1. Cloudflare SSL/TLS mode: **Full** (not Full Strict; Railway has no Cloudflare origin cert).
+2. Orange-cloud (proxy) the apex `siddhesh-chaudhari.com` only.
+3. Keep `admin.siddhesh-chaudhari.com` DNS-only (grey cloud) so admin login, lockout and forged-IP protection stay unchanged.
+4. No page rules needed; images cache by extension and `Cache-Control` is respected. HTML stays uncached.
+5. Check: `curl -I https://siddhesh-chaudhari.com/media/<cover>` twice; the second shows `cf-cache-status: HIT`.
+6. **Client-IP gate:** submit one public form and confirm the backend log shows your public IP, not a Cloudflare range. If it shows Cloudflare, grey-cloud the apex (per-IP anti-abuse would otherwise become global).
+
+Rollback: grey-cloud the apex (minutes). Also grey-cloud it if Railway reports "Cloudflare proxy detected" and cannot renew the certificate.
+
 ## 6. Verification gate suite (after any change)
 
 ```bash

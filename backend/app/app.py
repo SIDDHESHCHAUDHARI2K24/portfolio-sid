@@ -5,12 +5,12 @@ from pathlib import Path
 from fastapi import APIRouter, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
 from app.core.glitchtip import init_glitchtip
 from app.core.logging import configure_logging
+from app.core.media import MediaStaticFiles
 from app.core.startup_checks import validate_production_auth
 from app.features.auth.endpoints.router import admin_router, limiter
 from app.features.auth.endpoints.router import router as auth_router
@@ -147,7 +147,7 @@ def create_app() -> FastAPI:
         # and not swallowed by index.html.
         app.mount(
             "/media",
-            StaticFiles(directory=str(media_dir.resolve())),
+            MediaStaticFiles(directory=str(media_dir.resolve())),
             name="media",
         )
 
