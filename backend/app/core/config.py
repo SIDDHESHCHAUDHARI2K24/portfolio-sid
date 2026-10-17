@@ -5,6 +5,7 @@ e.g. ``database_url`` <- ``DATABASE_URL``. See ``.env.example``.
 """
 
 from functools import lru_cache
+from ipaddress import ip_network
 from typing import Literal
 
 from pydantic import field_validator
@@ -12,7 +13,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # hide_input_in_errors: validation errors name the field, never echo values.
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore", hide_input_in_errors=True)
 
     environment: str = "development"
     database_url: str = "postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio"
@@ -58,6 +60,20 @@ class Settings(BaseSettings):
     admin_password_hash: str | None = None
 
     cors_allow_origins: list[str] = []
+
+    # Peers allowed to assert the caller's address via X-Real-IP (see
+    # app/core/net.py). Empty = header never trusted (local dev, direct hits).
+    trusted_proxy_cidrs: list[str] = []
+
+    @field_validator("trusted_proxy_cidrs")
+    @classmethod
+    def _validate_trusted_proxy_cidrs(cls, v: list[str]) -> list[str]:
+        for cidr in v:
+            try:
+                ip_network(cidr, strict=False)
+            except ValueError:
+                raise ValueError("TRUSTED_PROXY_CIDRS contains an invalid CIDR") from None
+        return v
 
     cf_access_enabled: bool = False
     cf_access_team_domain: str | None = None

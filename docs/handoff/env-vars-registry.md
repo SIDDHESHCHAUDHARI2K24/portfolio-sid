@@ -27,6 +27,7 @@ References only — **no secret values in this file**. `STITCH_API_KEY` lives ON
 | `SESSION_SECRET` | `itsdangerous` signed-cookie key (generate: `openssl rand -hex 32`) | TD-M4 | TD-17 session cookie |
 | `ADMIN_PASSWORD_HASH` | Argon2id hash from `uv run python -m app.cli hash-password` — hash only, never the password | TD-M4 (after TD-17 CLI exists) | TD-17 login |
 | `CORS_ALLOW_ORIGINS` | **Empty in production — deliberate.** Admin+API same-origin via single hostname. Permissive value here is a misconfiguration that never announces itself | TD-M4 | TD-03 app factory (dev: `http://localhost:5173`) |
+| `TRUSTED_PROXY_CIDRS` | JSON list of proxy CIDRs allowed to assert the caller IP via `X-Real-IP`. Prod: `["10.0.0.0/8","fd00::/8"]` (Railway private network). Unset/empty = header ignored and the peer IP is used, so lockout and rate limits go global again. Invalid CIDR fails startup | E01-W2 | `app/core/net.py::client_ip` |
 | `CF_ACCESS_ENABLED` | **Permanently `false`** — Cloudflare Access service dropped; app-layer auth (TD-17) carries authn | TD-M6 (set false) | TD-17 Access dependency |
 | `GLITCHTIP_DSN` | **GlitchTip** (open-source Sentry-compatible) DSN for error tracking on both backend + frontend. Set to a GlitchTip instance DSN on Railway. | TD-36 | TD-36 `app/core/glitchtip.py`, frontend sentry configs |
 | `NEXT_PUBLIC_GLITCHTIP_DSN` | Client-side GlitchTip DSN (frontend only). Both DSN vars skip init when unset, so local dev needs neither. | TD-36 | `frontend/sentry.client.config.ts` |
@@ -101,6 +102,7 @@ Cross-service env values use `${{Service.VAR}}` references (dashboard dependency
 | `SESSION_SECRET` | Any random dev string | Never reuse prod value |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH` | Dev values | Hash via CLI once it exists |
 | `CORS_ALLOW_ORIGINS` | `http://localhost:5173` | Dev-only divergence |
+| `TRUSTED_PROXY_CIDRS` | `[]` | No proxy in dev; peer address is the client |
 | `CF_ACCESS_ENABLED` | `false` | Access service dropped |
 | `STITCH_API_KEY` | Stitch key | **Local only. Never Railway, never git.** `.mcp.json` references `${STITCH_API_KEY}` (TD-10) |
 

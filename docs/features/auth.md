@@ -61,7 +61,7 @@ flowchart TD
 - backend/app/features/auth/service.py — request_otp, verify_otp, is_locked_out
 - backend/app/features/auth/models.py — OtpChallenge, LoginAttempt, OTP constants
 - backend/app/features/auth/schemas.py — LoginRequest, VerifyRequest
-- backend/app/features/auth/utils.py — client_ip
+- backend/app/core/net.py — client_ip: X-Real-IP honoured only from TRUSTED_PROXY_CIDRS peers
 - backend/app/core/session.py — cookie name, itsdangerous signing, 8h max age
 - backend/app/core/security.py — argon2 verification with timing decoy
 - backend/app/core/email.py — Resend delivery of the code
@@ -77,10 +77,11 @@ flowchart TD
   stored (`code_hash`), compared with `hmac.compare_digest`.
 - A successful login deletes all unconsumed challenges, so only the latest
   outstanding challenge can ever be verified.
-- Lockout is DB-backed per IP: at least 10 failures inside the 15-minute window
+- Lockout is DB-backed per real client IP (`core/net.py::client_ip`, never `request.client.host`): at least 10 failures inside the 15-minute window
   since the last success; a success resets the counting window.
 - Per-challenge limits: 5 attempts, 300-second TTL, single use via `consumed_at`.
 - Session tokens are itsdangerous-signed payloads (not JWTs); the cookie is HttpOnly,
   Secure with SameSite=strict in production, Lax otherwise, max age 8 hours.
 - Admin routers depend on `require_admin` plus `verify_cf_access`; rate limiting runs
-  before handlers via slowapi keyed on remote address.
+  before handlers via slowapi keyed on `client_ip`. The header is ignored unless the
+  direct peer is in `TRUSTED_PROXY_CIDRS`, so callers cannot forge it.

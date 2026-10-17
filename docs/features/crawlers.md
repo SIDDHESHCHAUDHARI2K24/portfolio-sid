@@ -61,9 +61,10 @@ ClaudeBot. Caveats worth knowing before trusting the numbers:
 
 - Retention prunes rows older than 90 days on every scheduler pass, so hits
   and summary silently lose history beyond that window.
-- Undercount by origin: the hash input is `request.client.host`, the direct
-  connection peer. Behind Cloudflare or another proxy every crawler arrives
-  from proxy origin IPs, so distinct crawlers can collapse into identical
+- Undercount by origin: the hash input is `core/net.py::client_ip`, which
+  uses `X-Real-IP` only from a trusted proxy peer (`TRUSTED_PROXY_CIDRS`) and
+  otherwise the direct connection peer. Without that setting every crawler
+  arrives from proxy IPs, so distinct crawlers can collapse into identical
   ip_hash values and per-crawler uniqueness cannot be derived from them.
 
 ## Files To Reference

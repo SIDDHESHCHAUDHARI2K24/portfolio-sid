@@ -14,6 +14,7 @@ from fastapi import Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.database import async_session_factory
+from app.core.net import client_ip
 from app.features.crawlers import repository
 from app.features.crawlers.models import CrawlerHit
 
@@ -81,8 +82,7 @@ async def crawler_middleware(
     if agent_label is None:
         return response
 
-    client_ip = request.client.host if request.client else "0.0.0.0"
-    ip_hash = _hash_ip(client_ip)
+    ip_hash = _hash_ip(client_ip(request))
 
     asyncio.ensure_future(
         _write_hit(

@@ -4,19 +4,18 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Response
 from slowapi import Limiter
-from slowapi.util import get_remote_address
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
 from app.core.database import get_session
 from app.core.deps import admin_auth
+from app.core.net import client_ip
 from app.core.session import clear_session_cookie, set_session_cookie
 from app.features.auth import service
 from app.features.auth.schemas import ChangePasswordRequest, LoginRequest, VerifyRequest
 from app.features.auth.service import AuthError
-from app.features.auth.utils import client_ip
 
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(key_func=client_ip)
 
 router = APIRouter(prefix="/api/v1", tags=["auth"])
 admin_router = APIRouter(prefix="/api/v1/admin", tags=["admin"], dependencies=admin_auth())

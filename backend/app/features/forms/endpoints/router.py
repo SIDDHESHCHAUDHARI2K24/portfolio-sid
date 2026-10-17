@@ -10,8 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.cache_tags import FORMS
 from app.core.database import get_session
 from app.core.deps import admin_auth
+from app.core.net import client_ip
 from app.core.revalidation import revalidate
-from app.features.auth.utils import client_ip
 from app.features.forms import service
 from app.features.forms.models import FormType
 from app.features.forms.schemas import (
