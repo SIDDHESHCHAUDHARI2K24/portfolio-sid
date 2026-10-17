@@ -120,3 +120,33 @@ export function buildBlogPostingJsonLd(page: ProsePage) {
     },
   };
 }
+
+type ArticleInput = {
+  title: string;
+  slug?: string | null;
+  summary: string | null;
+  published_date: string | null;
+  created_at: string;
+  updated_at: string;
+  topic_tags: { label: string }[];
+};
+
+export function buildArticleJsonLd(post: ArticleInput) {
+  const url = `${BASE_URL}/writing/${post.slug}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.summary ?? undefined,
+    url,
+    mainEntityOfPage: url,
+    datePublished: post.published_date ?? post.created_at,
+    dateModified: post.updated_at,
+    author: {
+      "@type": "Person",
+      name: PERSON_NAME,
+      url: BASE_URL,
+    },
+    keywords: post.topic_tags.map((t) => t.label).join(", ") || undefined,
+  };
+}

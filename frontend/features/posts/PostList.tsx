@@ -2,14 +2,17 @@
 
 import { useCategory } from "@/components/CategoryProvider";
 import { isRelevant } from "@/lib/relevance";
+import Link from "next/link";
 import { useMemo } from "react";
+import { postHref } from "./postLink";
 
 type TagRef = { id: string; slug: string; label: string };
 type PostItem = {
   id: string;
   title: string;
   summary: string | null;
-  url: string;
+  url: string | null;
+  slug?: string | null;
   platform: string;
   published_date: string | null;
   collections: string[];
@@ -34,6 +37,7 @@ const PLATFORM_LABELS: Record<string, string> = {
   medium: "Medium",
   youtube: "YouTube",
   other: "External",
+  internal: "Article",
 };
 
 export default function PostList({ posts, tagMap, heading, description }: Props) {
@@ -69,11 +73,9 @@ export default function PostList({ posts, tagMap, heading, description }: Props)
               isRelevant(itemTagSlugs, overrides, audience, tagMapNormalized);
 
             return (
-              <a
+              <Card
                 key={post.id}
-                href={post.url}
-                rel="noopener noreferrer"
-                target="_blank"
+                post={post}
                 className={`block rounded-lg border border-border bg-card p-5 transition-all hover:border-primary/50 hover:shadow-sm ${
                   relevant ? "opacity-100" : "opacity-50"
                 }`}
@@ -109,11 +111,35 @@ export default function PostList({ posts, tagMap, heading, description }: Props)
                     ))}
                   </div>
                 )}
-              </a>
+              </Card>
             );
           })}
         </div>
       )}
     </div>
+  );
+}
+
+function Card({
+  post,
+  className,
+  children,
+}: {
+  post: PostItem;
+  className: string;
+  children: React.ReactNode;
+}) {
+  const { href, external } = postHref(post);
+  if (external) {
+    return (
+      <a href={href} rel="noopener noreferrer" target="_blank" className={className}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
   );
 }
