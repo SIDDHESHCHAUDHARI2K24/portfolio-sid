@@ -10,6 +10,7 @@ from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
 from app.core.glitchtip import init_glitchtip
+from app.core.logging import configure_logging
 from app.core.startup_checks import validate_production_auth
 from app.features.auth.endpoints.router import admin_router, limiter
 from app.features.auth.endpoints.router import router as auth_router
@@ -113,6 +114,7 @@ def create_app() -> FastAPI:
     catch-all below stays as a fallback for local dev or single-container
     images but is inert in production once the `static` directory is absent.
     """
+    configure_logging()
     settings = get_settings()
     validate_production_auth(settings)
     init_glitchtip(settings.glitchtip_dsn, environment=settings.environment)

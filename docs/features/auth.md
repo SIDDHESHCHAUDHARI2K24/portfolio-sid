@@ -99,7 +99,7 @@ exception and never runs in production.
   stored (`code_hash`), compared with `hmac.compare_digest`.
 - A successful login deletes all unconsumed challenges, so only the latest
   outstanding challenge can ever be verified.
-- Lockout is DB-backed per real client IP (`core/net.py::client_ip`, never `request.client.host`): at least 10 failures inside the 15-minute window
+- Lockout is DB-backed per real client IP (`core/net.py::client_ip`, never `request.client.host`; IPv6 callers are keyed by their /64 so address rotation cannot dodge it): at least 10 failures inside the 15-minute window
   since the last success; a success resets the counting window.
 - Per-challenge limits: 5 attempts, 300-second TTL, single use via `consumed_at`.
 - Session tokens are itsdangerous-signed payloads (not JWTs); the cookie is HttpOnly,

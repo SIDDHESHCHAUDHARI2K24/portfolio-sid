@@ -23,7 +23,7 @@ In production, the backend refuses to start with a missing or malformed auth set
 | `SESSION_SECRET` | set, not `dev-only-secret`, at least 32 characters |
 | `RESEND_API_KEY` | set, starts with `re_` |
 | `ADMIN_EMAIL` | set, a single `local@domain.tld` |
-| `RESEND_FROM` | set; if it is `onboarding@resend.dev`, log a WARNING (owner-only delivery) but do not fail |
+| `RESEND_FROM` | present in the process environment (the settings default is non-empty, so only an explicit variable counts), no surrounding whitespace, and no quotes around a bare address (`"Name" <a@b.co>` is fine); if it is `onboarding@resend.dev`, log a WARNING (owner-only delivery) but do not fail |
 | `TRUSTED_PROXY_CIDRS` | every entry parses as a CIDR (empty allowed, with a WARNING) |
 
 ## Edge cases
@@ -31,6 +31,7 @@ In production, the backend refuses to start with a missing or malformed auth set
 - A DB override row exists while the env hash is fine → no check (the DB is not available at startup); out of scope.
 - Development and test environments → skip entirely, so local dev and CI are unaffected.
 - Several failures → report them all at once, not just the first.
+- `RAILWAY_ENVIRONMENT_NAME=production` with `ENVIRONMENT` not `production` → fail naming `ENVIRONMENT`, so a mis-set variable cannot silently enable dev mode (dev OTP endpoint).
 - The message must not contain any value, including partial prefixes.
 
 ## Testing
@@ -44,4 +45,4 @@ In production, the backend refuses to start with a missing or malformed auth set
 - [ ] The env registry documents the rules.
 
 ## Rollback
-Revert and redeploy. A failing check never takes down the running deployment; it only blocks the new one.
+Revert and redeploy. A failing check never takes down the running deployment; it only blocks the new one. Note: `alembic upgrade head` runs before validation (Dockerfile CMD), so migrations apply even when validation fails, and the rollback relies on the backend healthcheck (`/api/v1/health`) in `.railway/railway.ts`.

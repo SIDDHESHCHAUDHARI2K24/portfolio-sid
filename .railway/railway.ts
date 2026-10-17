@@ -30,6 +30,7 @@ export default defineRailway(() => {
   const backend = service("backend", {
     source: portfolioSid,
     build: { buildEnvironment: "V3", builder: "DOCKERFILE", dockerfilePath: "/Dockerfile" },
+    healthcheck: "/api/v1/health",
     replicas: { "sfo": 1 },
     volumeMounts: { "/data": backendVolume },
     env: {
@@ -51,6 +52,7 @@ export default defineRailway(() => {
       REVALIDATION_SECRET: preserve(),
       SESSION_SECRET: preserve(),
       STORAGE_KIND: preserve(),
+      TRUSTED_PROXY_CIDRS: preserve(),
     },
   });
 

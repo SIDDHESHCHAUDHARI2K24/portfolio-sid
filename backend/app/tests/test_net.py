@@ -56,8 +56,25 @@ def test_trusted_peer_bad_header_falls_back_to_peer(header: str | None) -> None:
 
 
 @pytest.mark.usefixtures("trusted_cidrs")
-def test_ipv6_client_via_trusted_peer() -> None:
-    assert client_ip(_request(TRUSTED_PEER, "2001:DB8::1")) == "2001:db8::1"
+def test_ipv6_client_via_trusted_peer_keys_on_slash_64() -> None:
+    assert client_ip(_request(TRUSTED_PEER, "2001:DB8:1:2::1")) == "2001:db8:1:2::/64"
+
+
+@pytest.mark.usefixtures("trusted_cidrs")
+def test_ipv6_addresses_in_same_slash_64_share_a_key() -> None:
+    first = client_ip(_request(TRUSTED_PEER, "2001:db8:1:2:aaaa:bbbb:cccc:dddd"))
+    second = client_ip(_request(TRUSTED_PEER, "2001:db8:1:2:1111:2222:3333:4444"))
+    other = client_ip(_request(TRUSTED_PEER, "2001:db8:1:3::1"))
+    assert first == second == "2001:db8:1:2::/64"
+    assert other == "2001:db8:1:3::/64"
+
+
+def test_ipv6_untrusted_peer_keys_on_slash_64() -> None:
+    assert client_ip(_request("2001:db8:aaaa:bbbb:1:2:3:4")) == "2001:db8:aaaa:bbbb::/64"
+
+
+def test_ipv6_key_fits_string_45() -> None:
+    assert len(client_ip(_request("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"))) <= 45
 
 
 @pytest.mark.usefixtures("trusted_cidrs")

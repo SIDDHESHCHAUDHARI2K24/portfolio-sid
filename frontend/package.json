@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 24730",
     "build": "next build",
-    "start": "next start -p 24730",
+    "start": "next start",
     "lint": "eslint",
     "openapi:generate": "npx openapi-typescript ../backend/openapi.json -o src/api.d.ts",
     "test": "vitest run"

@@ -6,6 +6,7 @@ name variables only — never values, not even prefixes.
 """
 
 import logging
+import os
 import re
 
 from argon2 import extract_parameters
@@ -27,6 +28,14 @@ def _is_padded(value: str) -> bool:
     return value != value.strip() or value[:1] in _QUOTES or value[-1:] in _QUOTES
 
 
+def _is_padded_sender(value: str) -> bool:
+    """RESEND_FROM may be ``Name <a@b.co>`` with a quoted display name, so only
+    surrounding whitespace, or quotes around a bare address, count as padding."""
+    if value != value.strip():
+        return True
+    return "<" not in value and (value[:1] in _QUOTES or value[-1:] in _QUOTES)
+
+
 def _argon2_parses(value: str) -> bool:
     try:
         extract_parameters(value)
@@ -39,8 +48,21 @@ def validate_production_auth(settings: Settings) -> None:
     """Raise one ``RuntimeError`` naming every misconfigured auth variable.
 
     No-op outside production. Warnings (sandbox sender, empty proxy CIDRs) do
-    not fail startup.
+    not fail startup. A Railway production deploy whose ``ENVIRONMENT`` is not
+    ``production`` also fails, otherwise it would silently run in dev mode
+    (dev OTP endpoint enabled).
     """
+    if (
+        os.environ.get("RAILWAY_ENVIRONMENT_NAME") == "production"
+        and settings.environment != "production"
+    ):
+        message = (
+            "Invalid production auth configuration: ENVIRONMENT "
+            "(must be 'production' on Railway production)"
+        )
+        logger.error(message)
+        raise RuntimeError(message)
+
     if settings.environment != "production":
         return
 
@@ -72,8 +94,9 @@ def validate_production_auth(settings: Settings) -> None:
     if not email or _is_padded(email) or not _EMAIL_RE.fullmatch(email):
         failures.append("ADMIN_EMAIL")
 
+    # The settings default is non-empty, so a missing variable must be caught here.
     sender = settings.resend_from
-    if not sender or _is_padded(sender):
+    if "RESEND_FROM" not in os.environ or not sender or _is_padded_sender(sender):
         failures.append("RESEND_FROM")
     elif sender == _SANDBOX_SENDER:
         logger.warning("RESEND_FROM is the Resend sandbox sender; delivery is owner-only")

@@ -29,6 +29,8 @@ export default defineConfig({
     // CI runs the production build (TD-36.S5 contract); dev server locally.
     command: process.env.CI ? 'npm run start' : 'npm run dev',
     url: 'http://localhost:24730',
+    // `npm run start` has no -p (Railway injects $PORT); pin the local/CI port here.
+    env: { PORT: '24730' },
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
   },

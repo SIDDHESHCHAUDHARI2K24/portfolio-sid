@@ -23,14 +23,14 @@ Lockout, rate limiting, and audit rows use the real caller's IP, and a caller ca
 - **Trust model:** the Railway edge sets `X-Real-IP` to the client IP and overwrites any client-sent copy ([Railway staff answer](https://station.railway.com/questions/which-client-address-headers-does-the-ra-fb9e36d7)). Cloudflare is DNS-only, so there is no CDN hop. `X-Forwarded-For` is not used because its hop order is unreliable.
 - **nginx:** `proxy_set_header X-Real-IP $http_x_real_ip;` (the edge's value, passed through). Drop `X-Forwarded-For $proxy_add_x_forwarded_for`.
 - **Setting:** `TRUSTED_PROXY_CIDRS: list[str]` (default `[]`). In production, set it to the Railway private network ranges actually seen (`10.0.0.0/8`, and `fd00::/8` for IPv6 private networking).
-- **`app/core/net.py: client_ip(request) -> str`:** if the direct peer (`request.client.host`) is inside a trusted CIDR and `X-Real-IP` holds a valid IP, return it (normalized). Otherwise return the peer, or `"unknown"` if there is none.
+- **`app/core/net.py: client_ip(request) -> str`:** if the direct peer (`request.client.host`) is inside a trusted CIDR and `X-Real-IP` holds a valid IP, return it (normalized; IPv6 as its `/64`). Otherwise return the peer (same normalization), or `"unknown"` if there is none.
 - **Call sites:** auth router, the slowapi `key_func`, the forms router, and crawler middleware all use `app.core.net.client_ip`. Delete `features/auth/utils.py`; this also removes the forms-to-auth cross-slice import.
 - **uvicorn:** unchanged. No `--forwarded-allow-ips='*'`.
 
 ## Edge cases
 - Peer not trusted (local dev, direct hit) → use the peer and ignore the header, so it cannot be spoofed.
 - Trusted peer, header missing, empty, a comma list, or not an IP → use the peer.
-- IPv6 client, or IPv4-mapped IPv6 (`::ffff:1.2.3.4`) → normalize with `ipaddress`; the result must fit `String(45)`.
+- IPv6 client, or IPv4-mapped IPv6 (`::ffff:1.2.3.4`) → normalize with `ipaddress`; mapped addresses become plain IPv4, and real IPv6 is keyed by its `/64` network string (e.g. `2001:db8:1:2::/64`) so rotating addresses inside one subscriber prefix cannot dodge lockout or limits. The result fits `String(45)`.
 - Malformed CIDR in the setting → fail at startup with the variable name.
 - Next.js rewrites (public forms and crawler traffic): confirm the frontend proxy passes the edge's `X-Real-IP` through. If it does not, forms and crawlers fall back to the peer IP (today's behavior), recorded as a follow-up.
 - The rate limiter key changes from the proxy IP to the client IP: existing limits reset on deploy. Expected.

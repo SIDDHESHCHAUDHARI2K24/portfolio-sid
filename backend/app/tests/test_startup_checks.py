@@ -16,6 +16,13 @@ SENDER = "portfolio@example.com"
 CIDRS = ["10.0.0.0/8"]
 
 
+@pytest.fixture(autouse=True)
+def railway_style_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Production sets RESEND_FROM explicitly; the Railway env marker is opt-in per test."""
+    monkeypatch.setenv("RESEND_FROM", SENDER)
+    monkeypatch.delenv("RAILWAY_ENVIRONMENT_NAME", raising=False)
+
+
 def make(**overrides: Any) -> Settings:
     values: dict[str, Any] = {
         "environment": "production",
@@ -157,3 +164,52 @@ def test_empty_trusted_proxy_cidrs_warns_but_passes(caplog: pytest.LogCaptureFix
 def test_invalid_cidr_rejected_by_settings() -> None:
     with pytest.raises(ValueError, match="TRUSTED_PROXY_CIDRS"):
         make(trusted_proxy_cidrs=["not-a-cidr"])
+
+
+def test_resend_from_with_quoted_display_name_passes(caplog: pytest.LogCaptureFixture) -> None:
+    with caplog.at_level(logging.WARNING):
+        validate_production_auth(make(resend_from='"Siddhesh C" <portfolio@example.com>'))
+    assert caplog.records == []
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [" Name <a@b.co>", "Name <a@b.co> ", '"a@b.co"', "'a@b.co'", '"a@b.co', "a@b.co'"],
+)
+def test_resend_from_padding_still_fails(bad: str) -> None:
+    message = fail_message(resend_from=bad)
+    assert "RESEND_FROM" in message
+    assert bad.strip() not in message
+
+
+def test_resend_from_must_be_set_explicitly_in_production(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("RESEND_FROM")
+    message = fail_message()
+    assert "RESEND_FROM" in message
+    assert SENDER not in message
+
+
+def test_railway_production_with_wrong_environment_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("RAILWAY_ENVIRONMENT_NAME", "production")
+    for env in ("development", "test", "prod", "Production", ""):
+        with pytest.raises(RuntimeError) as exc:
+            validate_production_auth(Settings(_env_file=None, environment=env))
+        assert "ENVIRONMENT" in str(exc.value)
+
+
+def test_railway_production_with_correct_environment_passes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("RAILWAY_ENVIRONMENT_NAME", "production")
+    validate_production_auth(make())
+
+
+def test_other_railway_environment_keeps_dev_mode_allowed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("RAILWAY_ENVIRONMENT_NAME", "staging")
+    validate_production_auth(Settings(_env_file=None, environment="development"))

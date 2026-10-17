@@ -29,13 +29,26 @@ def _normalize(addr: IPv4Address | IPv6Address) -> IPv4Address | IPv6Address:
     return addr
 
 
+def _key(addr: IPv4Address | IPv6Address) -> str:
+    """Rate-limit key: IPv4 as-is, IPv6 collapsed to its /64.
+
+    A single IPv6 subscriber typically holds a whole /64, so keying on the full
+    address would let one caller rotate through 2**64 addresses to dodge
+    lockout and limits. ``2001:db8:1:2::/64`` is at most 24 chars (String(45)).
+    """
+    if isinstance(addr, IPv6Address):
+        return str(ip_network(f"{addr}/64", strict=False))
+    return str(addr)
+
+
 def client_ip(request: Request) -> str:
-    """Real caller address for rate limiting, lockout and audit rows.
+    """Real caller key for rate limiting, lockout and audit rows.
 
     ``X-Real-IP`` is honoured only when the direct peer sits inside
     ``TRUSTED_PROXY_CIDRS`` (the Railway edge overwrites any client-sent copy);
     otherwise the header is ignored so a caller cannot forge it. Falls back to
-    the peer, or ``"unknown"`` when there is none.
+    the peer, or ``"unknown"`` when there is none. IPv4 is returned as the plain
+    address; IPv6 (after IPv4-mapped normalization) as its ``/64`` network string.
     """
     if request.client is None:
         return "unknown"
@@ -50,7 +63,7 @@ def client_ip(request: Request) -> str:
         raw = request.headers.get(_REAL_IP_HEADER, "").strip()
         if raw and "%" not in raw:
             try:
-                return str(_normalize(ip_address(raw)))
+                return _key(_normalize(ip_address(raw)))
             except ValueError:
                 pass
-    return str(peer_addr)
+    return _key(peer_addr)

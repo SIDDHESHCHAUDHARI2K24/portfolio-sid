@@ -22,6 +22,8 @@ References only — **no secret values in this file**. `STITCH_API_KEY` lives ON
 | `R2_SECRET_ACCESS_KEY` | **Dev only** — MinIO secret key | local dev | `storage.py` (s3 path) |
 | `R2_BUCKET` | `portfolio-media` (MinIO dev bucket) | local dev | `storage.py` (s3 path) |
 | `R2_PUBLIC_BASE_URL` | **Dev only** — `http://localhost:24790/portfolio-media` (unused in prod) | local dev | `storage.py` (s3 path) |
+| `ENVIRONMENT` | **Must be exactly `production` on Railway production** — startup fails (naming `ENVIRONMENT`) when `RAILWAY_ENVIRONMENT_NAME=production` and this differs, since any other value silently enables dev mode (dev OTP endpoint) | portfolio-sid-v2 / E01-W5 | `startup_checks.py`, `config.py` |
+| `RESEND_FROM` | OTP / notification sender. Must be set **explicitly** in prod (the code default does not count; startup fails naming `RESEND_FROM`). `onboarding@resend.dev` (Resend sandbox) logs a WARNING: delivery is owner-only. `"Name" <a@b.co>` is accepted | E01-W5 / E01-W6 | `startup_checks.py`, `email.py` |
 | `RESEND_API_KEY` | Sending API key (dashboard → API Keys). Prod startup check (E01-W5): must start `re_` | TD-M3 → wired TD-M4 | TD-17 OTP email, TD-29 form notifications |
 | `ADMIN_EMAIL` | Sole OTP / notification recipient. Prod startup check: single `local@domain.tld` | TD-M4 | TD-17 |
 | `SESSION_SECRET` | `itsdangerous` signed-cookie key (generate: `openssl rand -hex 32`). Prod startup check: not `dev-only-secret`, ≥32 chars | TD-M4 | TD-17 session cookie |
@@ -34,6 +36,8 @@ References only — **no secret values in this file**. `STITCH_API_KEY` lives ON
 | `REVALIDATION_SECRET` | Shared secret for the Next.js revalidate route; backend sends it in the webhook header | TD-M4 | TD-19 (sender side) |
 | `NEXT_PUBLIC_BASE_URL` | Canonical public site URL the backend/cron POST revalidations to (`https://siddhesh-chaudhari.com` in prod). Defaults to `http://localhost:24730` — an unset var silently breaks every revalidation | portfolio-sid-v2 | `revalidation.py` |
 | `PGBOUNCER_ENABLED` | `true` in prod — makes `database.py` disable both asyncpg statement caches (unsafe under pgbouncer transaction pooling) | portfolio-sid-v2 | `database.py::pgbouncer_connect_args`, `alembic/env.py` |
+
+> Auth variables (`SESSION_SECRET`, `RESEND_API_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `RESEND_FROM`) must be pasted **without surrounding quotes or whitespace** (a bare-address `RESEND_FROM` likewise); the production startup check rejects them by name.
 
 > `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD` are **removed** (Access service dropped).
 > `SENTRY_DSN` removed in favour of GlitchTip. `TURNSTILE_*` removed (replaced by honeypot + rate-limit).
