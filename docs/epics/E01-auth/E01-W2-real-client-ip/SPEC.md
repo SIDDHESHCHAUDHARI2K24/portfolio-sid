@@ -1,6 +1,6 @@
 # E01-W2 — Real client IP behind the proxy
 
-**Epic:** E01 Auth · **Ticket:** E01-W2 · **Status:** Ready · **Depends on:** none
+**Epic:** E01 Auth · **Ticket:** E01-W2 · **Status:** Done locally (production check pending) · **Depends on:** none
 
 ## Purpose
 All requests reach the backend from a proxy's private IP (logs show `10.164.196.239` for every login). Lockout, rate limits, and forms anti-abuse are therefore global: one attacker can lock the admin out, and audit rows record the proxy.
@@ -43,10 +43,10 @@ Lockout, rate limiting, and audit rows use the real caller's IP, and a caller ca
 - Production, after deploy (user-approved): `login_attempts.ip` and the access log show your public IP; a request sending a forged `X-Real-IP` still records your real IP.
 
 ## Acceptance criteria
-- [ ] Per-caller lockout and rate limits are proven by tests.
-- [ ] No production code path reads `request.client.host` directly, except `core/net.py`.
-- [ ] The forms slice no longer imports from the auth slice.
-- [ ] `TRUSTED_PROXY_CIDRS` is documented in `.env.example` and the env registry.
+- [x] Per-caller lockout and rate limits are proven by tests.
+- [x] No production code path reads `request.client.host` directly, except `core/net.py`.
+- [x] The forms slice no longer imports from the auth slice.
+- [x] `TRUSTED_PROXY_CIDRS` is documented in `.env.example` and the env registry.
 - [ ] The production check confirms the real IP and that a forged header is rejected.
 
 ## Rollback

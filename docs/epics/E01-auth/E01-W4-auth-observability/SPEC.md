@@ -1,6 +1,6 @@
 # E01-W4 — Auth and email observability
 
-**Epic:** E01 Auth · **Ticket:** E01-W4 · **Status:** Ready · **Depends on:** none (rebase onto W3 if it lands first; both touch `request_otp`)
+**Epic:** E01 Auth · **Ticket:** E01-W4 · **Status:** Done locally (production check pending) · **Depends on:** none (rebase onto W3 if it lands first; both touch `request_otp`)
 
 ## Purpose
 The outage could not be diagnosed from logs: login outcomes are not logged, and email failures log only the exception class name.
@@ -35,9 +35,9 @@ Logger `app.auth` at INFO, one line per outcome, always with `ip=<resolved ip>`:
 - `uv run ruff check . && uv run mypy app && uv run pytest -q`.
 
 ## Acceptance criteria
-- [ ] All outcome lines are emitted and tested.
-- [ ] The leak test passes.
-- [ ] The `docs/features/auth.md` "Logs" section lists the lines.
+- [x] All outcome lines are emitted and tested.
+- [x] The leak test passes.
+- [x] The `docs/features/auth.md` "Logs" section lists the lines.
 
 ## Rollback
 Revert and redeploy the backend.

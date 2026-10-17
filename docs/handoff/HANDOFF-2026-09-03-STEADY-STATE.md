@@ -32,6 +32,18 @@
 - Dashboard canvas: variable-reference edges were created via IaC — confirm they render (cosmetic only).
 - Contact content editing — **LIVE v2** (`backend/app/features/contact/`): singleton `ContactProfile` (consent text) + ordered `ContactItem` list (kind/label/url/sort_order — emails, socials, booking links, phone…). Public `GET /api/v1/contact` returns `{consent_text, items}`; admin `PUT /api/v1/admin/contact` full-replaces items (array order = sort_order) and revalidates the `contact` tag. Admin → Contact sidebar form has add/remove/reorder + kind select. Frontend `/contact` renders icons per kind (brand icons inlined in `frontend/components/icons/BrandIcons.tsx` — lucide dropped brand icons) and falls back to inline defaults if the row is missing. Seeded via migrations `cc8619b8d037` → `a605878385db` (3 public emails + LinkedIn/Cal/GitHub).
 
+## Auth hardening — Epic E01 (2026-10-17)
+
+See `docs/epics/E01-auth/EPIC.md`. Production login was failing on a password mismatch (fixed by resetting `ADMIN_PASSWORD_HASH`). The epic then shipped:
+- Real client IP: `app/core/net.client_ip` trusts `X-Real-IP` only from `TRUSTED_PROXY_CIDRS` peers (prod `["10.0.0.0/8","fd00::/8"]`, JSON list); IPv6 is keyed per /64. Admin nginx forwards the edge's `X-Real-IP`.
+- A wrong password returns 400 "Incorrect password." and the admin app stays on the login page; success returns "Code sent.".
+- `app.auth` / `app.core.email` INFO outcome logs (no codes, passwords, full addresses or keys).
+- Production startup validation (`app/core/startup_checks.py`) blocks a deploy with bad auth env; the backend healthcheck `/api/v1/health` (IaC) keeps the old deployment serving.
+- Local ports moved to the 247xx block (see `docs/epics/E01-auth/E01-W7-local-nonstandard-ports/SPEC.md`).
+- graphify removed; CodeGraph is the navigation tool. `AGENTS.md` holds the agent workflow; `CLAUDE.md` imports it.
+- Pre-deploy check: `docs/epics/E01-auth/transcripts/checks.sh` (gitignored, local).
+- Open: optional E01-W6 (verify the Resend domain; the sandbox sender only delivers to the account owner).
+
 ## Secrets
 
 - Everything in Railway env vars / gh `production` environment secret / local gitignored `backend/.env`. Never in git, logs, or docs.

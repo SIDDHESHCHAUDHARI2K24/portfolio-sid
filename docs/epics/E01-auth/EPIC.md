@@ -1,6 +1,6 @@
 # Epic E01: Auth System
 
-**Status:** Approved 2026-10-17; W1 done
+**Status:** W1–W5, W7 implemented and verified locally; production verification pending; W6 optional
 **Coordinator:** Coordinator 1
 **Opened:** 2026-10-17
 

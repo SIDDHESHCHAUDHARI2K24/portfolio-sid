@@ -1,6 +1,6 @@
 # E01-W5 — Fail fast on bad auth config in production
 
-**Epic:** E01 Auth · **Ticket:** E01-W5 · **Status:** Ready · **Depends on:** W2 (validates `TRUSTED_PROXY_CIDRS`)
+**Epic:** E01 Auth · **Ticket:** E01-W5 · **Status:** Done locally (production check pending) · **Depends on:** W2 (validates `TRUSTED_PROXY_CIDRS`)
 
 ## Purpose
 Bad auth config fails silently. A missing hash means every login checks against the timing decoy and returns 200 forever. A missing key or email shows up only when someone tries to sign in. The deploy still looks healthy.
@@ -40,9 +40,9 @@ In production, the backend refuses to start with a missing or malformed auth set
 - `uv run ruff check . && uv run mypy app && uv run pytest -q`.
 
 ## Acceptance criteria
-- [ ] All rules are tested; no value appears in any message.
+- [x] All rules are tested; no value appears in any message.
 - [ ] Production passes validation on deploy.
-- [ ] The env registry documents the rules.
+- [x] The env registry documents the rules.
 
 ## Rollback
 Revert and redeploy. A failing check never takes down the running deployment; it only blocks the new one. Note: `alembic upgrade head` runs before validation (Dockerfile CMD), so migrations apply even when validation fails, and the rollback relies on the backend healthcheck (`/api/v1/health`) in `.railway/railway.ts`.

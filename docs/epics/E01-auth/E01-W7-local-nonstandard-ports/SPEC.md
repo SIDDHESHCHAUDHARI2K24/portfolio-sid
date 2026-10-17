@@ -1,6 +1,6 @@
 # E01-W7 — Non-standard local ports
 
-**Epic:** E01 Auth · **Ticket:** E01-W7 · **Status:** Ready · **Depends on:** none (unblocks local verification of W2–W5)
+**Epic:** E01 Auth · **Ticket:** E01-W7 · **Status:** Done · **Depends on:** none (unblocks local verification of W2–W5)
 
 ## Purpose
 Local services bind standard ports (5432, 6432, 9000/9001, 8000, 3000, 5200), which collide with other projects on the same machine. This was found when another project's MinIO held port 9000 and the storage tests failed (user request, 2026-10-17).
@@ -48,9 +48,9 @@ Every host port this project binds locally sits in a dedicated `247xx` block, so
 - `grep` finds no remaining local-dev reference to the old ports outside the exempt production and container-internal spots.
 
 ## Acceptance criteria
-- [ ] The port map is applied everywhere listed.
-- [ ] The full backend suite passes locally, with no storage failures.
-- [ ] Production config is untouched.
+- [x] The port map is applied everywhere listed.
+- [x] The full backend suite passes locally, with no storage failures.
+- [x] Production config is untouched (frontend `start` restored to `next start` after review).
 
 ## Rollback
 Revert the commit, then run `docker compose up -d`.

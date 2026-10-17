@@ -1,6 +1,6 @@
 # E01-W3 — Explicit wrong-password feedback
 
-**Epic:** E01 Auth · **Ticket:** E01-W3 · **Status:** Ready · **Depends on:** E01-W2 (ship together or after; an explicit password check without per-caller lockout invites brute force)
+**Epic:** E01 Auth · **Ticket:** E01-W3 · **Status:** Done locally (production check pending) · **Depends on:** E01-W2 (ship together or after; an explicit password check without per-caller lockout invites brute force)
 
 ## Purpose
 Login returns the same 200 for right and wrong passwords, so the admin app always opens the OTP screen. A typo looks identical to an email failure, which is what made the outage hard to diagnose.
@@ -45,9 +45,9 @@ Correct password → code sent → OTP screen. Wrong password → error on the l
 - Production, after deploy (user-approved): a wrong password shows the error and Resend usage does not change; the right password sends an email.
 
 ## Acceptance criteria
-- [ ] The behavior matches the table, with tests green.
-- [ ] The admin UI shows the error and does not navigate.
-- [ ] `docs/features/auth.md` is updated.
+- [x] The behavior matches the table, with tests green.
+- [x] The admin UI shows the error and does not navigate.
+- [x] `docs/features/auth.md` is updated.
 
 ## Rollback
 Revert and redeploy the backend and admin services. No data changes.
