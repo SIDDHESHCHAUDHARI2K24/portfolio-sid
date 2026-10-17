@@ -18,7 +18,7 @@ Every collection item with a stored cover shows it, locally and in production, a
 - `docs/features/collections.md`
 
 ## Functionality
-- **`cover_url`:** `CollectionItemPublic` and `CollectionItemAdmin` gain `cover_url: str | None`, built server-side from `cover_key` with the storage adapter's public URL (same as certifications `file_url`). `cover_key` stays for admin use.
+- **`cover_url`:** `CollectionItemPublic` and `CollectionItemAdmin` gain `cover_url: str | None`, built server-side as `get_storage().get_url(cover_key)` (same as certifications `file_url`, `certifications/service.py:30`). `cover_key` stays for admin use.
 - **Frontend:** books, anime-manga and tiles render `cover_url`; remove `NEXT_PUBLIC_R2_PUBLIC_URL` from cover rendering (audio config is out of scope).
 - **Lookup on save:** on admin create, and on update when the result has no `cover_key`, call the existing `covers.fetch_and_store_cover(title, kind)`. `found` sets `cover_key`; `no_match` or `failed` saves without a cover. The manual "Look up cover" button stays for re-fetching.
 - **Admin:** after save, show cover status (found / not found) from the response; no new controls.
