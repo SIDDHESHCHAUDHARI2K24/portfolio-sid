@@ -9,7 +9,9 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import tempfile
+from collections.abc import AsyncIterator
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -22,9 +24,9 @@ from app.features.resumes.models import ALLOWED_VARIANTS, Resume
 # --- load seed_resumes helpers without relying on scripts being a package ---
 _SEED_PATH = Path(__file__).resolve().parents[4] / "scripts" / "seed_resumes.py"
 _spec = importlib.util.spec_from_file_location("seed_resumes", _SEED_PATH)
-assert _spec and _spec.loader is not None  # type: ignore[truthy-bool]
-_seed = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_seed)  # type: ignore[attr-defined]
+assert _spec and _spec.loader is not None
+_seed: Any = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_seed)
 
 
 # ---------------------------------------------------------------------------
@@ -90,7 +92,7 @@ def test_variant_allowlist_rejects_invalid() -> None:
 
 
 @pytest_asyncio.fixture(loop_scope="session")
-async def clean_resumes_and_tags(db_engine: AsyncEngine):
+async def clean_resumes_and_tags(db_engine: AsyncEngine) -> AsyncIterator[None]:
     # session-scoped cleanup helper; tests that use it must also clean after
     async with db_engine.begin() as conn:
         await conn.execute(text("DELETE FROM resumes"))
@@ -235,7 +237,7 @@ async def test_seed_resume_pdfs_idempotent_with_fake_pdf(  # noqa: E501
         mock_storage.put = MagicMock()
         mock_storage.get_url = MagicMock(return_value="http://example.com/media/resumes/business-abc.pdf")
         # Monkeypatch get_storage inside _seed module
-        _seed.get_storage = lambda: mock_storage  # type: ignore[assignment]
+        _seed.get_storage = lambda: mock_storage
 
         try:
             await _seed.seed_resume_pdfs(session, canon_resumes, tmp_path, dry_run=False)
@@ -263,7 +265,7 @@ async def test_seed_resume_pdfs_idempotent_with_fake_pdf(  # noqa: E501
             assert len(rows3) == 1
             assert mock_storage.put.call_count == 0
         finally:
-            _seed.get_storage = original_storage  # type: ignore[assignment]
+            _seed.get_storage = original_storage
 
     # Cleanup
     async with db_engine.begin() as conn:

@@ -37,7 +37,8 @@ test.describe("Journey 1: First Visit", () => {
     await expect(page.getByText("Who are you?")).toBeVisible({ timeout: 3000 });
 
     // pick a concrete audience (default catch-all is no longer user-selectable)
-    await page.getByText("Recruiters").click();
+    // exact: the seeded timeline blurb also mentions "recruiters" (substring match)
+    await page.getByText("Recruiters", { exact: true }).click();
 
     // intro overlay dismissed — overview tile grid should be visible
     await expect(overlay).not.toBeVisible({ timeout: 3000 });
@@ -288,21 +289,18 @@ test.describe("Journey 5: Form Submission Pages", () => {
       page.getByRole("heading", { name: "Contact" })
     ).toBeVisible({ timeout: 10000 });
 
-    // email section — scoped to the heading: the form below also has an
-    // "Email" label, which makes unscoped getByText ambiguous.
-    await expect(page.getByRole("heading", { name: "Email" })).toBeVisible();
-    await expect(page.getByText("siddhesh@example.com")).toBeVisible();
+    // contact items are a dynamic list (E2E DB = migration default seed):
+    // each item renders as a link, with no per-kind headings.
+    await expect(
+      page.getByRole("link", { name: /@gmail\.com$/ }).first()
+    ).toHaveAttribute("href", /^mailto:/);
 
     // LinkedIn link
-    await expect(
-      page.getByRole("heading", { name: "LinkedIn" })
-    ).toBeVisible();
     await expect(
       page.getByRole("link", { name: /linkedin\.com\/in\/siddheshchaudhari/i })
     ).toBeVisible();
 
     // Cal.com link
-    await expect(page.getByText("Book a call")).toBeVisible();
     await expect(
       page.getByRole("link", { name: /cal\.com\/siddhesh/i })
     ).toBeVisible();

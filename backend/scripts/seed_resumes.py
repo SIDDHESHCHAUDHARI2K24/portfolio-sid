@@ -61,14 +61,21 @@ if str(_backend_root) not in sys.path:
 from sqlalchemy import select  # noqa: E402
 from sqlalchemy.orm import selectinload  # noqa: E402
 
-from app.core.cache_tags import OVERVIEW, PROJECTS, RELEVANCE, RESUMES, SKILLS, TIMELINE  # noqa: E402
+from app.core.cache_tags import (  # noqa: E402
+    OVERVIEW,
+    PROJECTS,
+    RELEVANCE,
+    RESUMES,
+    SKILLS,
+    TIMELINE,
+)
 from app.core.config import get_settings  # noqa: E402
 from app.core.database import async_session_factory  # noqa: E402
 from app.core.enums import Audience, PublishStatus  # noqa: E402
 from app.core.models import TopicTag  # noqa: E402
 from app.core.revalidation import revalidate  # noqa: E402
 from app.core.storage import get_storage  # noqa: E402
-from app.features.overview.models import OverviewIntro, VALID_AUDIENCES  # noqa: E402
+from app.features.overview.models import VALID_AUDIENCES, OverviewIntro  # noqa: E402
 from app.features.projects.models import Project  # noqa: E402
 from app.features.resumes.models import ALLOWED_VARIANTS, Resume  # noqa: E402
 from app.features.skills.models import Skill, SkillSection  # noqa: E402
@@ -150,7 +157,9 @@ def _resolve_pdf_dir(raw: str | Path) -> Path:
 # ---------------------------------------------------------------------------
 
 
-async def ensure_topic_tags(session, canon_tags: list[dict[str, Any]], dry_run: bool = False) -> dict[str, TopicTag]:
+async def ensure_topic_tags(
+    session, canon_tags: list[dict[str, Any]], dry_run: bool = False
+) -> dict[str, TopicTag]:
     """Upsert TopicTags by slug. Returns slug -> TopicTag mapping."""
     tag_map: dict[str, TopicTag] = {}
     for t in canon_tags:
@@ -163,7 +172,9 @@ async def ensure_topic_tags(session, canon_tags: list[dict[str, Any]], dry_run: 
             changed = False
             if existing.label != label:
                 if dry_run:
-                    print(f"  [dry-run] would update TopicTag slug={slug!r} label {existing.label!r} -> {label!r}")
+                    print(
+                        f"  [dry-run] would update TopicTag slug={slug!r} label {existing.label!r} -> {label!r}"
+                    )
                 else:
                     existing.label = label
                     changed = True
@@ -231,20 +242,30 @@ async def seed_resume_pdfs(
                         match = c
                         break
             if match is None:
-                print(f"  WARN: PDF for variant {variant!r} not found: {pdf_path} — skipping storage upload, using existing file_key if any")
+                print(
+                    f"  WARN: PDF for variant {variant!r} not found: {pdf_path} — skipping storage upload, using existing file_key if any"
+                )
                 # Still upsert DB with placeholder key so site doesn't break
                 # Attempt to keep existing file_key if row exists
-                existing = (await session.scalars(select(Resume).where(Resume.variant == variant))).first()
+                existing = (
+                    await session.scalars(select(Resume).where(Resume.variant == variant))
+                ).first()
                 if existing is None:
-                    raise FileNotFoundError(f"PDF missing for variant {variant!r}: {pdf_path} and no existing DB row to preserve file_key")
+                    raise FileNotFoundError(
+                        f"PDF missing for variant {variant!r}: {pdf_path} and no existing DB row to preserve file_key"
+                    )
                 else:
                     if dry_run:
-                        print(f"  [dry-run] would preserve Resume variant={variant!r} file_key={existing.file_key!r}")
+                        print(
+                            f"  [dry-run] would preserve Resume variant={variant!r} file_key={existing.file_key!r}"
+                        )
                     else:
                         existing.label = label
                         existing.is_active = bool(is_active)
                         await session.flush()
-                        print(f"  preserve Resume variant={variant!r} file_key={existing.file_key!r} (PDF missing)")
+                        print(
+                            f"  preserve Resume variant={variant!r} file_key={existing.file_key!r} (PDF missing)"
+                        )
                     continue
             else:
                 pdf_path = match
@@ -254,7 +275,9 @@ async def seed_resume_pdfs(
         file_key = resume_file_key(variant, data)
 
         if dry_run:
-            print(f"  [dry-run] would put PDF variant={variant!r} key={file_key!r} bytes={len(data)} source={pdf_path.name}")
+            print(
+                f"  [dry-run] would put PDF variant={variant!r} key={file_key!r} bytes={len(data)} source={pdf_path.name}"
+            )
         else:
             # Content-hashed: re-putting same bytes is idempotent
             storage.put(file_key, data, "application/pdf")
@@ -264,7 +287,9 @@ async def seed_resume_pdfs(
         existing = (await session.scalars(select(Resume).where(Resume.variant == variant))).first()
         if existing:
             if dry_run:
-                print(f"  [dry-run] would update Resume variant={variant!r} label={label!r} file_key={file_key!r}")
+                print(
+                    f"  [dry-run] would update Resume variant={variant!r} label={label!r} file_key={file_key!r}"
+                )
             else:
                 existing.label = label
                 existing.file_key = file_key
@@ -273,9 +298,13 @@ async def seed_resume_pdfs(
                 print(f"  upsert Resume variant={variant!r} label={label!r}")
         else:
             if dry_run:
-                print(f"  [dry-run] would create Resume variant={variant!r} label={label!r} file_key={file_key!r}")
+                print(
+                    f"  [dry-run] would create Resume variant={variant!r} label={label!r} file_key={file_key!r}"
+                )
             else:
-                row = Resume(variant=variant, label=label, file_key=file_key, is_active=bool(is_active))
+                row = Resume(
+                    variant=variant, label=label, file_key=file_key, is_active=bool(is_active)
+                )
                 session.add(row)
                 await session.flush()
                 print(f"  create Resume variant={variant!r} label={label!r}")
@@ -327,15 +356,15 @@ async def seed_timeline(
         # Resolve tags via tag_map (repository layer)
         missing_slugs = [s for s in tag_slugs if s not in tag_map]
         if missing_slugs:
-            raise ValueError(f"timeline entry {canon_key!r} references unknown tag slugs: {', '.join(missing_slugs)}")
+            raise ValueError(
+                f"timeline entry {canon_key!r} references unknown tag slugs: {', '.join(missing_slugs)}"
+            )
         tags = [tag_map[s] for s in tag_slugs]
 
         # audience_override conversion
         audience_override = None
-        if audience_override_raw:
-            # Filter empty list -> None
-            if len(audience_override_raw) > 0:
-                audience_override = [Audience(a) for a in audience_override_raw]
+        if audience_override_raw:  # empty list stays None
+            audience_override = [Audience(a) for a in audience_override_raw]
 
         # Dedupe lookup: natural tuple (title, organisation, start_date)
         # Include canon key in comment: the key determines which natural tuple
@@ -355,7 +384,9 @@ async def seed_timeline(
 
         if existing:
             if dry_run:
-                print(f"  [dry-run] would update TimelineEntry key={canon_key!r} title={title!r} org={organisation!r} start={start_date}")
+                print(
+                    f"  [dry-run] would update TimelineEntry key={canon_key!r} title={title!r} org={organisation!r} start={start_date}"
+                )
                 key_to_id[canon_key] = existing.id
                 continue
             # Update mutable fields (service-layer style)
@@ -380,7 +411,9 @@ async def seed_timeline(
             key_to_id[canon_key] = existing.id
         else:
             if dry_run:
-                print(f"  [dry-run] would create TimelineEntry key={canon_key!r} title={title!r} org={organisation!r} start={start_date}")
+                print(
+                    f"  [dry-run] would create TimelineEntry key={canon_key!r} title={title!r} org={organisation!r} start={start_date}"
+                )
                 # Create a temporary UUID for downstream project FK dry-run resolution
                 import uuid as _uuid
 
@@ -441,19 +474,22 @@ async def seed_projects(
 
         missing_slugs = [s for s in tag_slugs if s not in tag_map]
         if missing_slugs:
-            raise ValueError(f"project {slug!r} references unknown tag slugs: {', '.join(missing_slugs)}")
+            raise ValueError(
+                f"project {slug!r} references unknown tag slugs: {', '.join(missing_slugs)}"
+            )
         tags = [tag_map[s] for s in tag_slugs]
 
         audience_override = None
         if audience_override_raw:
-            if len(audience_override_raw) > 0:
-                audience_override = [Audience(a) for a in audience_override_raw]
+            audience_override = [Audience(a) for a in audience_override_raw]
 
         timeline_entry_id = None
         if timeline_key:
             if timeline_key not in key_to_id:
                 # Fallback: try to look up by natural tuple in DB for robustness
-                print(f"  WARN: project {slug!r} timeline_entry_id_key {timeline_key!r} not in key_to_id map — looking up in DB")
+                print(
+                    f"  WARN: project {slug!r} timeline_entry_id_key {timeline_key!r} not in key_to_id map — looking up in DB"
+                )
                 # We could attempt to find by canon key's title etc, but unknown;
                 # treat as error unless dry_run
                 if dry_run:
@@ -461,7 +497,9 @@ async def seed_projects(
 
                     timeline_entry_id = _uuid.uuid4()
                 else:
-                    raise ValueError(f"project {slug!r} references unknown timeline_entry_id_key {timeline_key!r}")
+                    raise ValueError(
+                        f"project {slug!r} references unknown timeline_entry_id_key {timeline_key!r}"
+                    )
             else:
                 timeline_entry_id = key_to_id[timeline_key]
 
@@ -539,9 +577,7 @@ async def seed_skills(
             raise ValueError(f"invalid skill section {section_raw!r} for skill {name!r}") from exc
 
         existing = (
-            await session.scalars(
-                select(Skill).where(Skill.name == name, Skill.section == section)
-            )
+            await session.scalars(select(Skill).where(Skill.name == name, Skill.section == section))
         ).first()
 
         if existing:
@@ -604,7 +640,9 @@ async def seed_overview_intros(
         try:
             status = PublishStatus(status_raw)
         except ValueError as exc:
-            raise ValueError(f"invalid overview status {status_raw!r} for audience {audience!r}") from exc
+            raise ValueError(
+                f"invalid overview status {status_raw!r} for audience {audience!r}"
+            ) from exc
 
         existing = (
             await session.scalars(select(OverviewIntro).where(OverviewIntro.audience == audience))
@@ -683,7 +721,9 @@ async def run_seed(
     overview_intros = canon.get("overview_intros", [])
 
     print(f"Canon loaded: {canon_path}")
-    print(f"  topic_tags={len(topic_tags)} timeline={len(timeline_entries)} projects={len(projects)} skills={len(skills)} resumes={len(resumes)} intros={len(overview_intros)}")
+    print(
+        f"  topic_tags={len(topic_tags)} timeline={len(timeline_entries)} projects={len(projects)} skills={len(skills)} resumes={len(resumes)} intros={len(overview_intros)}"
+    )
     if dry_run:
         print("DRY RUN — no DB or storage writes will be performed")
 
@@ -772,7 +812,9 @@ async def run_seed(
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Seed superset canon (resumes, timeline, projects, skills, overview)")
+    parser = argparse.ArgumentParser(
+        description="Seed superset canon (resumes, timeline, projects, skills, overview)"
+    )
     parser.add_argument(
         "--dir",
         dest="pdf_dir",
@@ -786,10 +828,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Canon JSON path (default: backend/scripts/resume_canon.json)",
     )
     parser.add_argument("--pdfs-only", action="store_true", help="Only handle PDFs + Resume rows")
-    parser.add_argument("--canon-only", action="store_true", help="Only handle DB canon (skip PDFs)")
-    parser.add_argument("--dry-run", action="store_true", help="Preview without writing DB or storage")
+    parser.add_argument(
+        "--canon-only", action="store_true", help="Only handle DB canon (skip PDFs)"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Preview without writing DB or storage"
+    )
     # Alias: --dry_run or dry-run flag without dashes handling
-    parser.add_argument("--dry_run", action="store_true", help=argparse.SUPPRESS, dest="dry_run_alias")
+    parser.add_argument(
+        "--dry_run", action="store_true", help=argparse.SUPPRESS, dest="dry_run_alias"
+    )
     return parser.parse_args(argv)
 
 
@@ -809,7 +857,9 @@ async def main_async(argv: list[str] | None = None) -> None:
 
     print(f"PDF dir: {pdf_dir}")
     print(f"Canon: {canon_path}")
-    print(f"STORAGE_KIND={get_settings().storage_kind} LOCAL_STORAGE_DIR={get_settings().local_storage_dir}")
+    print(
+        f"STORAGE_KIND={get_settings().storage_kind} LOCAL_STORAGE_DIR={get_settings().local_storage_dir}"
+    )
     if args.pdfs_only:
         print("Mode: pdfs-only")
     if args.canon_only:

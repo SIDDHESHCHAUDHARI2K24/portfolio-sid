@@ -5,6 +5,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import Settings
 from app.core.security import hash_password, verify_password
 from app.core.session import COOKIE_NAME, create_session_token
 from app.features.auth import service
@@ -18,7 +19,7 @@ ME_URL = "http://test/api/v1/admin/me"
 
 @pytest.mark.asyncio
 async def test_get_effective_hash_falls_back_to_env_when_db_empty(
-    session: AsyncSession, admin_settings
+    session: AsyncSession, admin_settings: Settings
 ) -> None:
     # Ensure no row
     from sqlalchemy import text
@@ -31,7 +32,7 @@ async def test_get_effective_hash_falls_back_to_env_when_db_empty(
 
 @pytest.mark.asyncio
 async def test_get_effective_hash_uses_db_when_present(
-    session: AsyncSession, admin_settings
+    session: AsyncSession, admin_settings: Settings
 ) -> None:
     from sqlalchemy import text
 
@@ -55,8 +56,8 @@ async def test_get_effective_hash_uses_db_when_present(
 async def test_change_password_happy_path_rotates_and_login_uses_new(
     client: httpx.AsyncClient,
     session: AsyncSession,
-    clean_auth_tables,
-    admin_settings,
+    clean_auth_tables: None,
+    admin_settings: Settings,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from app.core import email
@@ -121,8 +122,8 @@ async def test_change_password_happy_path_rotates_and_login_uses_new(
 @pytest.mark.asyncio
 async def test_change_password_wrong_current_rejected(
     client: httpx.AsyncClient,
-    clean_auth_tables,
-    admin_settings,
+    clean_auth_tables: None,
+    admin_settings: Settings,
 ) -> None:
     client.cookies.set(COOKIE_NAME, create_session_token())
     resp = await client.post(
@@ -140,8 +141,8 @@ async def test_change_password_wrong_current_rejected(
 @pytest.mark.asyncio
 async def test_change_password_validation_short_rejected(
     client: httpx.AsyncClient,
-    clean_auth_tables,
-    admin_settings,
+    clean_auth_tables: None,
+    admin_settings: Settings,
 ) -> None:
     client.cookies.set(COOKIE_NAME, create_session_token())
     resp = await client.post(
@@ -155,8 +156,8 @@ async def test_change_password_validation_short_rejected(
 @pytest.mark.asyncio
 async def test_change_password_same_as_current_rejected(
     client: httpx.AsyncClient,
-    clean_auth_tables,
-    admin_settings,
+    clean_auth_tables: None,
+    admin_settings: Settings,
 ) -> None:
     client.cookies.set(COOKIE_NAME, create_session_token())
     resp = await client.post(
@@ -174,8 +175,8 @@ async def test_change_password_same_as_current_rejected(
 @pytest.mark.asyncio
 async def test_change_password_requires_auth(
     client: httpx.AsyncClient,
-    clean_auth_tables,
-    admin_settings,
+    clean_auth_tables: None,
+    admin_settings: Settings,
 ) -> None:
     client.cookies.clear()
     resp = await client.post(
