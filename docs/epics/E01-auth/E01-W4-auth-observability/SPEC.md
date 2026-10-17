@@ -1,6 +1,6 @@
 # E01-W4 — Auth and email observability
 
-**Epic:** E01 Auth · **Ticket:** E01-W4 · **Status:** Done locally (production check pending) · **Depends on:** none (rebase onto W3 if it lands first; both touch `request_otp`)
+**Epic:** E01 Auth · **Ticket:** E01-W4 · **Status:** Done (production verified 2026-10-17) · **Depends on:** none (rebase onto W3 if it lands first; both touch `request_otp`)
 
 ## Purpose
 The outage could not be diagnosed from logs: login outcomes are not logged, and email failures log only the exception class name.

@@ -1,6 +1,6 @@
 # E01-W5 — Fail fast on bad auth config in production
 
-**Epic:** E01 Auth · **Ticket:** E01-W5 · **Status:** Done locally (production check pending) · **Depends on:** W2 (validates `TRUSTED_PROXY_CIDRS`)
+**Epic:** E01 Auth · **Ticket:** E01-W5 · **Status:** Done (production verified 2026-10-17) · **Depends on:** W2 (validates `TRUSTED_PROXY_CIDRS`)
 
 ## Purpose
 Bad auth config fails silently. A missing hash means every login checks against the timing decoy and returns 200 forever. A missing key or email shows up only when someone tries to sign in. The deploy still looks healthy.

@@ -1,6 +1,6 @@
 # E01-W2 — Real client IP behind the proxy
 
-**Epic:** E01 Auth · **Ticket:** E01-W2 · **Status:** Done locally (production check pending) · **Depends on:** none
+**Epic:** E01 Auth · **Ticket:** E01-W2 · **Status:** Done (production verified 2026-10-17) · **Depends on:** none
 
 ## Purpose
 All requests reach the backend from a proxy's private IP (logs show `10.164.196.239` for every login). Lockout, rate limits, and forms anti-abuse are therefore global: one attacker can lock the admin out, and audit rows record the proxy.

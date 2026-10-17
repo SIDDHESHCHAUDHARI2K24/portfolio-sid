@@ -1,6 +1,6 @@
 # Epic E01: Auth System
 
-**Status:** Deployed 2026-10-17 (main 4f3fad5; backend, frontend, admin, cron SUCCESS). Production checks passed: health 200, wrong password 400, forged X-Real-IP ignored. Remaining: the admin real-login OTP check; W6 optional.
+**Status:** Closed 2026-10-17. Deployed (all services SUCCESS). Production verified: health 200, wrong password 400, forged X-Real-IP ignored, real login with OTP email works (user-confirmed). CI green. W6 optional, open.
 **Coordinator:** Coordinator 1
 **Opened:** 2026-10-17
 

@@ -1,6 +1,6 @@
 # E01-W3 — Explicit wrong-password feedback
 
-**Epic:** E01 Auth · **Ticket:** E01-W3 · **Status:** Done locally (production check pending) · **Depends on:** E01-W2 (ship together or after; an explicit password check without per-caller lockout invites brute force)
+**Epic:** E01 Auth · **Ticket:** E01-W3 · **Status:** Done (production verified 2026-10-17) · **Depends on:** E01-W2 (ship together or after; an explicit password check without per-caller lockout invites brute force)
 
 ## Purpose
 Login returns the same 200 for right and wrong passwords, so the admin app always opens the OTP screen. A typo looks identical to an email failure, which is what made the outage hard to diagnose.

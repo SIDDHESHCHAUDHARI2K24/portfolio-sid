@@ -85,3 +85,9 @@ jobs:
           name: playwright-traces
           path: frontend/test-results/
           retention-days: 7
+
+      # The backgrounded `uv run uvicorn` holds uv's cache lock; left running,
+      # setup-uv's post-job `uv cache prune` waits on it and fails the job.
+      - name: Stop backend
+        if: always()
+        run: pkill -f "uvicorn app.app:create_app" || true
