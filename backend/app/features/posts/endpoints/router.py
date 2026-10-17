@@ -59,7 +59,7 @@ async def get_by_slug(slug: str, session: DbSession) -> PostDetail:
 
 @public_router.get("/{post_id}", response_model=PostPublic)
 async def get_public(post_id: UUID, session: DbSession) -> PostPublic:
-    post_dict = await service.get_dict(session, post_id)
+    post_dict = await service.get_public_dict(session, post_id)
     if post_dict is None:
         raise HTTPException(status_code=404, detail="Post not found")
     return PostPublic(**post_dict)

@@ -6,9 +6,10 @@ via ``_to_dict`` to avoid MissingGreenlet.
 
 import re
 from datetime import date, datetime
+from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 SLUG_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 SLUG_MAX = 200
@@ -95,6 +96,17 @@ class PostCreate(BaseModel):
         return _check_body(v)
 
 
+# Columns that are NOT NULL: omitting them means "unchanged", an explicit null is an error.
+_NON_NULLABLE_UPDATE_FIELDS = (
+    "title",
+    "platform",
+    "collections",
+    "sort_order",
+    "status",
+    "is_pinned",
+)
+
+
 class PostUpdate(BaseModel):
     title: str | None = None
     summary: str | None = None
@@ -110,6 +122,15 @@ class PostUpdate(BaseModel):
     status: str | None = None
     publish_at: datetime | None = None
     is_pinned: bool | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _reject_explicit_null(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            for name in _NON_NULLABLE_UPDATE_FIELDS:
+                if name in data and data[name] is None:
+                    raise ValueError(f"{name} cannot be null")
+        return data
 
     @field_validator("slug")
     @classmethod

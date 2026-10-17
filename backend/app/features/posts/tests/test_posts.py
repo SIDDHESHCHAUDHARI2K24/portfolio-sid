@@ -283,3 +283,96 @@ async def test_revalidation_fires_after_create(
     )
     assert response.status_code == 201
     assert calls == [["posts"]]
+
+
+async def test_public_get_by_id_hides_drafts(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_posts_tables: None,
+) -> None:
+    published = Post(
+        title="Pub by id",
+        url="https://example.com/p",
+        platform=PostPlatform.OTHER,
+        status=PublishStatus.PUBLISHED,
+        published_at=datetime.now(UTC),
+    )
+    draft = Post(
+        title="Draft by id",
+        url="https://example.com/d",
+        platform=PostPlatform.OTHER,
+        status=PublishStatus.DRAFT,
+    )
+    scheduled_future = Post(
+        title="Scheduled later",
+        url="https://example.com/s",
+        platform=PostPlatform.OTHER,
+        status=PublishStatus.SCHEDULED,
+        publish_at=datetime(2999, 1, 1, tzinfo=UTC),
+    )
+    session.add_all([published, draft, scheduled_future])
+    await session.commit()
+
+    ok = await client.get(f"http://test/api/v1/posts/{published.id}")
+    assert ok.status_code == 200
+    assert ok.json()["title"] == "Pub by id"
+    assert (await client.get(f"http://test/api/v1/posts/{draft.id}")).status_code == 404
+    assert (await client.get(f"http://test/api/v1/posts/{scheduled_future.id}")).status_code == 404
+
+
+@pytest.mark.parametrize(
+    "field", ["platform", "title", "status", "collections", "sort_order", "is_pinned"]
+)
+async def test_admin_patch_explicit_null_on_required_field_is_422(
+    field: str,
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_posts_tables: None,
+    clean_auth_tables: None,
+    admin_settings: Settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    await _login(client, monkeypatch)
+    post = Post(
+        title="Nullable?",
+        url="https://example.com/n",
+        platform=PostPlatform.OTHER,
+        status=PublishStatus.DRAFT,
+    )
+    session.add(post)
+    await session.commit()
+
+    resp = await client.patch(f"http://test/api/v1/admin/posts/{post.id}", json={field: None})
+    assert resp.status_code == 422, resp.text
+    assert field in resp.text
+
+
+async def test_admin_patch_null_on_optional_field_still_allowed(
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    clean_posts_tables: None,
+    clean_auth_tables: None,
+    admin_settings: Settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def fake_revalidate(tags: Sequence[str]) -> None:
+        pass
+
+    monkeypatch.setattr(posts_router, "revalidate", fake_revalidate)
+    await _login(client, monkeypatch)
+    post = Post(
+        title="Has summary",
+        summary="s",
+        url="https://example.com/o",
+        platform=PostPlatform.OTHER,
+        status=PublishStatus.DRAFT,
+    )
+    session.add(post)
+    await session.commit()
+
+    resp = await client.patch(
+        f"http://test/api/v1/admin/posts/{post.id}",
+        json={"summary": None, "published_date": None, "audience_override": None},
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["summary"] is None

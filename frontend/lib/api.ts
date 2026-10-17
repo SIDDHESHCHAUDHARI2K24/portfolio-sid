@@ -54,6 +54,22 @@ const API_BASE =
       ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1`
       : "/api/v1";
 
+/** Non-2xx API response. Extends Error so existing `catch (e)` / `e.message` callers keep working. */
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number, statusText: string) {
+    super(`API ${status}: ${statusText}`);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+/** True only for a definitive 404 from the API (not for timeouts, 5xx or network errors). */
+export function isNotFoundError(err: unknown): boolean {
+  return err instanceof ApiError && err.status === 404;
+}
+
 interface ApiFetchOptions extends Omit<RequestInit, "next"> {
   tags?: CacheTag[];
   revalidate?: number | false;
@@ -75,7 +91,7 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
       },
     });
     if (!res.ok) {
-      throw new Error(`API ${res.status}: ${res.statusText}`);
+      throw new ApiError(res.status, res.statusText);
     }
     return res.json() as Promise<T>;
   };

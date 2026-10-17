@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api";
+import { apiFetch, isNotFoundError } from "@/lib/api";
 import { CACHE_TAGS } from "@/lib/cacheTags";
 import { buildArticleJsonLd } from "@/lib/jsonld";
 import Markdown from "@/components/Markdown";
@@ -51,7 +51,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
       twitter: { card: "summary" },
     };
-  } catch {
+  } catch (err) {
+    // Only a definitive 404 is "not found"; anything else rethrows so ISR keeps the stale page.
+    if (!isNotFoundError(err)) throw err;
     return { title: "Article Not Found — Siddhesh Chaudhari" };
   }
 }
@@ -61,8 +63,11 @@ export default async function WritingPage({ params }: Props) {
   let post: PostDetail;
   try {
     post = await fetchPost(slug);
-  } catch {
-    notFound();
+  } catch (err) {
+    // 404 -> not-found page. Anything else (5xx, timeout, network) rethrows so ISR
+    // keeps serving the last good page instead of caching a 404.
+    if (isNotFoundError(err)) notFound();
+    throw err;
   }
 
   const date = post.published_date ?? post.created_at;

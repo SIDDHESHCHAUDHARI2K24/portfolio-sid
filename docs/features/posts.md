@@ -21,11 +21,11 @@ appears on, never how it is ranked or personalized.
 | --- | --- | --- | --- | --- |
 | GET | `/api/v1/posts` | none | -> `PostPublic[]` | Optional `?collection=` filters via ARRAY contains; unknown value -> 422 |
 | GET | `/api/v1/posts/slug/{slug}` | none | -> `PostDetail` (adds `body`) | `public_filter` + `platform = internal` only; 404 for missing, draft, future-scheduled or external; slug lowercased before lookup |
-| GET | `/api/v1/posts/{post_id}` | none | -> `PostPublic` | 404 if absent; never carries `body` |
+| GET | `/api/v1/posts/{post_id}` | none | -> `PostPublic` | `public_filter`: 404 if absent, draft or future-scheduled; never carries `body` |
 | GET | `/api/v1/admin/posts` | admin_auth | -> `PostAdmin[]` | Bypasses `public_filter`; adds status/publish fields and `body` |
 | GET | `/api/v1/admin/posts/{post_id}` | admin_auth | -> `PostAdmin` | 404 if absent |
 | POST | `/api/v1/admin/posts` | admin_auth | `PostCreate` -> 201 `PostAdmin` | Unknown `tag_slugs` -> 422; internal-post rules below -> 422 with pydantic-shaped field errors |
-| PATCH | `/api/v1/admin/posts/{post_id}` | admin_auth | `PostUpdate` -> `PostAdmin` | Partial; rules are checked against the merged state; first publish stamps `published_at` |
+| PATCH | `/api/v1/admin/posts/{post_id}` | admin_auth | `PostUpdate` -> `PostAdmin` | Partial; rules are checked against the merged state; first publish stamps `published_at`; explicit `null` for a NOT NULL field (`title`, `platform`, `collections`, `sort_order`, `status`, `is_pinned`) -> 422 |
 | DELETE | `/api/v1/admin/posts/{post_id}` | admin_auth | -> 204 | Missing id -> 404 |
 
 All write paths call `revalidate([POSTS])` after commit.
@@ -49,7 +49,7 @@ All write paths call `revalidate([POSTS])` after commit.
   columns, makes `url` NOT NULL again, leaves the enum label, and refuses to run while internal
   rows exist (delete them first).
 - Frontend: `PostList` links internal cards to `/writing/<slug>` (same tab, `postHref` in
-  `features/posts/postLink.ts`); `app/writing/[slug]/page.tsx` is static/ISR (`generateStaticParams`
+  `features/posts/postLink.ts`); `app/writing/[slug]/page.tsx` is static/ISR (calls `notFound()` only on an API 404 via `isNotFoundError`; other errors rethrow so ISR keeps the stale page; `generateStaticParams`
   from `GET /posts`, `revalidate = 3600`, tag `posts`, canonical `/writing/<slug>`, Article
   JSON-LD, no `cookies()`); `components/Markdown.tsx` renders react-markdown + remark-gfm with NO
   rehype-raw, so raw HTML shows as escaped text. `app/sitemap.ts` lists published internal posts.

@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api";
+import { apiFetch, isNotFoundError } from "@/lib/api";
 import { CACHE_TAGS } from "@/lib/cacheTags";
 import type { paths } from "@/src/api";
 import ProseClient from "./ProseClient";
@@ -33,7 +33,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         card: "summary",
       },
     };
-  } catch {
+  } catch (err) {
+    if (!isNotFoundError(err)) throw err;
     return { title: "Page Not Found — Siddhesh Chaudhari" };
   }
 }
@@ -46,8 +47,9 @@ export default async function ProsePageRoute({ params }: Props) {
       tags: [CACHE_TAGS.prose],
       revalidate: 3600,
     });
-  } catch {
-    notFound();
+  } catch (err) {
+    if (isNotFoundError(err)) notFound();
+    throw err;
   }
 
   return (

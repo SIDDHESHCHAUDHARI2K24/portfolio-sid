@@ -96,6 +96,11 @@ async def get_dict(session: AsyncSession, post_id: UUID) -> dict[str, object] | 
     return _post_to_dict(post)
 
 
+async def get_public_dict(session: AsyncSession, post_id: UUID) -> dict[str, object] | None:
+    post = await repository.get_public(session, post_id)
+    return None if post is None else _post_to_dict(post)
+
+
 async def _resolve_tags(session: AsyncSession, slugs: list[str]) -> list[UUID]:
     if not slugs:
         return []

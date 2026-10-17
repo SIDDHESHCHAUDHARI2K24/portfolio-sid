@@ -65,6 +65,16 @@ async def get(session: AsyncSession, post_id: UUID) -> Post | None:
     return await session.get(Post, post_id, options=[selectinload(Post.topic_tags)])
 
 
+async def get_public(session: AsyncSession, post_id: UUID) -> Post | None:
+    """Public read by id: ``public_filter`` applies (drafts and future-scheduled are hidden)."""
+    stmt = (
+        select(Post)
+        .where(public_filter(Post), Post.id == post_id)
+        .options(selectinload(Post.topic_tags))
+    )
+    return (await session.scalars(stmt)).unique().one_or_none()
+
+
 async def create(
     session: AsyncSession,
     post: Post,
