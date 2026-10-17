@@ -45,3 +45,6 @@ backend/.storage/
 
 # Coordinator session transcripts (local archive, may contain sensitive output)
 docs/epics/*/transcripts/
+
+# Agent worktrees live inside the project (see AGENTS.md workspace boundary)
+.worktrees/

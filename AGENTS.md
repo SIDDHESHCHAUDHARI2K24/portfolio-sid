@@ -1,5 +1,13 @@
 # portfolio-sid — Agent Guide
 
+## Workspace boundary (read first)
+
+- **`Portfolio/` is the project root.** Every file an agent creates, edits, or leaves behind stays inside it. Never write outside it: no sibling folders, no system temp dirs, no backups elsewhere.
+- **Worktrees** go in `Portfolio/.worktrees/<epic-or-ticket>/` (gitignored), never `../`. Remove them when the work is merged.
+- **Epic docs** must be visible at `Portfolio/docs/epics/<epic>/`. When an epic is built in a worktree, symlink that path to the worktree's `docs/epics/<epic>` and remove the symlink before the main checkout pulls the merged epic.
+- **Scratch files**, logs and local scripts go in a gitignored folder inside the worktree (e.g. `.preview/`), never in the main checkout's tracked paths.
+- **Local databases and processes** must use this project's ports (`247xx`, see `docs/epics/E01-auth/E01-W7-local-nonstandard-ports/SPEC.md`). Drop throwaway databases and stop processes you started.
+
 ## Stack
 
 - **Public site:** Next.js (`frontend/`), SSR/ISR, Railway service `frontend`; rewrites `/api` to the private backend.
