@@ -8,6 +8,8 @@ never logged (conventions invariant 15).
 
 import asyncio
 import logging
+import re
+from typing import Any
 
 import resend
 
@@ -16,8 +18,42 @@ from app.core.config import get_settings
 logger = logging.getLogger(__name__)
 
 
+_EMAIL_RE = re.compile(r"\S+@\S+")
+_KEY_RE = re.compile(r"\bre_\w+")
+_MAX_MESSAGE_LEN = 200
+
+
 class EmailSendError(Exception):
     """Raised when an email cannot be delivered."""
+
+
+def _safe_message(exc: Exception) -> str:
+    """Provider message with addresses redacted, truncated to 200 chars."""
+    raw = getattr(exc, "message", None)
+    text = raw if isinstance(raw, str) else str(exc)
+    return _KEY_RE.sub("[redacted]", _EMAIL_RE.sub("[redacted]", text))[:_MAX_MESSAGE_LEN]
+
+
+def _log_failure(exc: Exception) -> None:
+    try:
+        status = getattr(exc, "code", None)
+        logger.error(
+            "email send failed error=%s status=%s message=%s",
+            exc.__class__.__name__,
+            "none" if status is None else status,
+            _safe_message(exc),
+        )
+    except Exception:  # logging must never mask the delivery error
+        pass
+
+
+def _log_success(response: Any, to: str) -> None:
+    try:
+        rid = response.get("id") if isinstance(response, dict) else getattr(response, "id", None)
+        domain = to.rpartition("@")[2] or "none"
+        logger.info("email sent id=%s to_domain=%s", rid or "none", domain)
+    except Exception:
+        pass
 
 
 async def send_email(*, to: str, subject: str, html: str) -> None:
@@ -34,10 +70,11 @@ async def send_email(*, to: str, subject: str, html: str) -> None:
         "html": html,
     }
     try:
-        await asyncio.to_thread(resend.Emails.send, payload)
+        response = await asyncio.to_thread(resend.Emails.send, payload)
     except Exception as exc:
-        logger.error("email send failed: %s", exc.__class__.__name__)
+        _log_failure(exc)
         raise EmailSendError("Email delivery failed") from exc
+    _log_success(response, to)
 
 
 async def send_otp(code: str, to: str) -> None:

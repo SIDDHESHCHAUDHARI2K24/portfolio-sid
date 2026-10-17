@@ -28,6 +28,9 @@ from app.features.auth.models import (
 )
 
 logger = logging.getLogger(__name__)
+# Outcome lines (spec E01-W4): one INFO per outcome, always with ip=. Never
+# include codes, passwords, hashes or recipient addresses.
+auth_log = logging.getLogger("app.auth")
 
 # Dev-only, in-memory copy of the most recently issued OTP so the local e2e
 # admin journey can complete without a configured email provider. NEVER read in
@@ -112,6 +115,7 @@ async def request_otp(session: AsyncSession, password: str, ip: str) -> str:
     settings = get_settings()
 
     if await is_locked_out(session, ip):
+        auth_log.info("login rejected reason=locked_out ip=%s", ip)
         raise AuthError(429, "Too many attempts. Try again later.")
 
     effective_hash = await get_effective_password_hash(session)
@@ -119,6 +123,7 @@ async def request_otp(session: AsyncSession, password: str, ip: str) -> str:
     if not password_ok:
         await _record_attempt(session, ip, "failure")
         await session.commit()
+        auth_log.info("login rejected reason=bad_password ip=%s", ip)
         raise AuthError(400, LOGIN_WRONG_PASSWORD_DETAIL)
 
     await _record_attempt(session, ip, "success")
@@ -149,20 +154,24 @@ async def request_otp(session: AsyncSession, password: str, ip: str) -> str:
                 await email.send_otp(code, to=recipient)
             except email.EmailSendError:
                 logger.warning("DEV: email delivery skipped (no provider configured)")
+        auth_log.info("login accepted code_sent ip=%s", ip)
         return LOGIN_SENT_DETAIL
 
     recipient = settings.admin_email
     if not recipient:
         await session.delete(challenge)
         await session.commit()
+        auth_log.info("login failed reason=delivery ip=%s", ip)
         raise AuthError(502, "Code delivery failed; try again later.")
     try:
         await email.send_otp(code, to=recipient)
     except email.EmailSendError as exc:
         await session.delete(challenge)
         await session.commit()
+        auth_log.info("login failed reason=delivery ip=%s", ip)
         raise AuthError(502, "Code delivery failed; try again later.") from exc
 
+    auth_log.info("login accepted code_sent ip=%s", ip)
     return LOGIN_SENT_DETAIL
 
 
@@ -185,19 +194,24 @@ async def verify_otp(session: AsyncSession, code: str, ip: str) -> str:
     ).scalar_one_or_none()
 
     if challenge is None:
+        auth_log.info("otp rejected reason=no_challenge ip=%s", ip)
         raise AuthError(400, GENERIC_OTP_DETAIL)
     if challenge.expires_at <= _utcnow():
+        auth_log.info("otp rejected reason=expired ip=%s", ip)
         raise AuthError(400, "Code expired.")
     if challenge.attempts >= OTP_MAX_ATTEMPTS:
+        auth_log.info("otp rejected reason=max_attempts ip=%s", ip)
         raise AuthError(429, "Too many attempts. Request a new code.")
 
     if not hmac.compare_digest(_hash_code(code), challenge.code_hash):
         challenge.attempts += 1
         await session.commit()
+        auth_log.info("otp rejected reason=mismatch ip=%s", ip)
         raise AuthError(400, GENERIC_OTP_DETAIL)
 
     challenge.consumed_at = _utcnow()
     await session.commit()
+    auth_log.info("otp accepted ip=%s", ip)
     return create_session_token()
 
 

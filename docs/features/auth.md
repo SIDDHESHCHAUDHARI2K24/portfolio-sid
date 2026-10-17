@@ -55,6 +55,26 @@ flowchart TD
     CMP -- match --> DONE[consume challenge\nreturn signed session token]
 ```
 
+## Logs
+
+Outcome lines use logger `app.auth` (INFO, always with `ip=<resolved client ip>`):
+
+- `login rejected reason=locked_out ip=...` / `reason=bad_password`
+- `login accepted code_sent ip=...`
+- `login failed reason=delivery ip=...`
+- `otp rejected reason=no_challenge|expired|max_attempts|mismatch ip=...`
+- `otp accepted ip=...`
+
+Email lines use logger `app.core.email`:
+
+- INFO `email sent id=<resend id or none> to_domain=<domain>`
+- ERROR `email send failed error=<class> status=<code or none> message=<provider message>`
+  (email addresses and `re_` keys redacted, truncated to 200 characters)
+
+Never logged: OTP, password, hash, email subject/body, full recipient, API key, session
+token (invariant 15). The development-only `DEV: OTP ...` warning is the one existing
+exception and never runs in production.
+
 ## Files To Reference
 
 - backend/app/features/auth/endpoints/router.py — routes and slowapi limiters
