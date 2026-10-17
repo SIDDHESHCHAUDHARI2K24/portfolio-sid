@@ -98,3 +98,67 @@
     @apply font-sans;
     }
 }
+/* Native article body (PostForm preview; mirrors frontend/app/globals.css). No typography plugin is
+   installed, so the basics are styled here with design tokens only. */
+@layer components {
+  .article-body {
+    @apply text-base leading-7 text-foreground;
+    overflow-wrap: anywhere;
+  }
+  .article-body > * + * {
+    @apply mt-5;
+  }
+  .article-body h1,
+  .article-body h2,
+  .article-body h3,
+  .article-body h4 {
+    @apply font-semibold tracking-tight;
+  }
+  .article-body h1 {
+    @apply mt-10 text-2xl;
+  }
+  .article-body h2 {
+    @apply mt-10 text-xl;
+  }
+  .article-body h3,
+  .article-body h4 {
+    @apply mt-8 text-lg;
+  }
+  .article-body a {
+    @apply text-primary underline underline-offset-4;
+  }
+  .article-body ul {
+    @apply list-disc pl-6;
+  }
+  .article-body ol {
+    @apply list-decimal pl-6;
+  }
+  .article-body li + li {
+    @apply mt-1;
+  }
+  .article-body blockquote {
+    @apply border-l-2 border-border pl-4 text-muted-foreground;
+  }
+  .article-body code {
+    @apply rounded-sm bg-muted px-1 py-0.5 font-mono text-sm;
+  }
+  .article-body pre {
+    @apply overflow-x-auto rounded-md border border-border bg-muted p-4 text-sm;
+  }
+  .article-body pre code {
+    @apply bg-transparent p-0;
+  }
+  .article-body hr {
+    @apply border-border;
+  }
+  .article-body table {
+    @apply block w-full overflow-x-auto text-sm;
+  }
+  .article-body th,
+  .article-body td {
+    @apply border border-border px-3 py-1.5 text-left;
+  }
+  .article-body img {
+    @apply h-auto max-w-full rounded-md;
+  }
+}
