@@ -1,9 +1,11 @@
-# Posts — External writing links routed to themed pages by collection
+# Posts — External writing links and native articles routed to themed pages by collection
 
 ## Purpose
 
 CRUD for the `posts` content type: outbound links to writing and talks (Substack,
-Medium, YouTube, other). A post carries two deliberately separate metadata axes:
+Medium, YouTube, other) and native articles (`platform = internal`) written on the
+site itself and served at `/writing/<slug>`. A post carries two deliberately separate
+metadata axes:
 
 - `collections` — Postgres `ARRAY(post_collection)` whose values map 1:1 to themed
   page routes (`tech_rabbithole`, `how_i_use_ai`, `vc_for_founders`). Routing concern.
@@ -18,14 +20,41 @@ appears on, never how it is ranked or personalized.
 | Method | Path | Auth | Request -> Response | Notes |
 | --- | --- | --- | --- | --- |
 | GET | `/api/v1/posts` | none | -> `PostPublic[]` | Optional `?collection=` filters via ARRAY contains; unknown value -> 422 |
-| GET | `/api/v1/posts/{post_id}` | none | -> `PostPublic` | 404 if absent |
-| GET | `/api/v1/admin/posts` | admin_auth | -> `PostAdmin[]` | Bypasses `public_filter`; adds status/publish fields |
+| GET | `/api/v1/posts/slug/{slug}` | none | -> `PostDetail` (adds `body`) | `public_filter` + `platform = internal` only; 404 for missing, draft, future-scheduled or external; slug lowercased before lookup |
+| GET | `/api/v1/posts/{post_id}` | none | -> `PostPublic` | 404 if absent; never carries `body` |
+| GET | `/api/v1/admin/posts` | admin_auth | -> `PostAdmin[]` | Bypasses `public_filter`; adds status/publish fields and `body` |
 | GET | `/api/v1/admin/posts/{post_id}` | admin_auth | -> `PostAdmin` | 404 if absent |
-| POST | `/api/v1/admin/posts` | admin_auth | `PostCreate` -> 201 `PostAdmin` | Unknown `tag_slugs` -> 422 |
-| PATCH | `/api/v1/admin/posts/{post_id}` | admin_auth | `PostUpdate` -> `PostAdmin` | Partial; first publish stamps `published_at` |
+| POST | `/api/v1/admin/posts` | admin_auth | `PostCreate` -> 201 `PostAdmin` | Unknown `tag_slugs` -> 422; internal-post rules below -> 422 with pydantic-shaped field errors |
+| PATCH | `/api/v1/admin/posts/{post_id}` | admin_auth | `PostUpdate` -> `PostAdmin` | Partial; rules are checked against the merged state; first publish stamps `published_at` |
 | DELETE | `/api/v1/admin/posts/{post_id}` | admin_auth | -> 204 | Missing id -> 404 |
 
 All write paths call `revalidate([POSTS])` after commit.
+
+## Native articles (E03-W2)
+
+- `platform = internal` posts carry `slug` (unique, lowercase `[a-z0-9]` words joined by single
+  hyphens, max 200) and a markdown `body` (max 100 KB UTF-8). `url` is null.
+- Rules (service `validate_rules` on the merged state, plus a DB CHECK `ck_posts_platform_fields`):
+  internal => `slug` and `body` required; any other platform => `url` required. Blank strings
+  count as missing. Violations -> 422 `detail: [{loc: ["body", <field>], msg}]`.
+- Slug collision (case-insensitive, any platform) -> 422 `slug already exists` on `slug`
+  (pre-check plus unique-index backstop for races).
+- Switching internal -> external requires `url`; the stored `body` stays but is never served
+  (the slug endpoint only serves `platform = internal`).
+- The public list (`PostPublic`) exposes `slug` and `platform` but never `body`. Only
+  `GET /posts/slug/{slug}` (published internal) returns it. Admin responses include `body`.
+- DB: enum label is the Python member NAME (`INTERNAL`) like the other `post_platform` labels.
+  Migration `1d40cefb9666` adds it with `ALTER TYPE ... ADD VALUE` inside an `autocommit_block`
+  (must commit before the CHECK references it). Downgrade drops the CHECK, slug index and
+  columns, makes `url` NOT NULL again, leaves the enum label, and refuses to run while internal
+  rows exist (delete them first).
+- Frontend: `PostList` links internal cards to `/writing/<slug>` (same tab, `postHref` in
+  `features/posts/postLink.ts`); `app/writing/[slug]/page.tsx` is static/ISR (`generateStaticParams`
+  from `GET /posts`, `revalidate = 3600`, tag `posts`, canonical `/writing/<slug>`, Article
+  JSON-LD, no `cookies()`); `components/Markdown.tsx` renders react-markdown + remark-gfm with NO
+  rehype-raw, so raw HTML shows as escaped text. `app/sitemap.ts` lists published internal posts.
+- Admin: choosing platform "Native article" hides `url`, shows a slug field (suggested from the
+  title until edited) and a markdown textarea with live preview (`MarkdownEditor.tsx`).
 
 ## Data Flow
 
@@ -75,6 +104,9 @@ enum member plus a page — no relevance logic involved.
 - backend/app/features/posts/repository.py — public vs collection vs admin queries
 - backend/app/features/posts/service.py — dict conversion, enum coercion, tag resolution
 - backend/app/features/posts/endpoints/router.py — route table, revalidation calls
+- backend/alembic/versions/1d40cefb9666_native_posts.py — enum value, columns, CHECK
+- frontend/app/writing/[slug]/page.tsx, frontend/components/Markdown.tsx, frontend/features/posts/{PostList.tsx,postLink.ts}
+- admin/src/routes/posts/{PostForm.tsx,LinkFields.tsx,MarkdownEditor.tsx,postFormUtils.ts}
 - backend/app/core/models.py — `PublishableMixin`, `TopicTag`
 - backend/app/core/cache_tags.py and core/revalidation.py — `POSTS` tag plumbing
 
@@ -86,5 +118,7 @@ enum member plus a page — no relevance logic involved.
 - Public reads must go through `public_filter` from `core/queries.py`; admin bypasses explicitly.
 - Enum coercion lives in the service layer; invalid values surface as 422.
 - `published_at` is stamped only when transitioning into `PUBLISHED`, never overwritten later.
+- Internal posts never expose `body` on list/by-id endpoints; the body is served only by the
+  published-internal slug endpoint. Markdown is rendered without rehype-raw.
 - `revalidate([POSTS])` runs strictly after commit and never raises; the `"posts"`
   literal must stay in sync with `frontend/lib/cacheTags.ts`.

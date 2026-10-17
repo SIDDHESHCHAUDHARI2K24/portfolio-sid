@@ -30,7 +30,9 @@
 7. **Admin responses include `body`** (needed for editing); public list and public `PostPublic` never do. Public `slug` is exposed on the list (needed for card links); `url` becomes nullable there.
 8. **Slug unique across all posts** (including external posts that keep a slug). Collision pre-checked in service (excluding self on PATCH) plus `IntegrityError` backstop, both 422 `slug already exists`.
 9. **Sitemap and `generateStaticParams`** derive internal posts from `GET /posts` filtered on `platform === "internal"`; no extra endpoint. `generateStaticParams` returns `[]` if the API is unreachable at build (route stays ISR, on-demand).
-10. **Renderer:** new shared server component `frontend/components/Markdown.tsx` (react-markdown + remark-gfm + rehype-sanitize, same config as `ProseClient`). `ProseClient` is left untouched.
+10. **Renderer:** new shared server component `frontend/components/Markdown.tsx` (react-markdown + remark-gfm, no rehype-raw, no rehype-sanitize: raw HTML renders as visible escaped text, as the spec says; react-markdown's default urlTransform strips `javascript:` links). `ProseClient` is left untouched. Article typography is a small `.article-body` block in `globals.css` (design tokens only) because no typography plugin is installed.
+13. **Admin refactor:** `PostForm.tsx` helpers were split into `postFormUtils.ts`, `LinkFields.tsx`, `MarkdownEditor.tsx` to keep react-doctor clean; admin gains `react-markdown` + `remark-gfm` for the preview.
+14. **Playwright journey** (`frontend/tests/journeys/writing.spec.ts`) skips itself when no published internal post exists in `how_i_use_ai`; the repo config pins port 24730, so it was run with a throwaway config on 24731.
 11. **Article JSON-LD** type `Article`; `datePublished` = `published_date ?? created_at`.
 12. **Migration head reconciliation** with sibling branches (W1 adds its own migration) is the coordinator's job.
 
