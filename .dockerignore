@@ -14,7 +14,6 @@ docs/
 development_plan/
 overall_context/
 scripts/
-graphify-out/
 docker-compose.yml
 opencode.json
 skills-lock.json

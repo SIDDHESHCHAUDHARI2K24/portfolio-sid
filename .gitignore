@@ -30,8 +30,6 @@ test-results/
 
 # tooling indexes
 .codegraph/
-graphify-out/cost.json
-graphify-out/cache/
 
 # resume source PDFs — storage + DB are the source of truth (D8)
 resumes/*.pdf
