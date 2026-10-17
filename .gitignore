@@ -44,3 +44,6 @@ resumes/*.pdf
 
 # local disk storage (dev runs with STORAGE_KIND=local)
 backend/.storage/
+
+# Coordinator session transcripts (local archive, may contain sensitive output)
+docs/epics/*/transcripts/
