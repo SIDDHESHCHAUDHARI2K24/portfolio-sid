@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.queries import public_filter
-from app.features.prose.models import ProsePage
+from app.features.prose.models import ProseGroup, ProsePage
 
 
 async def list_public(session: AsyncSession) -> list[ProsePage]:
@@ -32,11 +32,10 @@ async def get_by_slug(session: AsyncSession, slug: str) -> ProsePage | None:
     return (await session.scalars(stmt)).first()
 
 
-async def list_by_group(session: AsyncSession, group: str) -> list[ProsePage]:
+async def list_by_group(session: AsyncSession, group: ProseGroup) -> list[ProsePage]:
     stmt = (
         select(ProsePage)
-        .where(public_filter(ProsePage))
-        .where(ProsePage.group == group)
+        .where(public_filter(ProsePage), ProsePage.group == group)
         .order_by(ProsePage.sort_order.asc())
     )
     return list((await session.scalars(stmt)).all())

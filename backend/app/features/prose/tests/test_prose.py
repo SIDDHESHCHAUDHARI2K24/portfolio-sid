@@ -227,3 +227,106 @@ async def test_public_unauthorized(
         json={"slug": "x", "title": "X", "body": "X", "group": "hobbies"},
     )
     assert resp.status_code == 401
+
+
+async def _create_published(
+    client: httpx.AsyncClient, slug: str, group: str, sort_order: int = 0
+) -> None:
+    payload = {
+        "slug": slug,
+        "title": f"Title {slug}",
+        "body": f"Body {slug}",
+        "group": group,
+        "sort_order": sort_order,
+        "status": "published",
+    }
+    resp = await client.post("http://test/api/v1/admin/prose", json=payload)
+    assert resp.status_code == 201
+
+
+@pytest.mark.asyncio
+async def test_group_filter_returns_only_that_group(
+    client: httpx.AsyncClient,
+    clean_prose: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    await _login(client, monkeypatch)
+    await _create_published(client, "h-1", "hobbies")
+    await _create_published(client, "h-2", "hobbies", sort_order=1)
+    await _create_published(client, "w-1", "work_views")
+    await _create_published(client, "i-1", "investor_intro")
+
+    resp = await client.get("http://test/api/v1/prose?group=hobbies")
+    assert resp.status_code == 200
+    assert {p["slug"] for p in resp.json()} == {"h-1", "h-2"}
+    assert all(p["group"] == "hobbies" for p in resp.json())
+
+    resp = await client.get("http://test/api/v1/prose?group=work_views")
+    assert resp.status_code == 200
+    assert [p["slug"] for p in resp.json()] == ["w-1"]
+
+    resp = await client.get("http://test/api/v1/prose?group=investor_intro")
+    assert resp.status_code == 200
+    assert [p["slug"] for p in resp.json()] == ["i-1"]
+
+
+@pytest.mark.asyncio
+async def test_group_filter_excludes_drafts(
+    client: httpx.AsyncClient,
+    clean_prose: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    await _login(client, monkeypatch)
+    await _create_published(client, "h-live", "hobbies")
+    draft = {
+        "slug": "h-draft",
+        "title": "Draft",
+        "body": "Draft body",
+        "group": "hobbies",
+        "status": "draft",
+    }
+    resp = await client.post("http://test/api/v1/admin/prose", json=draft)
+    assert resp.status_code == 201
+
+    resp = await client.get("http://test/api/v1/prose?group=hobbies")
+    assert resp.status_code == 200
+    assert [p["slug"] for p in resp.json()] == ["h-live"]
+
+
+@pytest.mark.asyncio
+async def test_group_filter_unknown_group_is_422(
+    client: httpx.AsyncClient,
+    clean_prose: None,
+) -> None:
+    resp = await client.get("http://test/api/v1/prose?group=nope")
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_group_filter_empty_group_returns_empty_list(
+    client: httpx.AsyncClient,
+    clean_prose: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    await _login(client, monkeypatch)
+    await _create_published(client, "w-only", "work_views")
+
+    resp = await client.get("http://test/api/v1/prose?group=hobbies")
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+
+@pytest.mark.asyncio
+async def test_no_group_param_returns_all_published(
+    client: httpx.AsyncClient,
+    clean_prose: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    await _login(client, monkeypatch)
+    await _create_published(client, "h-x", "hobbies")
+    await _create_published(client, "w-x", "work_views")
+    await _create_published(client, "i-x", "investor_intro")
+
+    resp = await client.get("http://test/api/v1/prose")
+    assert resp.status_code == 200
+    assert {p["slug"] for p in resp.json()} == {"h-x", "w-x", "i-x"}

@@ -3,7 +3,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cache_tags import PROSE
@@ -11,6 +11,7 @@ from app.core.database import get_session
 from app.core.deps import admin_auth
 from app.core.revalidation import revalidate
 from app.features.prose import service
+from app.features.prose.models import ProseGroup
 from app.features.prose.schemas import (
     ProsePageAdmin,
     ProsePageCreate,
@@ -29,8 +30,18 @@ DbSession = Annotated[AsyncSession, Depends(get_session)]
 
 
 @public_router.get("", response_model=list[ProsePagePublic])
-async def list_public(session: DbSession) -> list[ProsePagePublic]:
-    pages = await service.list_public_dicts(session)
+async def list_public(
+    session: DbSession,
+    group: str | None = Query(None),
+) -> list[ProsePagePublic]:
+    if group:
+        try:
+            grp = ProseGroup(group)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=f"Unknown group: {group}") from exc
+        pages = await service.list_by_group_dicts(session, grp)
+    else:
+        pages = await service.list_public_dicts(session)
     return [ProsePagePublic(**d) for d in pages]
 
 

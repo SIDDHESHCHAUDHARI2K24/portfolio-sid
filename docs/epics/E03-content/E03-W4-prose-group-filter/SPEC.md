@@ -1,6 +1,6 @@
 # E03-W4 — Prose `?group=` filter
 
-**Epic:** E03 Content · **Ticket:** E03-W4 · **Status:** Draft · **Depends on:** none
+**Epic:** E03 Content · **Ticket:** E03-W4 · **Status:** Done (local) · **Depends on:** none
 
 ## Purpose
 `GET /api/v1/prose?group=hobbies` returns every prose page; the filter is ignored (EPIC F6).
@@ -26,7 +26,7 @@
 - Backend tests: each group filters correctly, unknown → 422, no parameter → all; OpenAPI regenerated.
 
 ## Acceptance criteria
-- [ ] Filter works and is tested; `docs/features/prose.md` updated.
+- [x] Filter works and is tested; `docs/features/prose.md` updated.
 
 ## Rollback
 Revert.

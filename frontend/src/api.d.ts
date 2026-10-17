@@ -4288,7 +4288,9 @@ export interface operations {
     };
     list_public_api_v1_prose_get: {
         parameters: {
-            query?: never;
+            query?: {
+                group?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -4302,6 +4304,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProsePagePublic"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

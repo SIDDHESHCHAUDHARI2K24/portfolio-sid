@@ -13,7 +13,7 @@ variant filtering but is omitted from the public schema.
 
 | Method | Path | Auth | Request -> Response | Notes |
 | --- | --- | --- | --- | --- |
-| GET | `/api/v1/prose` | none | -> `ProsePagePublic[]` | `public_filter` applied; ordered group asc then sort_order asc |
+| GET | `/api/v1/prose` | none | -> `ProsePagePublic[]` | Optional `?group=<ProseGroup>`; unknown group -> 422, empty group treated as no param. `public_filter` applied; ordered group asc then sort_order asc (grouped query orders by sort_order) |
 | GET | `/api/v1/prose/slug/{slug}` | none | -> `ProsePagePublic` | Also applies `public_filter`, so drafts are unreachable by slug |
 | GET | `/api/v1/admin/prose` | admin_auth | -> `ProsePageAdmin[]` | Adds status/publish fields and `audience_override` |
 | GET | `/api/v1/admin/prose/{page_id}` | admin_auth | -> `ProsePageAdmin` | 404 if absent |
@@ -78,6 +78,7 @@ while the public list endpoint returns all groups ordered by group then order.
   sanitization happens at render time via `rehype-sanitize`. Do not move HTML
   generation server-side.
 - `group` is a closed editorial enum, not derived from tags or content analysis.
+- `?group=` on the public list is a closed-enum filter: unknown values return 422 (never an empty 200), mirroring posts `?collection=`. Omitting it returns all published pages.
 - `slug` is unique and indexed; every slug lookup applies `public_filter`.
 - No topic tags: prose stays out of the tag/relevance system entirely.
 - Service returns plain dicts; schemas declare no `from_attributes` (MissingGreenlet).

@@ -59,7 +59,7 @@ async def get_by_slug_dict(session: AsyncSession, slug: str) -> dict[str, object
     return _page_to_dict(page)
 
 
-async def list_by_group_dicts(session: AsyncSession, group: str) -> list[dict[str, object]]:
+async def list_by_group_dicts(session: AsyncSession, group: ProseGroup) -> list[dict[str, object]]:
     pages = await repository.list_by_group(session, group)
     return [_page_to_dict(p) for p in pages]
 
