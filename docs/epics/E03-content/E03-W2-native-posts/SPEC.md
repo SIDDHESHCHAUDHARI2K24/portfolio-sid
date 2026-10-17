@@ -1,6 +1,6 @@
 # E03-W2 — Native articles (internal posts)
 
-**Epic:** E03 Content · **Ticket:** E03-W2 · **Status:** Draft · **Depends on:** none
+**Epic:** E03 Content · **Ticket:** E03-W2 · **Status:** Done (local) · **Depends on:** none
 
 ## Purpose
 Posts are outbound links only (EPIC F4). The owner wants to write articles on the site itself, shown on `/how-i-use-ai`, `/tech-rabbithole` and `/vc-for-founders`.
@@ -48,9 +48,11 @@ An `internal` post has a slug and a markdown body, appears on every themed page 
 - Local: create, publish and view an internal post through admin → site.
 
 ## Acceptance criteria
-- [ ] EPIC criteria 3, 4 and 5 hold.
-- [ ] XSS test passes (no raw HTML execution).
-- [ ] OpenAPI and both `api.d.ts` files regenerated; `docs/features/posts.md` updated.
+- [x] EPIC criteria 3, 4 and 5 hold.
+- [x] XSS test passes (no raw HTML execution).
+- [x] OpenAPI and both `api.d.ts` files regenerated; `docs/features/posts.md` updated.
+
+Evidence and decisions: see `PLAN.md` (decisions section) and the commits on branch `e03/W2`.
 
 ## Rollback
 Revert the code and redeploy. If internal posts already exist, unpublish them first. Downgrade the migration only after deleting internal rows.

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiFetch, ApiError } from '@/lib/api'
+import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,65 +12,28 @@ import { TagSelect } from '@/components/fields/TagSelect'
 import { AudienceOverrideSelect } from '@/components/fields/AudienceOverrideSelect'
 import { PublishStatusField } from '@/components/fields/PublishStatusField'
 import { CollectionsSelect } from '@/components/fields/CollectionsSelect'
+import { MarkdownEditor } from './MarkdownEditor'
+import {
+  buildPostPayload,
+  describeSaveError,
+  postToForm,
+  withPlatform,
+  withTitle,
+  type Post,
+  validatePostForm,
+  type FormState,
+} from './postFormUtils'
+import { LinkFields } from './LinkFields'
 import { ArrowLeftIcon, SaveIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-interface TagRef {
-  id: string
-  slug: string
-  label: string
-}
-
-interface Post {
-  id: string
-  title: string
-  summary: string | null
-  url: string
-  platform: string
-  published_date: string | null
-  collections: string[]
-  sort_order: number
-  created_at: string
-  updated_at: string
-  topic_tags: TagRef[]
-  audience_override: string[] | null
-  status: string
-  publish_at: string | null
-  published_at: string | null
-}
-
-interface FormState {
-  title: string
-  summary: string
-  url: string
-  platform: string
-  published_date: string
-  collections: string[]
-  tag_slugs: string[]
-  audience_override: string[] | null
-  status: string
-  publish_at: string
-}
-
-function toDateInput(dateStr: string | null): string {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
-  if (isNaN(d.getTime())) return dateStr.slice(0, 10)
-  return d.toISOString().slice(0, 10)
-}
-
-function toDatetimeLocal(dateStr: string | null): string {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
-  if (isNaN(d.getTime())) return dateStr.slice(0, 16)
-  return d.toISOString().slice(0, 16)
-}
 
 function emptyForm(): FormState {
   return {
     title: '',
     summary: '',
     url: '',
+    slug: '',
+    body: '',
     platform: 'substack',
     published_date: '',
     collections: [],
@@ -89,6 +52,8 @@ export default function PostForm() {
   const [form, setForm] = useState<FormState>(emptyForm())
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [serverError, setServerError] = useState('')
+  // Once the user edits the slug by hand, stop auto-suggesting it from the title.
+  const slugTouched = useRef(false)
 
   const { data: post, isLoading } = useQuery<Post>({
     queryKey: ['admin', 'posts', id],
@@ -98,20 +63,16 @@ export default function PostForm() {
 
   useEffect(() => {
     if (post) {
-      setForm({
-        title: post.title,
-        summary: post.summary ?? '',
-        url: post.url,
-        platform: post.platform,
-        published_date: toDateInput(post.published_date),
-        collections: post.collections,
-        tag_slugs: post.topic_tags.map((t) => t.slug),
-        audience_override: post.audience_override ?? null,
-        status: post.status,
-        publish_at: toDatetimeLocal(post.publish_at),
-      })
+      slugTouched.current = !!post.slug
+      setForm(postToForm(post))
     }
   }, [post])
+
+  const handleSaveError = (err: unknown, fallback: string) => {
+    const { message, fieldErrors } = describeSaveError(err, fallback)
+    if (fieldErrors) setErrors(fieldErrors)
+    setServerError(message)
+  }
 
   const createMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
@@ -124,11 +85,7 @@ export default function PostForm() {
       navigate('/posts')
     },
     onError: (err) => {
-      if (err instanceof ApiError && err.status === 422) {
-        setServerError(err.message)
-      } else {
-        setServerError('Failed to create post.')
-      }
+      handleSaveError(err, 'Failed to create post.')
     },
   })
 
@@ -143,22 +100,12 @@ export default function PostForm() {
       navigate('/posts')
     },
     onError: (err) => {
-      if (err instanceof ApiError && err.status === 422) {
-        setServerError(err.message)
-      } else {
-        setServerError('Failed to update post.')
-      }
+      handleSaveError(err, 'Failed to update post.')
     },
   })
 
   const validate = (): boolean => {
-    const errs: Record<string, string> = {}
-    if (!form.title.trim()) errs.title = 'Title is required'
-    if (!form.url.trim()) errs.url = 'URL is required'
-    if (!form.platform) errs.platform = 'Platform is required'
-    if (form.status === 'scheduled' && !form.publish_at) {
-      errs.publish_at = 'Publish date is required when scheduled'
-    }
+    const errs = validatePostForm(form)
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -168,18 +115,7 @@ export default function PostForm() {
     setServerError('')
     if (!validate()) return
 
-    const payload: Record<string, unknown> = {
-      title: form.title.trim(),
-      summary: form.summary.trim() || null,
-      url: form.url.trim(),
-      platform: form.platform,
-      published_date: form.published_date || null,
-      collections: form.collections,
-      tag_slugs: form.tag_slugs,
-      audience_override: form.audience_override,
-      status: form.status,
-      publish_at: form.publish_at ? new Date(form.publish_at).toISOString() : null,
-    }
+    const payload = buildPostPayload(form)
 
     if (isEdit) {
       updateMutation.mutate(payload)
@@ -223,7 +159,10 @@ export default function PostForm() {
               <Label>Title</Label>
               <Input
                 value={form.title}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                onChange={(e) => {
+                  const title = e.target.value
+                  setForm((f) => withTitle(f, title, slugTouched.current))
+                }}
                 className={cn(errors.title && 'border-destructive')}
                 placeholder="My latest blog post"
               />
@@ -233,7 +172,7 @@ export default function PostForm() {
               <Label>Platform</Label>
               <Select
                 value={form.platform}
-                onValueChange={(v) => setForm((f) => ({ ...f, platform: v }))}
+                onValueChange={(v) => setForm((f) => withPlatform(f, v, slugTouched.current))}
               >
                 <Select.Trigger className={cn(errors.platform && 'border-destructive')}>
                   <Select.Value />
@@ -243,20 +182,20 @@ export default function PostForm() {
                   <Select.Item value="medium">Medium</Select.Item>
                   <Select.Item value="youtube">YouTube</Select.Item>
                   <Select.Item value="other">Other</Select.Item>
+                  <Select.Item value="internal">Native article</Select.Item>
                 </Select.Content>
               </Select>
               {errors.platform && <p className="text-sm text-destructive">{errors.platform}</p>}
             </div>
-            <div className="sm:col-span-2">
-              <Label>URL</Label>
-              <Input
-                value={form.url}
-                onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
-                className={cn(errors.url && 'border-destructive')}
-                placeholder="https://example.com/my-post"
-              />
-              {errors.url && <p className="text-sm text-destructive">{errors.url}</p>}
-            </div>
+            <LinkFields
+              form={form}
+              errors={errors}
+              onUrlChange={(v) => setForm((f) => ({ ...f, url: v }))}
+              onSlugChange={(v) => {
+                slugTouched.current = true
+                setForm((f) => ({ ...f, slug: v }))
+              }}
+            />
             <div>
               <Label>Published Date</Label>
               <Input
@@ -282,6 +221,13 @@ export default function PostForm() {
                 placeholder="Brief summary of this post..."
               />
             </div>
+            {form.platform === 'internal' && (
+              <MarkdownEditor
+                value={form.body}
+                error={errors.body}
+                onChange={(v) => setForm((f) => ({ ...f, body: v }))}
+              />
+            )}
           </CardContent>
         </Card>
 

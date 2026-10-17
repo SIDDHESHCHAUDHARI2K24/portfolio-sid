@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.enums import Audience, PublishStatus
@@ -11,6 +12,30 @@ from app.core.models import TopicTag
 from app.features.posts import repository
 from app.features.posts.models import Post, PostCollection, PostPlatform
 from app.features.posts.schemas import PostCreate, PostUpdate
+
+
+class PostRuleError(ValueError):
+    """Field-level rule violations; the router maps them to a pydantic-shaped 422."""
+
+    def __init__(self, field: str, message: str, *more: tuple[str, str]) -> None:
+        super().__init__(message)
+        self.errors: list[tuple[str, str]] = [(field, message), *more]
+
+
+def validate_rules(
+    platform: PostPlatform, url: str | None, slug: str | None, body: str | None
+) -> None:
+    """internal => slug and body; any other platform => url. Blank counts as missing."""
+    errors: list[tuple[str, str]] = []
+    if platform == PostPlatform.INTERNAL:
+        if not slug:
+            errors.append(("slug", "slug is required for internal posts"))
+        if not body or not body.strip():
+            errors.append(("body", "body is required for internal posts"))
+    elif not url or not url.strip():
+        errors.append(("url", "url is required for external posts"))
+    if errors:
+        raise PostRuleError(*errors[0], *errors[1:])
 
 
 def _post_to_dict(post: Post) -> dict[str, object]:
@@ -22,6 +47,8 @@ def _post_to_dict(post: Post) -> dict[str, object]:
         "title": post.title,
         "summary": post.summary,
         "url": post.url,
+        "slug": post.slug,
+        "body": post.body,
         "platform": _s(post.platform),
         "published_date": post.published_date,
         "collections": [_s(c) for c in (post.collections or [])],
@@ -52,6 +79,11 @@ async def list_by_collection_dict(
     return [_post_to_dict(p) for p in posts]
 
 
+async def get_internal_by_slug_dict(session: AsyncSession, slug: str) -> dict[str, object] | None:
+    post = await repository.get_internal_by_slug(session, slug.strip().lower())
+    return None if post is None else _post_to_dict(post)
+
+
 async def list_admin_dicts(session: AsyncSession) -> list[dict[str, object]]:
     posts = await repository.list_admin(session)
     return [_post_to_dict(p) for p in posts]
@@ -73,6 +105,17 @@ async def _resolve_tags(session: AsyncSession, slugs: list[str]) -> list[UUID]:
     if missing:
         raise ValueError(f"unknown topic tag slugs: {', '.join(sorted(missing))}")
     return [t.id for t in tags]
+
+
+async def _commit(session: AsyncSession) -> None:
+    """Commit, mapping a lost slug race (unique index) to the same 422 as the pre-check."""
+    try:
+        await session.commit()
+    except IntegrityError as exc:
+        await session.rollback()
+        if "ix_posts_slug" in str(exc.orig):
+            raise PostRuleError("slug", "slug already exists") from exc
+        raise
 
 
 async def create_dict(session: AsyncSession, data: PostCreate) -> dict[str, object]:
@@ -97,9 +140,20 @@ async def create_dict(session: AsyncSession, data: PostCreate) -> dict[str, obje
     if entry_data["status"] == PublishStatus.PUBLISHED:
         entry_data["published_at"] = datetime.now(UTC)
 
+    validate_rules(
+        entry_data["platform"],
+        entry_data.get("url"),
+        entry_data.get("slug"),
+        entry_data.get("body"),
+    )
+    if entry_data.get("url") is not None:
+        entry_data["url"] = entry_data["url"].strip() or None
+    if entry_data.get("slug") and await repository.slug_taken(session, entry_data["slug"]):
+        raise PostRuleError("slug", "slug already exists")
+
     post = Post(**entry_data)
     post = await repository.create(session, post, tag_ids)
-    await session.commit()
+    await _commit(session)
     return _post_to_dict(post)
 
 
@@ -130,6 +184,22 @@ async def update_dict(session: AsyncSession, post_id: UUID, data: PostUpdate) ->
     ):
         update_data["published_at"] = datetime.now(UTC)
 
+    if "url" in update_data and update_data["url"] is not None:
+        update_data["url"] = update_data["url"].strip() or None
+    if "slug" in update_data and not update_data["slug"]:
+        update_data["slug"] = None
+
+    validate_rules(
+        update_data.get("platform", post.platform),
+        update_data.get("url", post.url),
+        update_data.get("slug", post.slug),
+        update_data.get("body", post.body),
+    )
+    if update_data.get("slug") and await repository.slug_taken(
+        session, update_data["slug"], exclude_id=post.id
+    ):
+        raise PostRuleError("slug", "slug already exists")
+
     for key, value in update_data.items():
         setattr(post, key, value)
 
@@ -140,7 +210,7 @@ async def update_dict(session: AsyncSession, post_id: UUID, data: PostUpdate) ->
         tag_ids = await _resolve_tags(session, data.tag_slugs)
 
     await repository.update(session, post, tag_ids)
-    await session.commit()
+    await _commit(session)
     return _post_to_dict(post)
 
 

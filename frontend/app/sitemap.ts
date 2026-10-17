@@ -5,6 +5,7 @@ import type { paths } from "@/src/api";
 
 type Project = paths["/api/v1/projects"]["get"]["responses"]["200"]["content"]["application/json"][number];
 type ProsePage = paths["/api/v1/prose"]["get"]["responses"]["200"]["content"]["application/json"][number];
+type Post = paths["/api/v1/posts"]["get"]["responses"]["200"]["content"]["application/json"][number];
 type TimelineEntry = paths["/api/v1/timeline"]["get"]["responses"]["200"]["content"]["application/json"][number];
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:24730";
@@ -55,6 +56,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entries.push({
         url: `${BASE_URL}/${page.slug}`,
         lastModified: new Date(page.updated_at),
+      });
+    }
+  } catch {}
+
+  try {
+    const posts = await apiFetch<Post[]>("/posts", {
+      tags: [CACHE_TAGS.posts],
+    });
+    for (const p of posts) {
+      if (p.platform !== "internal" || !p.slug) continue;
+      entries.push({
+        url: `${BASE_URL}/writing/${p.slug}`,
+        lastModified: new Date(p.updated_at),
       });
     }
   } catch {}

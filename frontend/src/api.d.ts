@@ -523,6 +523,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/posts/slug/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get By Slug
+         * @description Published internal post with its markdown body; 404 for anything else.
+         */
+        get: operations["get_by_slug_api_v1_posts_slug__slug__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/posts/{post_id}": {
         parameters: {
             query?: never;
@@ -1740,7 +1760,9 @@ export interface components {
             /** Summary */
             summary: string | null;
             /** Url */
-            url: string;
+            url: string | null;
+            /** Slug */
+            slug?: string | null;
             /** Platform */
             platform: string;
             /** Published Date */
@@ -1771,6 +1793,8 @@ export interface components {
             topic_tags: components["schemas"]["TagRef"][];
             /** Audience Override */
             audience_override?: string[] | null;
+            /** Body */
+            body?: string | null;
             /** Status */
             status: string;
             /** Publish At */
@@ -1785,7 +1809,11 @@ export interface components {
             /** Summary */
             summary?: string | null;
             /** Url */
-            url: string;
+            url?: string | null;
+            /** Slug */
+            slug?: string | null;
+            /** Body */
+            body?: string | null;
             /** Platform */
             platform: string;
             /** Published Date */
@@ -1820,6 +1848,57 @@ export interface components {
              */
             is_pinned: boolean;
         };
+        /**
+         * PostDetail
+         * @description Public detail of an internal post: the only public shape carrying ``body``.
+         */
+        PostDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string | null;
+            /** Url */
+            url: string | null;
+            /** Slug */
+            slug?: string | null;
+            /** Platform */
+            platform: string;
+            /** Published Date */
+            published_date: string | null;
+            /** Collections */
+            collections: string[];
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Is Pinned
+             * @default false
+             */
+            is_pinned: boolean;
+            /**
+             * Topic Tags
+             * @default []
+             */
+            topic_tags: components["schemas"]["TagRef"][];
+            /** Audience Override */
+            audience_override?: string[] | null;
+            /** Body */
+            body: string;
+        };
         /** PostPublic */
         PostPublic: {
             /**
@@ -1832,7 +1911,9 @@ export interface components {
             /** Summary */
             summary: string | null;
             /** Url */
-            url: string;
+            url: string | null;
+            /** Slug */
+            slug?: string | null;
             /** Platform */
             platform: string;
             /** Published Date */
@@ -1872,6 +1953,10 @@ export interface components {
             summary?: string | null;
             /** Url */
             url?: string | null;
+            /** Slug */
+            slug?: string | null;
+            /** Body */
+            body?: string | null;
             /** Platform */
             platform?: string | null;
             /** Published Date */
@@ -3899,6 +3984,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PostPublic"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_by_slug_api_v1_posts_slug__slug__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDetail"];
                 };
             };
             /** @description Validation Error */

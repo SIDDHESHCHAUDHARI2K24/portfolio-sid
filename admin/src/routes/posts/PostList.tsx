@@ -17,7 +17,7 @@ interface Post {
   id: string
   title: string
   summary: string | null
-  url: string
+  url: string | null
   platform: string
   published_date: string | null
   collections: string[]
@@ -42,6 +42,7 @@ const platformLabels: Record<string, string> = {
   medium: 'Medium',
   youtube: 'YouTube',
   other: 'Other',
+  internal: 'Native',
 }
 
 const collectionLabels: Record<string, string> = {
