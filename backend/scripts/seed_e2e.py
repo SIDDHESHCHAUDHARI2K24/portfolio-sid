@@ -19,10 +19,12 @@ from sqlalchemy import select  # noqa: E402
 
 from app.core.database import async_session_factory  # noqa: E402
 from app.core.enums import Audience, PublishStatus  # noqa: E402
+from app.features.posts.models import Post, PostCollection, PostPlatform  # noqa: E402
 from app.features.projects.models import Project  # noqa: E402
 from app.features.timeline.models import TimelineEntry, TimelineKind  # noqa: E402
 
 PREFIX = "E2E Seed"
+NATIVE_POST_SLUG = "e2e-native-article"
 
 
 async def seed() -> None:
@@ -88,6 +90,28 @@ async def seed() -> None:
             )
             await session.commit()
             print("seeded 1 project (e2e-seed-project) cross-linked to a timeline entry")
+
+        # A published internal (native) post in how_i_use_ai so the writing
+        # journey (themed page -> /writing/<slug> -> back) runs instead of skipping.
+        stale_post = await session.scalars(select(Post).where(Post.slug == NATIVE_POST_SLUG))
+        for row in stale_post:
+            await session.delete(row)
+        await session.commit()
+        session.add(
+            Post(
+                title=f"{PREFIX}: Native article",
+                slug=NATIVE_POST_SLUG,
+                summary="Seeded for e2e; a native article in how_i_use_ai.",
+                body="## Seeded article\n\nBody text for the writing journey.",
+                platform=PostPlatform.INTERNAL,
+                collections=[PostCollection.HOW_I_USE_AI],
+                status=PublishStatus.PUBLISHED,
+                published_at=now,
+                published_date=now.date(),
+            )
+        )
+        await session.commit()
+        print(f"seeded 1 internal post ({NATIVE_POST_SLUG}) in how_i_use_ai")
 
 
 if __name__ == "__main__":
