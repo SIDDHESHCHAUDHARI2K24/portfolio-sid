@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.features.contact import repository
-from app.features.contact.models import ContactItem, ContactItemKind, ContactProfile
+from app.features.contact.models import ContactItem, ContactItemKind
 from app.features.contact.schemas import ContactItemUpdate, ContactUpdate
 
 

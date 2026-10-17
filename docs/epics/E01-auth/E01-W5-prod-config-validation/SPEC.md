@@ -41,7 +41,7 @@ In production, the backend refuses to start with a missing or malformed auth set
 
 ## Acceptance criteria
 - [x] All rules are tested; no value appears in any message.
-- [ ] Production passes validation on deploy.
+- [x] Production passes validation on deploy (2026-10-17 backend deployment SUCCESS; only the sandbox-sender warning).
 - [x] The env registry documents the rules.
 
 ## Rollback

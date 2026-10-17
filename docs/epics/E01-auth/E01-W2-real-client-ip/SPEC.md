@@ -47,7 +47,7 @@ Lockout, rate limiting, and audit rows use the real caller's IP, and a caller ca
 - [x] No production code path reads `request.client.host` directly, except `core/net.py`.
 - [x] The forms slice no longer imports from the auth slice.
 - [x] `TRUSTED_PROXY_CIDRS` is documented in `.env.example` and the env registry.
-- [ ] The production check confirms the real IP and that a forged header is rejected.
+- [x] The production check confirms the real IP and that a forged header is rejected (2026-10-17: two wrong-password requests, one with a forged `X-Real-IP`, both logged the same real public IP).
 
 ## Rollback
 Unset `TRUSTED_PROXY_CIDRS` (behaves as today), or revert and redeploy the backend and admin services.
