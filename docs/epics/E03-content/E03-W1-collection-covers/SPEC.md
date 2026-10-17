@@ -1,6 +1,6 @@
 # E03-W1 — Collection covers
 
-**Epic:** E03 Content · **Ticket:** E03-W1 · **Status:** Draft · **Depends on:** none
+**Epic:** E03 Content · **Ticket:** E03-W1 · **Status:** Done (local) · **Depends on:** none
 
 ## Purpose
 Covers never appear: they are fetched only on a manual admin click (EPIC F1), and the frontend builds their URL from an unset `NEXT_PUBLIC_R2_PUBLIC_URL` (F2).
@@ -37,9 +37,9 @@ Every collection item with a stored cover shows it, locally and in production, a
 - Admin: `npm run lint && npm run build`; the react-doctor skill on the changed form.
 
 ## Acceptance criteria
-- [ ] EPIC criteria 1 and 2 hold.
-- [ ] OpenAPI and both `api.d.ts` files regenerated.
-- [ ] `docs/features/collections.md` describes lookup-on-save and `cover_url`.
+- [x] EPIC criteria 1 and 2 hold.
+- [x] OpenAPI and both `api.d.ts` files regenerated.
+- [x] `docs/features/collections.md` describes lookup-on-save and `cover_url`.
 
 ## Rollback
 Revert and redeploy. No schema change.

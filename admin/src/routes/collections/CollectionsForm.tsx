@@ -18,6 +18,7 @@ interface Item {
   kind: string
   section: string | null
   cover_key: string | null
+  cover_url: string | null
   external_id: string | null
   external_source: string | null
   status: string | null
@@ -129,10 +130,12 @@ export default function CollectionsForm() {
 
   const createMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
-      apiFetch('/admin/collections', { method: 'POST', body: JSON.stringify(data) }),
-    onSuccess: () => {
+      apiFetch<Item>('/admin/collections', { method: 'POST', body: JSON.stringify(data) }),
+    onSuccess: (saved: Item) => {
       queryClient.invalidateQueries({ queryKey: ['collections'] })
-      navigate('/collections')
+      navigate('/collections', {
+        state: { coverNotice: saved.cover_url ? 'Cover found.' : 'No cover found.' },
+      })
     },
     onError: (err) => {
       if (err instanceof ApiError && err.status === 422) {
@@ -145,10 +148,12 @@ export default function CollectionsForm() {
 
   const updateMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
-      apiFetch(`/admin/collections/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-    onSuccess: () => {
+      apiFetch<Item>(`/admin/collections/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    onSuccess: (saved: Item) => {
       queryClient.invalidateQueries({ queryKey: ['collections'] })
-      navigate('/collections')
+      navigate('/collections', {
+        state: { coverNotice: saved.cover_url ? 'Cover found.' : 'No cover found.' },
+      })
     },
     onError: (err) => {
       if (err instanceof ApiError && err.status === 422) {
@@ -201,12 +206,18 @@ export default function CollectionsForm() {
       section: form.kind === 'book' ? (form.section || null) : null,
       note: form.note.trim() || null,
       status: form.read_status || null,
-      cover_key: form.cover_key.trim() || null,
       external_id: form.external_id.trim() || null,
       external_source: form.external_source || null,
       sort_order: form.sort_order,
       publish_status: form.publish_status,
       publish_at: form.publish_at ? new Date(form.publish_at).toISOString() : null,
+    }
+
+    // Only send cover_key when set or changed: an omitted key lets the server
+    // look up a cover; an explicit null clears it.
+    const coverKey = form.cover_key.trim()
+    if (isEdit ? coverKey !== (item?.cover_key ?? '') : coverKey) {
+      payload.cover_key = coverKey || null
     }
 
     if (isEdit) {

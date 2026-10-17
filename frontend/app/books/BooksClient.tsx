@@ -27,9 +27,9 @@ export default function BooksClient({ grouped }: { grouped: Record<string, Item[
             {grouped[section].map((book) => (
               <div key={book.id} className="flex flex-col items-center text-center group">
                 <div className="relative aspect-[2/3] w-full overflow-hidden rounded-md border border-border bg-muted/30 mb-2">
-                  {book.cover_key ? (
+                  {book.cover_url ? (
                     <img
-                      src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${book.cover_key}`}
+                      src={book.cover_url}
                       alt={book.title}
                       className="object-cover w-full h-full"
                       loading="lazy"

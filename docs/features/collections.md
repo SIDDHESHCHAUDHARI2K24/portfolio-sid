@@ -16,10 +16,30 @@ never hotlinked.
 | GET | `/api/v1/collections` | none | -> `CollectionItemPublic[]` | `public_filter` applied; ordered kind, section, sort_order |
 | GET | `/api/v1/admin/collections` | admin_auth | -> `CollectionItemAdmin[]` | Adds publish status fields |
 | GET | `/api/v1/admin/collections/{item_id}` | admin_auth | -> `CollectionItemAdmin` | 404 if absent |
-| POST | `/api/v1/admin/collections` | admin_auth | `CollectionItemCreate` -> 201 | Reading state sent as `status`, publish state as `publish_status` |
-| PATCH | `/api/v1/admin/collections/{item_id}` | admin_auth | `CollectionItemUpdate` -> `CollectionItemAdmin` | Partial; first publish stamps `published_at` |
+| POST | `/api/v1/admin/collections` | admin_auth | `CollectionItemCreate` -> 201 | Reading state sent as `status`, publish state as `publish_status`; looks up a cover when `cover_key` is not supplied |
+| PATCH | `/api/v1/admin/collections/{item_id}` | admin_auth | `CollectionItemUpdate` -> `CollectionItemAdmin` | Partial; first publish stamps `published_at`; looks up a cover when the item has none and `cover_key` is not in the body |
 | DELETE | `/api/v1/admin/collections/{item_id}` | admin_auth | -> 204 | Missing id -> 404 |
 | POST | `/api/v1/admin/collections/cover-lookup` | admin_auth | `CoverLookupRequest` -> `CoverLookupResponse` | `{status: found/no_match/failed, cover_key?}`; no DB writes |
+
+Both item schemas carry `cover_key` (storage key, for admin use) and `cover_url`,
+built server-side as `get_storage().get_url(cover_key)` (null when no key; same
+pattern as certifications `file_url`; local storage yields `/media/<key>` or
+`MEDIA_BASE_URL/media/<key>`). The public site renders `cover_url` directly and
+no longer composes URLs from `NEXT_PUBLIC_R2_PUBLIC_URL`.
+
+### Lookup on save
+
+`service._auto_cover(title, kind)` wraps `covers.fetch_and_store_cover` and is
+best-effort: `found` sets `cover_key`; `no_match`, `failed` or any exception
+(logged at INFO) saves the item without a cover and never returns a 5xx.
+- Create: runs when no `cover_key` was supplied.
+- Update: runs only when `cover_key` is absent from the body and the item has
+  none. An existing cover is never overwritten (even if the title changes); an
+  explicit `cover_key: null` clears it and does not re-fetch in that request.
+- The 300 s negative cache in `covers.py` still throttles repeated misses.
+- The admin form omits `cover_key` unless it was set/changed, then shows
+  "Cover found." / "No cover found." on the list after save. The manual
+  "Look up cover" button remains for re-fetching.
 
 All mutating paths call `revalidate([COLLECTIONS])` after commit.
 
@@ -77,7 +97,7 @@ to schema field `status_`.
 
 - backend/app/features/collections/models.py — `CollectionItem`, `CollectionKind`, `CollectionStatus`, `ExternalSource`
 - backend/app/features/collections/covers.py — lookup, validation, negative cache, R2 write
-- backend/app/features/collections/service.py — dict conversion, `status_` mapping, `lookup_cover`
+- backend/app/features/collections/service.py — dict conversion (incl. `cover_url`), `status_` mapping, `_auto_cover`, `lookup_cover`
 - backend/app/features/collections/repository.py — public vs admin ordering, plain CRUD
 - backend/app/features/collections/endpoints/router.py — route table incl. `/cover-lookup`
 - backend/app/core/storage.py — `StorageAdapter`, `content_hashed_key`, R2/MinIO/local impls
