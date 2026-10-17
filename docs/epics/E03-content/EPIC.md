@@ -41,6 +41,7 @@ Collection covers appear on the site without manual steps. The owner can publish
 | [E03-W2](E03-W2-native-posts/SPEC.md) | Native articles: internal posts at `/writing/<slug>` | none |
 | [E03-W3](E03-W3-local-samples/SPEC.md) | Local samples: covers and native articles in `seed_demo.py` | W1, W2 |
 | [E03-W4](E03-W4-prose-group-filter/SPEC.md) | Fix `?group=` filter on `/api/v1/prose` | none |
+| [E03-W5](E03-W5-anilist-cover-fallback/SPEC.md) | AniList fallback for anime and manhwa covers | W1 |
 
 W1, W2 and W4 touch separate slices and can run in parallel. W3 runs last.
 

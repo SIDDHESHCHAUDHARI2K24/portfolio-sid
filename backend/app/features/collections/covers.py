@@ -1,4 +1,4 @@
-"""Cover-fetching pipeline: Open Library for books, Jikan for anime/manga.
+"""Cover-fetching pipeline: Open Library for books, Jikan then AniList for anime/manhwa.
 
 Download once, store in R2, never hotlink. Return structured result.
 """
@@ -19,6 +19,12 @@ MAX_COVER_BYTES = 5 * 1024 * 1024
 OPEN_LIBRARY_SEARCH = "https://openlibrary.org/search.json"
 JIKAN_ANIME = "https://api.jikan.moe/v4/anime"
 JIKAN_MANGA = "https://api.jikan.moe/v4/manga"
+JIKAN_TIMEOUT = 5
+ANILIST_GRAPHQL = "https://graphql.anilist.co"
+ANILIST_QUERY = (
+    "query ($search: String, $type: MediaType) "
+    "{ Media(search: $search, type: $type) { coverImage { extraLarge large } } }"
+)
 
 _negative_cache: dict[str, float] = {}
 _NEGATIVE_TTL = 300
@@ -88,6 +94,32 @@ def _extract_jikan_image_url(data: dict[str, Any]) -> str | None:
     return url
 
 
+class AniListError(Exception):
+    """AniList lookup failed (timeout, HTTP error such as 429, or bad payload)."""
+
+
+def _extract_anilist_image_url(data: dict[str, Any]) -> str | None:
+    media = (data.get("data") or {}).get("Media") or {}
+    cover = media.get("coverImage") or {}
+    url: str | None = cover.get("extraLarge") or cover.get("large")
+    return url
+
+
+async def _anilist_cover_url(title: str, kind: str, client: httpx.AsyncClient) -> str | None:
+    media_type = "ANIME" if kind == "anime" else "MANGA"
+    try:
+        resp = await client.post(
+            ANILIST_GRAPHQL,
+            json={"query": ANILIST_QUERY, "variables": {"search": title, "type": media_type}},
+            timeout=JIKAN_TIMEOUT,
+        )
+        resp.raise_for_status()
+        return _extract_anilist_image_url(resp.json())
+    except Exception as exc:
+        logger.info("AniList search failed title=%r type=%s err=%s", title, media_type, exc)
+        raise AniListError(str(exc)) from exc
+
+
 async def _store_cover(adapter: StorageAdapter, body: bytes, prefix: str) -> str:
     if body.startswith(b"\x89PNG"):
         ext = "png"
@@ -125,19 +157,30 @@ async def fetch_and_store_cover(
         image_url = _extract_ol_image_url(resp.json())
         prefix = "book"
     else:
-        cache_key = f"jikan:{title.lower()}"
+        cache_key = f"anime:{title.lower()}"
         if _neg_cached(cache_key):
             return CoverResult(status="no_match")
 
         endpoint = JIKAN_ANIME if kind == "anime" else JIKAN_MANGA
+        image_url = None
+        errored = False
         try:
-            resp = await client.get(endpoint, params={"q": title, "limit": "1"})
+            resp = await client.get(
+                endpoint, params={"q": title, "limit": "1"}, timeout=JIKAN_TIMEOUT
+            )
             resp.raise_for_status()
+            image_url = _extract_jikan_image_url(resp.json())
         except Exception as exc:
             logger.info("Jikan search failed title=%r endpoint=%s err=%s", title, endpoint, exc)
-            return CoverResult(status="failed")
+            errored = True
 
-        image_url = _extract_jikan_image_url(resp.json())
+        if not image_url:
+            try:
+                image_url = await _anilist_cover_url(title, kind, client)
+            except AniListError:
+                return CoverResult(status="failed")
+            if not image_url and errored:
+                return CoverResult(status="failed")
         prefix = kind
 
     if not image_url:

@@ -36,7 +36,15 @@ best-effort: `found` sets `cover_key`; `no_match`, `failed` or any exception
 - Update: runs only when `cover_key` is absent from the body and the item has
   none. An existing cover is never overwritten (even if the title changes); an
   explicit `cover_key: null` clears it and does not re-fetch in that request.
-- The 300 s negative cache in `covers.py` still throttles repeated misses.
+- The 300 s negative cache in `covers.py` still throttles repeated misses; it is
+  written only when every source answered and found nothing.
+- Cover sources: books use Open Library only. Anime and manhwa try Jikan first
+  (5 s timeout), then AniList GraphQL (`https://graphql.anilist.co`, no key;
+  anime -> `ANIME`, manhwa -> `MANGA`) on Jikan timeout, error or no match. If
+  neither source answers (both error, or one errors and the other misses) the
+  result is `failed`, so a later save retries; AniList 429 is a failure with no
+  retry loop. The chosen image uses the same download, validation and storage
+  path, so covers are always served from our storage.
 - The admin form omits `cover_key` unless it was set/changed, then shows
   "Cover found." / "No cover found." on the list after save. The manual
   "Look up cover" button remains for re-fetching.
@@ -55,7 +63,7 @@ flowchart LR
     RP --> PG[Postgres collection_items with native enums kind external_source status]
     RT --> CL[cover-lookup endpoint]
     CL --> CO[covers.fetch_and_store_cover]
-    CO --> OL[Open Library search.json or Jikan v4 anime manga]
+    CO --> OL[Open Library search.json or Jikan v4 anime manga then AniList GraphQL]
     OL --> DL[download first candidate image URL]
     DL --> VA{content-type starts image and size at most 5 MiB}
     VA -- fail --> FR[failed result - nothing stored]
@@ -75,7 +83,7 @@ flowchart TD
     NC -- yes --> NM[return no_match immediately]
     NC -- no --> SRC{kind}
     SRC -- book --> OL[Open Library search limit 1 extract docs cover_i]
-    SRC -- anime or manhwa --> JK[Jikan anime or manga endpoint q title limit 1 extract jpg url]
+    SRC -- anime or manhwa --> JK[Jikan anime or manga endpoint q title limit 1 timeout 5s, then AniList GraphQL Media search ANIME or MANGA on timeout error or no match]
     OL --> HIT{image URL found}
     JK --> HIT
     HIT -- no --> NEG[record miss in negative cache then no_match]
