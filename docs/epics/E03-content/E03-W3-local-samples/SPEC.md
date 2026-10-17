@@ -1,6 +1,6 @@
 # E03-W3 — Local samples: covers and native articles
 
-**Epic:** E03 Content · **Ticket:** E03-W3 · **Status:** Draft · **Depends on:** E03-W1, E03-W2
+**Epic:** E03 Content · **Ticket:** E03-W3 · **Status:** Done (local) · **Depends on:** E03-W1, E03-W2
 
 ## Purpose
 The owner reviews UI and admin locally. Collections have no covers and there are no native articles to look at (user request, 2026-10-17).
@@ -32,8 +32,9 @@ One command fills every content type locally with realistic, clearly marked samp
 - The guard refuses `ENVIRONMENT=production` and a non-localhost DB (quick manual check).
 
 ## Acceptance criteria
-- [ ] EPIC criterion 6 holds.
-- [ ] The script is committed and documented in `LOCAL.md` (if the user approves editing it) or `docs/handoff/`.
+- [x] EPIC criterion 6 holds (book covers and native articles verified locally).
+- [x] The script is committed; usage is in its docstring (`LOCAL.md` untouched, awaiting approval).
+- [ ] Anime/manhwa covers: Jikan (api.jikan.moe) was unreachable from the dev network on 2026-10-17; rerun the seed where it is reachable.
 
 ## Rollback
 `uv run python scripts/seed_demo.py --remove`.

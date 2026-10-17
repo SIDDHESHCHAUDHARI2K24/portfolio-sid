@@ -1,19 +1,26 @@
 """Local-only demo seed: realistic sample content for every public category.
 
-Idempotent: each row is upserted by natural key (certifications/collections/
-thesis/posts by title, prose by slug). All sample titles start with ``Sample —``
-so they are easy to spot and remove (``--remove``).
+Idempotent: each row is upserted by natural key (certifications/thesis/external
+posts by title, collections by real title, prose and native posts by slug).
+Collection samples keep their real titles (so cover lookups match) and are
+marked by ``[sample-demo]`` in the note; the other samples start with
+``Sample —`` or use a ``sample-`` slug. ``--remove`` deletes only those rows.
 
 Refuses to run unless ENVIRONMENT is development/local AND the database host
 is localhost/127.0.0.1.
 
 Usage:
-    uv run python scripts/seed_demo.py            # seed / refresh
-    uv run python scripts/seed_demo.py --remove   # delete only the samples
+    uv run python scripts/seed_demo.py                   # seed / refresh, with covers
+    uv run python scripts/seed_demo.py --no-covers       # skip cover network lookups
+    uv run python scripts/seed_demo.py --remove          # delete only the samples
+    uv run python scripts/seed_demo.py --revalidate-url http://localhost:24735
+        # then POSTs /api/revalidate (needs REVALIDATION_SECRET in the env)
 """
 
+import argparse
 import asyncio
 import datetime as dt
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -21,7 +28,8 @@ from typing import Any
 _backend_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_backend_root))
 
-from sqlalchemy import select  # noqa: E402
+import httpx  # noqa: E402
+from sqlalchemy import or_, select  # noqa: E402
 from sqlalchemy.engine import make_url  # noqa: E402
 from sqlalchemy.ext.asyncio import AsyncSession  # noqa: E402
 
@@ -29,7 +37,9 @@ from app.core.config import get_settings  # noqa: E402
 from app.core.database import async_session_factory  # noqa: E402
 from app.core.enums import Audience, PublishStatus  # noqa: E402
 from app.core.models import TopicTag  # noqa: E402
+from app.core.storage import get_storage  # noqa: E402
 from app.features.certifications.models import Certification, CertKind  # noqa: E402
+from app.features.collections.covers import fetch_and_store_cover  # noqa: E402
 from app.features.collections.models import (  # noqa: E402
     CollectionItem,
     CollectionKind,
@@ -41,6 +51,8 @@ from app.features.prose.models import ProseGroup, ProsePage  # noqa: E402
 from app.features.thesis.models import Thesis  # noqa: E402
 
 PREFIX = "Sample — "
+MARKER = "[sample-demo]"
+TOUCHED_TAGS = ["certifications", "collections", "posts", "prose", "thesis"]
 NOW = dt.datetime.now(dt.UTC)
 A = Audience
 
@@ -152,23 +164,16 @@ CERTS: list[tuple[str, str, str, dt.date, dt.date | None, list[str], list[A] | N
     ),
 ]
 
-# (title, creator, kind, section, status, note)
+# (title, creator, kind, section, status, note). Real titles so cover lookups match.
 COLLECTION: list[tuple[str, str, str, str, str, str]] = [
+    ("Zero to One", "Peter Thiel", "book", "Startups", "completed", "Contrarian company building."),
     (
-        "Zero to One",
-        "Peter Thiel",
+        "The Mom Test",
+        "Rob Fitzpatrick",
         "book",
         "Startups",
         "completed",
-        "Contrarian thinking on building companies.",
-    ),
-    (
-        "The Hard Thing About Hard Things",
-        "Ben Horowitz",
-        "book",
-        "Startups",
-        "completed",
-        "Honest founder lessons.",
+        "Customer talks done right.",
     ),
     (
         "Designing Data-Intensive Applications",
@@ -179,70 +184,42 @@ COLLECTION: list[tuple[str, str, str, str, str, str]] = [
         "The systems bible.",
     ),
     (
-        "The Mom Test",
-        "Rob Fitzpatrick",
+        "The Pragmatic Programmer",
+        "Andrew Hunt",
         "book",
-        "Startups",
-        "want_to_read",
-        "Customer conversations done right.",
-    ),
-    ("Atomic Habits", "James Clear", "book", "Self", "completed", "Small habits compound."),
-    (
-        "Sample Anime — Steins;Gate",
-        "White Fox",
-        "anime",
-        "Sci-Fi",
+        "Engineering",
         "completed",
-        "Time travel done properly.",
+        "Craft over cleverness.",
     ),
+    ("Shape Up", "Ryan Singer", "book", "Product", "want_to_read", "Six-week cycles, no backlog."),
     (
-        "Sample Anime — Frieren: Beyond Journey's End",
+        "Frieren: Beyond Journey's End",
         "Madhouse",
         "anime",
         "Fantasy",
         "completed",
         "Quiet and beautiful.",
     ),
+    ("Steins;Gate", "White Fox", "anime", "Sci-Fi", "completed", "Time travel done properly."),
+    ("Haikyuu!!", "Production I.G", "anime", "Sports", "completed", "Pure team energy."),
     (
-        "Sample Anime — Monster",
-        "Madhouse",
+        "Vinland Saga",
+        "Wit Studio",
         "anime",
-        "Thriller",
+        "Historical",
         "reading",
-        "Slow-burn masterpiece.",
+        "A saga about unlearning war.",
     ),
+    ("Solo Leveling", "Chugong", "manhwa", "Action", "completed", "The one that started it."),
     (
-        "Sample Anime — Cyberpunk: Edgerunners",
-        "Trigger",
-        "anime",
-        "Sci-Fi",
-        "want_to_read",
-        "Neon and heartbreak.",
-    ),
-    (
-        "Sample Manhwa — Solo Leveling",
-        "Chugong",
-        "manhwa",
-        "Action",
-        "completed",
-        "The one that started it.",
-    ),
-    (
-        "Sample Manhwa — Omniscient Reader",
+        "Omniscient Reader's Viewpoint",
         "Sing Shong",
         "manhwa",
         "Action",
         "reading",
         "Story-within-a-story.",
     ),
-    (
-        "Sample Manhwa — Tower of God",
-        "SIU",
-        "manhwa",
-        "Fantasy",
-        "reading",
-        "Sprawling world-building.",
-    ),
+    ("Tower of God", "SIU", "manhwa", "Fantasy", "reading", "Sprawling world-building."),
 ]
 
 THESIS: list[tuple[str, str, dt.date, list[str], list[A] | None]] = [
@@ -376,6 +353,153 @@ POSTS: list[tuple[str, str, PostPlatform, PostCollection, list[str], list[A] | N
     ),
 ]
 
+_CODE_AI = """```python
+def review(diff: str) -> str:
+    prompt = f"Review this diff for bugs, not style:\\n{diff}"
+    return agent.run(prompt)
+```"""
+
+# (slug, title, summary, collection, tags, audiences, body)
+NATIVE_POSTS: list[tuple[str, str, str, PostCollection, list[str], list[A] | None, str]] = [
+    (
+        "sample-how-i-pair-with-agents",
+        "How I pair with coding agents",
+        "A small, repeatable loop for shipping with an AI pair.",
+        PostCollection.HOW_I_USE_AI,
+        ["ai", "agentic-ai"],
+        [A.TECHIES, A.RECRUITERS],
+        """I treat an agent like a fast junior who never gets tired but needs a clear brief. \
+The loop below is boring on purpose, and that is why it works.
+
+## The loop
+
+Every task goes through the same four steps:
+
+- Write the goal and the acceptance check in two sentences.
+- Let the agent propose a plan, and edit the plan before any code exists.
+- Run the change in small slices, with tests after each slice.
+- Read the whole diff myself before it merges.
+
+## Keep prompts small and testable
+
+A review prompt is a function, not a conversation. Pass in the diff, ask one \
+question, and demand a structured answer:
+
+"""
+        + _CODE_AI
+        + """
+
+## What goes wrong
+
+Agents drift when the brief is vague, so I spend most of my effort on the first \
+paragraph of the task. They also happily over-build, so I state the stop \
+condition up front: "done means the failing test passes and nothing else changes."
+
+When something surprises me, I do not argue with the agent. I rewrite the brief \
+and rerun it. That keeps every attempt comparable, and it makes the lesson stick \
+in the written task rather than in my head.
+
+## Further reading
+
+The best short guide I have found on structuring agent work is the \
+[Anthropic agents guide](https://www.anthropic.com/engineering/building-effective-agents). \
+It matches my experience: start simple, add structure only when a measurement says so.
+
+Treat this as a sample article. Swap in your own words from the admin editor.
+""",
+    ),
+    (
+        "sample-postgres-rabbit-hole",
+        "Down the Postgres rabbit hole",
+        "Query planners, vacuum and the one setting that fixed a slow page.",
+        PostCollection.TECH_RABBITHOLE,
+        ["engineering", "data-platform"],
+        [A.TECHIES],
+        """A slow list page sent me into the planner for a weekend. Here is the short version \
+of what I found, because the detour paid for itself.
+
+## Start with the plan
+
+Never guess. Ask the database what it is doing:
+
+```sql
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT * FROM posts
+WHERE status = 'PUBLISHED'
+ORDER BY published_date DESC
+LIMIT 20;
+```
+
+The output showed a sequential scan and a sort, even though an index existed.
+
+## Three things I checked
+
+- **Statistics:** stale stats made the planner underestimate row counts.
+- **Index shape:** the index did not match the `ORDER BY`, so it could not be used.
+- **Bloat:** heavy updates left dead tuples that vacuum had not reclaimed.
+
+## The fix
+
+A composite index on `(status, published_date DESC)` plus a manual `ANALYZE` \
+turned a 180 ms query into a 2 ms one. Nothing exotic, just reading the plan \
+carefully instead of adding hardware.
+
+## Lessons
+
+1. Read the plan before changing the schema.
+2. Match indexes to the exact query, including sort order.
+3. Autovacuum is a feature, but watch it on write-heavy tables.
+
+The official [EXPLAIN documentation](https://www.postgresql.org/docs/current/using-explain.html) \
+is dense but worth an hour. This is a sample article for local review; edit or \
+delete it freely from the admin.
+""",
+    ),
+    (
+        "sample-fundraising-mistakes",
+        "Five fundraising mistakes I keep seeing",
+        "Patterns from the investor side of the table.",
+        PostCollection.VC_FOR_FOUNDERS,
+        ["fundraising", "venture-capital"],
+        [A.FOUNDERS, A.INVESTORS],
+        """After reading a lot of decks, the same mistakes show up. None of them are about the \
+idea. They are about how the story is told.
+
+## The mistakes
+
+1. **Burying the ask.** Say how much you raise and what it buys in the first minute.
+2. **Vague market claims.** "A billion-dollar market" says nothing. Name the buyer and the budget.
+3. **No proof of pull.** One paying customer beats ten slides about vision.
+4. **Hiding the risks.** Investors find them anyway. Naming them builds trust.
+5. **Going wide on process.** Run a tight two-week window, not a six-month drift.
+
+## A simple checklist
+
+Before you send a deck, check that it answers these:
+
+- Who is the customer and why do they pay now?
+- What is true today that was not true a year ago?
+- What does the next round of money unlock?
+
+## Show the numbers
+
+Keep a one-line snapshot you can paste into any email:
+
+```text
+MRR $18k | growth 14% m/m | runway 11 months | raising $1.5M seed
+```
+
+If the line is awkward to write, the business is probably not ready to pitch.
+
+## Where to learn more
+
+[Y Combinator's fundraising guide](https://www.ycombinator.com/library) is a solid \
+starting point and free. This is a sample article for local review, so feel free \
+to replace it with your own writing.
+""",
+    ),
+]
+
 LOREM = (
     "This is **sample content** seeded for local development.\n\n"
     "It exists so you can see how this page renders and how it is managed in the admin. "
@@ -443,22 +567,65 @@ PROSE: list[tuple[str, str, ProseGroup, list[A] | None, tuple[str, str] | None]]
 async def remove() -> None:
     async with async_session_factory() as session:
         n = 0
-        for model, col, pat in [
-            (Certification, Certification.title, f"{PREFIX}%"),
-            (CollectionItem, CollectionItem.note, "%sample-demo%"),
-            (Thesis, Thesis.title, f"{PREFIX}%"),
-            (Post, Post.title, f"{PREFIX}%"),
-            (ProsePage, ProsePage.slug, "sample-%"),
+        for model, cond in [
+            (Certification, Certification.title.like(f"{PREFIX}%")),
+            (CollectionItem, CollectionItem.note.like(f"%{MARKER}%")),
+            (Thesis, Thesis.title.like(f"{PREFIX}%")),
+            (Post, or_(Post.title.like(f"{PREFIX}%"), Post.slug.like("sample-%"))),
+            (ProsePage, ProsePage.slug.like("sample-%")),
         ]:
-            for row in (await session.scalars(select(model).where(col.like(pat)))).all():
+            for row in (await session.scalars(select(model).where(cond))).all():
                 await session.delete(row)
                 n += 1
         await session.commit()
         print(f"removed {n} sample rows")
 
 
-async def seed() -> None:
+async def _drop_stale_collection_samples(session: AsyncSession) -> int:
+    """Delete marked collection rows whose title is no longer in COLLECTION (old fake titles)."""
+    keep = {c[0] for c in COLLECTION}
+    rows = (
+        await session.scalars(select(CollectionItem).where(CollectionItem.note.like(f"%{MARKER}%")))
+    ).all()
+    stale = [r for r in rows if r.title not in keep]
+    for r in stale:
+        await session.delete(r)
+    return len(stale)
+
+
+async def _fill_covers(session: AsyncSession) -> tuple[int, list[str]]:
+    """Fetch covers for marked items lacking one. Returns (found, failed titles)."""
+    items = (
+        await session.scalars(
+            select(CollectionItem).where(
+                CollectionItem.note.like(f"%{MARKER}%"), CollectionItem.cover_key.is_(None)
+            )
+        )
+    ).all()
+    found, failed = 0, []
+    adapter = get_storage()
+    async with httpx.AsyncClient(
+        timeout=15, headers={"User-Agent": "portfolio-seed-demo/1.0"}
+    ) as client:
+        for item in items:
+            kind = item.kind.value if hasattr(item.kind, "value") else str(item.kind)
+            try:
+                result = await fetch_and_store_cover(item.title, kind, adapter, client)
+            except Exception as exc:  # network is best effort
+                print(f"  cover error for {item.title!r}: {exc}")
+                result = None
+            if result is not None and result.status == "found":
+                item.cover_key = result.cover_key
+                found += 1
+            else:
+                failed.append(item.title)
+            await asyncio.sleep(0.5)  # stay under Jikan's rate limit
+    return found, failed
+
+
+async def seed(*, covers: bool = True) -> list[str]:
     async with async_session_factory() as session:
+        stale = await _drop_stale_collection_samples(session)
         for i, (t, issuer, kind, issued, exp, tags, aud) in enumerate(CERTS):
             title = PREFIX + t
             await _upsert(
@@ -478,18 +645,17 @@ async def seed() -> None:
                 },
             )
         for i, (t, creator, kind, section, st, note) in enumerate(COLLECTION):
-            title = t if t.startswith("Sample") else PREFIX + t
             await _upsert(
                 session,
                 CollectionItem,
                 "title",
-                title,
+                t,
                 {
                     "creator": creator,
                     "kind": CollectionKind(kind),
                     "section": section,
                     "status_": CollectionStatus(st),
-                    "note": f"{note} [sample-demo]",
+                    "note": f"{note} {MARKER}",
                     "external_source": ExternalSource.MANUAL,
                     "sort_order": i,
                 },
@@ -526,6 +692,25 @@ async def seed() -> None:
                     "topic_tags": await _tags(session, tags),
                 },
             )
+        for i, (slug, title, summ, coll, tags, aud, body) in enumerate(NATIVE_POSTS):
+            await _upsert(
+                session,
+                Post,
+                "slug",
+                slug,
+                {
+                    "title": title,
+                    "summary": summ,
+                    "body": body,
+                    "url": None,
+                    "platform": PostPlatform.INTERNAL,
+                    "published_date": _d(2026, 9, 1 + i),
+                    "collections": [coll],
+                    "audience_override": aud,
+                    "sort_order": 100 + i,
+                    "topic_tags": await _tags(session, tags),
+                },
+            )
         for i, (slug, title, group, aud, cta) in enumerate(PROSE):
             await _upsert(
                 session,
@@ -542,13 +727,63 @@ async def seed() -> None:
                     "sort_order": i,
                 },
             )
+        await session.flush()
+        failed: list[str] = []
+        found = 0
+        if covers:
+            found, failed = await _fill_covers(session)
         await session.commit()
         print(
             f"seeded: {len(CERTS)} certs, {len(COLLECTION)} collection items, "
-            f"{len(THESIS)} thesis, {len(POSTS)} posts, {len(PROSE)} prose pages"
+            f"{len(THESIS)} thesis, {len(POSTS)} external posts, "
+            f"{len(NATIVE_POSTS)} native posts, {len(PROSE)} prose pages "
+            f"(dropped {stale} stale old collection samples)"
         )
+        if covers:
+            print(f"covers: {found} fetched this run")
+            print(f"cover lookups failed: {failed or 'none'}")
+        else:
+            print("covers: skipped (--no-covers)")
+        return failed
+
+
+def revalidate(url: str | None) -> None:
+    """POST the frontend revalidate route, or print the curl to run."""
+    secret = os.environ.get("REVALIDATION_SECRET")
+    body = '{"tags": ' + str(TOUCHED_TAGS).replace("'", '"') + "}"
+    if not url or not secret:
+        target = url or "<frontend-url>"
+        print(
+            "revalidate manually:\n  curl -X POST "
+            f"{target}/api/revalidate -H 'content-type: application/json' "
+            f"-H 'x-revalidation-secret: $REVALIDATION_SECRET' -d '{body}'"
+        )
+        return
+    try:
+        resp = httpx.post(
+            f"{url.rstrip('/')}/api/revalidate",
+            json={"tags": TOUCHED_TAGS},
+            headers={"x-revalidation-secret": secret},
+            timeout=15,
+        )
+        print(f"revalidate {resp.status_code}: {resp.text.strip()[:120]}")
+    except httpx.HTTPError as exc:
+        print(f"revalidate failed: {exc}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0] if __doc__ else None)
+    parser.add_argument("--remove", action="store_true", help="delete only the samples")
+    parser.add_argument("--no-covers", action="store_true", help="skip cover network lookups")
+    parser.add_argument("--revalidate-url", help="frontend base URL to POST /api/revalidate")
+    args = parser.parse_args()
+    _guard()
+    if args.remove:
+        asyncio.run(remove())
+    else:
+        asyncio.run(seed(covers=not args.no_covers))
+    revalidate(args.revalidate_url)
 
 
 if __name__ == "__main__":
-    _guard()
-    asyncio.run(remove() if "--remove" in sys.argv else seed())
+    main()
