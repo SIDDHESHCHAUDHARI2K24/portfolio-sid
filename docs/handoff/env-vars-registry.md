@@ -22,12 +22,12 @@ References only — **no secret values in this file**. `STITCH_API_KEY` lives ON
 | `R2_SECRET_ACCESS_KEY` | **Dev only** — MinIO secret key | local dev | `storage.py` (s3 path) |
 | `R2_BUCKET` | `portfolio-media` (MinIO dev bucket) | local dev | `storage.py` (s3 path) |
 | `R2_PUBLIC_BASE_URL` | **Dev only** — `http://localhost:24790/portfolio-media` (unused in prod) | local dev | `storage.py` (s3 path) |
-| `RESEND_API_KEY` | Sending API key (dashboard → API Keys) | TD-M3 → wired TD-M4 | TD-17 OTP email, TD-29 form notifications |
-| `ADMIN_EMAIL` | Sole OTP / notification recipient | TD-M4 | TD-17 |
-| `SESSION_SECRET` | `itsdangerous` signed-cookie key (generate: `openssl rand -hex 32`) | TD-M4 | TD-17 session cookie |
-| `ADMIN_PASSWORD_HASH` | Argon2id hash from `uv run python -m app.cli hash-password` — hash only, never the password | TD-M4 (after TD-17 CLI exists) | TD-17 login |
+| `RESEND_API_KEY` | Sending API key (dashboard → API Keys). Prod startup check (E01-W5): must start `re_` | TD-M3 → wired TD-M4 | TD-17 OTP email, TD-29 form notifications |
+| `ADMIN_EMAIL` | Sole OTP / notification recipient. Prod startup check: single `local@domain.tld` | TD-M4 | TD-17 |
+| `SESSION_SECRET` | `itsdangerous` signed-cookie key (generate: `openssl rand -hex 32`). Prod startup check: not `dev-only-secret`, ≥32 chars | TD-M4 | TD-17 session cookie |
+| `ADMIN_PASSWORD_HASH` | Argon2id hash from `uv run python -m app.cli hash-password` — hash only, never the password. Prod startup check: starts `$argon2id$` and parses | TD-M4 (after TD-17 CLI exists) | TD-17 login |
 | `CORS_ALLOW_ORIGINS` | **Empty in production — deliberate.** Admin+API same-origin via single hostname. Permissive value here is a misconfiguration that never announces itself | TD-M4 | TD-03 app factory (dev: `http://localhost:24752`) |
-| `TRUSTED_PROXY_CIDRS` | JSON list of proxy CIDRs allowed to assert the caller IP via `X-Real-IP`. Prod: `["10.0.0.0/8","fd00::/8"]` (Railway private network). Unset/empty = header ignored and the peer IP is used, so lockout and rate limits go global again. Invalid CIDR fails startup | E01-W2 | `app/core/net.py::client_ip` |
+| `TRUSTED_PROXY_CIDRS` | JSON list of proxy CIDRs allowed to assert the caller IP via `X-Real-IP`. Prod: `["10.0.0.0/8","fd00::/8"]` (Railway private network). Unset/empty = header ignored and the peer IP is used, so lockout and rate limits go global again. Invalid CIDR fails startup; empty logs a WARNING in prod | E01-W2 | `app/core/net.py::client_ip` |
 | `CF_ACCESS_ENABLED` | **Permanently `false`** — Cloudflare Access service dropped; app-layer auth (TD-17) carries authn | TD-M6 (set false) | TD-17 Access dependency |
 | `GLITCHTIP_DSN` | **GlitchTip** (open-source Sentry-compatible) DSN for error tracking on both backend + frontend. Set to a GlitchTip instance DSN on Railway. | TD-36 | TD-36 `app/core/glitchtip.py`, frontend sentry configs |
 | `NEXT_PUBLIC_GLITCHTIP_DSN` | Client-side GlitchTip DSN (frontend only). Both DSN vars skip init when unset, so local dev needs neither. | TD-36 | `frontend/sentry.client.config.ts` |
