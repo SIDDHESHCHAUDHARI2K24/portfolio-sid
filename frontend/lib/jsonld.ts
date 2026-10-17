@@ -6,7 +6,7 @@ type Cert = paths["/api/v1/certifications"]["get"]["responses"]["200"]["content"
 type Project = paths["/api/v1/projects"]["get"]["responses"]["200"]["content"]["application/json"][number];
 type ProsePage = paths["/api/v1/prose/slug/{slug}"]["get"]["responses"]["200"]["content"]["application/json"];
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:24730";
 const LINKEDIN_URL = "https://www.linkedin.com/in/siddheshchaudhari/";
 const GITHUB_URL = "https://github.com/siddhesh";
 const EMAIL = "siddhesh@example.com";

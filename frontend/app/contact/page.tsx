@@ -71,7 +71,7 @@ function KindIcon({ kind }: { kind: string }) {
   return <Icon className="size-4 shrink-0" aria-hidden />;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:24730";
 
 export const metadata: Metadata = {
   title: "Contact — Siddhesh Chaudhari",

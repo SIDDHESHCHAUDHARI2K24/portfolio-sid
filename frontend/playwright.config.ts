@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:24730',
     trace: 'on-first-retry',
   },
   projects: [
@@ -28,7 +28,7 @@ export default defineConfig({
   webServer: {
     // CI runs the production build (TD-36.S5 contract); dev server locally.
     command: process.env.CI ? 'npm run start' : 'npm run dev',
-    url: 'http://localhost:3000',
+    url: 'http://localhost:24730',
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
   },

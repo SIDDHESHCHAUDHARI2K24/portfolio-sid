@@ -12,7 +12,7 @@
 
 set -euo pipefail
 
-BASE_URL="${BASE_URL:-http://localhost:3000}"
+BASE_URL="${BASE_URL:-http://localhost:24730}"
 
 check_url() {
   local url="$1" marker="$2"

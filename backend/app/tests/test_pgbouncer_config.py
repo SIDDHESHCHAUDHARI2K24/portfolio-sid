@@ -20,8 +20,8 @@ def test_settings_defaults() -> None:
     assert s.database_pool_size == 10
     assert s.database_max_overflow == 5
     assert s.pgbouncer_enabled is False
-    # default URL stays on 5432 direct
-    assert ":5432/" in s.database_url
+    # default URL stays on 24732 direct (host port)
+    assert ":24732/" in s.database_url
 
 
 def test_settings_pool_overrides_via_constructor() -> None:
@@ -58,7 +58,7 @@ def test_settings_pgbouncer_env_parsing(monkeypatch: pytest.MonkeyPatch) -> None
 
 
 def test_settings_pgbouncer_url_mapping_documented() -> None:
-    """When pgBouncer is enabled the URL should point at 6432.
+    """When pgBouncer is enabled the URL should point at 24733.
 
     This is a documentation/behaviour contract: the code does not auto-rewrite
     the URL, the operator sets DATABASE_URL to the pgbouncer port. Verify the
@@ -67,19 +67,19 @@ def test_settings_pgbouncer_url_mapping_documented() -> None:
     s = Settings(
         _env_file=None,
         pgbouncer_enabled=True,
-        database_url="postgresql+asyncpg://portfolio:portfolio@localhost:6432/portfolio",
+        database_url="postgresql+asyncpg://portfolio:portfolio@localhost:24733/portfolio",
         database_pool_size=10,
         database_max_overflow=5,
     )
     assert s.pgbouncer_enabled is True
-    assert ":6432/" in s.database_url
+    assert ":24733/" in s.database_url
     assert s.database_pool_size == 10
 
 
 def test_database_url_coercion_still_works() -> None:
-    s = Settings(_env_file=None, database_url="postgresql://portfolio:portfolio@localhost:5432/portfolio")
+    s = Settings(_env_file=None, database_url="postgresql://portfolio:portfolio@localhost:24732/portfolio")
     assert s.database_url.startswith("postgresql+asyncpg://")
-    s2 = Settings(_env_file=None, database_url="postgres://portfolio:portfolio@localhost:5432/portfolio")
+    s2 = Settings(_env_file=None, database_url="postgres://portfolio:portfolio@localhost:24732/portfolio")
     assert s2.database_url.startswith("postgresql+asyncpg://")
 
 
@@ -151,7 +151,7 @@ def test_build_engine_disables_prepared_statement_cache_when_pgbouncer(
     settings = Settings(
         _env_file=None,
         pgbouncer_enabled=True,
-        database_url="postgresql+asyncpg://portfolio:portfolio@localhost:6432/portfolio",
+        database_url="postgresql+asyncpg://portfolio:portfolio@localhost:24733/portfolio",
     )
     db_module.build_engine(settings)
     assert captured["connect_args"] == {
@@ -179,7 +179,7 @@ def test_build_engine_keeps_prepared_statement_cache_without_pgbouncer(
     settings = Settings(
         _env_file=None,
         pgbouncer_enabled=False,
-        database_url="postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio",
+        database_url="postgresql+asyncpg://portfolio:portfolio@localhost:24732/portfolio",
     )
     db_module.build_engine(settings)
     assert captured["connect_args"] == {}

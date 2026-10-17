@@ -25,16 +25,16 @@ jobs:
           POSTGRES_PASSWORD: portfolio
           POSTGRES_DB: portfolio
         ports:
-          - 5432:5432
+          - 24732:5432
         options: >-
           --health-cmd "pg_isready -U portfolio"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio
+      DATABASE_URL: postgresql+asyncpg://portfolio:portfolio@localhost:24732/portfolio
       STORAGE_KIND: local
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:24780
       # Turnstile is mocked/absent in tests; forms render without a site key.
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
     steps:
@@ -50,9 +50,9 @@ jobs:
           uv sync --frozen
           uv run alembic upgrade head
           uv run python scripts/seed_e2e.py
-          nohup uv run uvicorn app.app:create_app --factory --host 0.0.0.0 --port 8000 &
-          for i in $(seq 1 30); do curl -sf http://localhost:8000/api/v1/overview >/dev/null && break; sleep 1; done
-          curl -sf http://localhost:8000/api/v1/overview >/dev/null || { echo "::error::backend did not become ready"; exit 1; }
+          nohup uv run uvicorn app.app:create_app --factory --host 0.0.0.0 --port 24780 &
+          for i in $(seq 1 30); do curl -sf http://localhost:24780/api/v1/overview >/dev/null && break; sleep 1; done
+          curl -sf http://localhost:24780/api/v1/overview >/dev/null || { echo "::error::backend did not become ready"; exit 1; }
 
       - uses: actions/setup-node@v4
         with:

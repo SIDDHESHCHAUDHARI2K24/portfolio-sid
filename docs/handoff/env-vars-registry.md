@@ -17,22 +17,22 @@ References only — **no secret values in this file**. `STITCH_API_KEY` lives ON
 | `STORAGE_KIND` | `local` (prod, Railway Volume) or `s3` (local dev, MinIO) | TD-M4 / code | `storage.py` factory |
 | `LOCAL_STORAGE_DIR` | Disk path for local storage; mounted Railway Volume in prod (e.g. `/data`) | TD-M4 | `storage.py` `LocalDiskStorage` |
 | `MEDIA_BASE_URL` | Absolute base for `/media` URLs so the separate frontend can load them, e.g. `https://admin.siddhesh-chaudhari.com` | TD-M4 | `storage.py` `LocalDiskStorage.get_url` |
-| `R2_ENDPOINT` | **Dev only** — MinIO S3 endpoint `http://localhost:9000` (unused in prod `local` mode) | local dev | `storage.py` (s3 path) |
+| `R2_ENDPOINT` | **Dev only** — MinIO S3 endpoint `http://localhost:24790` (unused in prod `local` mode) | local dev | `storage.py` (s3 path) |
 | `R2_ACCESS_KEY_ID` | **Dev only** — MinIO access key | local dev | `storage.py` (s3 path) |
 | `R2_SECRET_ACCESS_KEY` | **Dev only** — MinIO secret key | local dev | `storage.py` (s3 path) |
 | `R2_BUCKET` | `portfolio-media` (MinIO dev bucket) | local dev | `storage.py` (s3 path) |
-| `R2_PUBLIC_BASE_URL` | **Dev only** — `http://localhost:9000/portfolio-media` (unused in prod) | local dev | `storage.py` (s3 path) |
+| `R2_PUBLIC_BASE_URL` | **Dev only** — `http://localhost:24790/portfolio-media` (unused in prod) | local dev | `storage.py` (s3 path) |
 | `RESEND_API_KEY` | Sending API key (dashboard → API Keys) | TD-M3 → wired TD-M4 | TD-17 OTP email, TD-29 form notifications |
 | `ADMIN_EMAIL` | Sole OTP / notification recipient | TD-M4 | TD-17 |
 | `SESSION_SECRET` | `itsdangerous` signed-cookie key (generate: `openssl rand -hex 32`) | TD-M4 | TD-17 session cookie |
 | `ADMIN_PASSWORD_HASH` | Argon2id hash from `uv run python -m app.cli hash-password` — hash only, never the password | TD-M4 (after TD-17 CLI exists) | TD-17 login |
-| `CORS_ALLOW_ORIGINS` | **Empty in production — deliberate.** Admin+API same-origin via single hostname. Permissive value here is a misconfiguration that never announces itself | TD-M4 | TD-03 app factory (dev: `http://localhost:5173`) |
+| `CORS_ALLOW_ORIGINS` | **Empty in production — deliberate.** Admin+API same-origin via single hostname. Permissive value here is a misconfiguration that never announces itself | TD-M4 | TD-03 app factory (dev: `http://localhost:24752`) |
 | `TRUSTED_PROXY_CIDRS` | JSON list of proxy CIDRs allowed to assert the caller IP via `X-Real-IP`. Prod: `["10.0.0.0/8","fd00::/8"]` (Railway private network). Unset/empty = header ignored and the peer IP is used, so lockout and rate limits go global again. Invalid CIDR fails startup | E01-W2 | `app/core/net.py::client_ip` |
 | `CF_ACCESS_ENABLED` | **Permanently `false`** — Cloudflare Access service dropped; app-layer auth (TD-17) carries authn | TD-M6 (set false) | TD-17 Access dependency |
 | `GLITCHTIP_DSN` | **GlitchTip** (open-source Sentry-compatible) DSN for error tracking on both backend + frontend. Set to a GlitchTip instance DSN on Railway. | TD-36 | TD-36 `app/core/glitchtip.py`, frontend sentry configs |
 | `NEXT_PUBLIC_GLITCHTIP_DSN` | Client-side GlitchTip DSN (frontend only). Both DSN vars skip init when unset, so local dev needs neither. | TD-36 | `frontend/sentry.client.config.ts` |
 | `REVALIDATION_SECRET` | Shared secret for the Next.js revalidate route; backend sends it in the webhook header | TD-M4 | TD-19 (sender side) |
-| `NEXT_PUBLIC_BASE_URL` | Canonical public site URL the backend/cron POST revalidations to (`https://siddhesh-chaudhari.com` in prod). Defaults to `http://localhost:3000` — an unset var silently breaks every revalidation | portfolio-sid-v2 | `revalidation.py` |
+| `NEXT_PUBLIC_BASE_URL` | Canonical public site URL the backend/cron POST revalidations to (`https://siddhesh-chaudhari.com` in prod). Defaults to `http://localhost:24730` — an unset var silently breaks every revalidation | portfolio-sid-v2 | `revalidation.py` |
 | `PGBOUNCER_ENABLED` | `true` in prod — makes `database.py` disable both asyncpg statement caches (unsafe under pgbouncer transaction pooling) | portfolio-sid-v2 | `database.py::pgbouncer_connect_args`, `alembic/env.py` |
 
 > `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD` are **removed** (Access service dropped).
@@ -93,15 +93,15 @@ Cross-service env values use `${{Service.VAR}}` references (dashboard dependency
 
 | Var | Dev value shape | Notes |
 |---|---|---|
-| `DATABASE_URL` | `postgresql+asyncpg://...@localhost:5432/portfolio` | Docker Compose Postgres (TD-06) |
+| `DATABASE_URL` | `postgresql+asyncpg://...@localhost:24732/portfolio` | Docker Compose Postgres (TD-06) |
 | `STORAGE_KIND` | `s3` | Local dev uses MinIO (S3-compatible) |
-| `R2_ENDPOINT` | `http://localhost:9000` | MinIO (TD-06) |
+| `R2_ENDPOINT` | `http://localhost:24790` | MinIO (TD-06) |
 | `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | MinIO credentials from compose | Same S3 API as prod |
 | `R2_BUCKET` | `portfolio-media` | Created by `createbuckets` init container |
-| `R2_PUBLIC_BASE_URL` | `http://localhost:9000/portfolio-media` | |
+| `R2_PUBLIC_BASE_URL` | `http://localhost:24790/portfolio-media` | |
 | `SESSION_SECRET` | Any random dev string | Never reuse prod value |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH` | Dev values | Hash via CLI once it exists |
-| `CORS_ALLOW_ORIGINS` | `http://localhost:5173` | Dev-only divergence |
+| `CORS_ALLOW_ORIGINS` | `http://localhost:24752` | Dev-only divergence |
 | `TRUSTED_PROXY_CIDRS` | `[]` | No proxy in dev; peer address is the client |
 | `CF_ACCESS_ENABLED` | `false` | Access service dropped |
 | `STITCH_API_KEY` | Stitch key | **Local only. Never Railway, never git.** `.mcp.json` references `${STITCH_API_KEY}` (TD-10) |

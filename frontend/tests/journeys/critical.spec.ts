@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 
-const ADMIN_URL = "http://localhost:5200";
+const ADMIN_URL = "http://localhost:24752";
 
 /**
  * Navigate as a returning visitor: pre-set the intro-seen flag so the
@@ -130,12 +130,12 @@ test.describe("Journey 3: Category Switch via HUD", () => {
 /* Journey 4: Admin — Login → Create Draft → Publish → Verify         */
 /* ------------------------------------------------------------------ */
 test.describe("Journey 4: Admin Flow", () => {
-  // Requires the admin SPA (:5200), backend (:8000) and credentials. Runs
+  // Requires the admin SPA (:24752), backend (:24780) and credentials. Runs
   // only when explicitly provisioned (local pairing); CI skips until that
   // infra exists there.
   test.skip(
     !process.env.E2E_ADMIN_PASSWORD && !process.env.E2E_TEST_PASSWORD,
-    "Requires admin (port 5200) + backend (port 8000) running and E2E_ADMIN_PASSWORD/E2E_TEST_PASSWORD set"
+    "Requires admin (port 24752) + backend (port 24780) running and E2E_ADMIN_PASSWORD/E2E_TEST_PASSWORD set"
   );
 
   test("login, create draft timeline entry, publish, verify on public page", async ({
@@ -174,7 +174,7 @@ test.describe("Journey 4: Admin Flow", () => {
     if (!otp) {
       try {
         const resp = await page.request.get(
-          "http://localhost:8000/api/v1/auth/dev/otp"
+          "http://localhost:24780/api/v1/auth/dev/otp"
         );
         if (resp.ok()) {
           const data = (await resp.json()) as { code?: string };

@@ -1,6 +1,6 @@
 """Tests for app.core.storage (TD-08).
 
-S3 tests run against local MinIO (localhost:9000) and skip when it is
+S3 tests run against local MinIO (localhost:24790) and skip when it is
 unreachable, so CI without MinIO still exercises LocalDiskStorage.
 """
 
@@ -23,7 +23,7 @@ from app.core.storage import (
 )
 
 MINIO_HOST = "localhost"
-MINIO_PORT = 9000
+MINIO_PORT = 24790
 MINIO_BUCKET = "portfolio-media"
 
 

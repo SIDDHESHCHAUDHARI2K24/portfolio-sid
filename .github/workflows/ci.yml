@@ -24,14 +24,14 @@ jobs:
           POSTGRES_PASSWORD: portfolio
           POSTGRES_DB: portfolio
         ports:
-          - 5432:5432
+          - 24732:5432
         options: >-
           --health-cmd "pg_isready -U portfolio"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio
+      DATABASE_URL: postgresql+asyncpg://portfolio:portfolio@localhost:24732/portfolio
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5

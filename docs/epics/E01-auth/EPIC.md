@@ -53,6 +53,7 @@ Each work item has its own folder with a `SPEC.md`.
 | [E01-W4](E01-W4-auth-observability/SPEC.md) | Auth and email observability | none | Deploy |
 | [E01-W5](E01-W5-prod-config-validation/SPEC.md) | Fail fast on bad auth config in production | W2 | Deploy |
 | [E01-W6](E01-W6-resend-sender-domain/SPEC.md) | Verified Resend sender domain (optional) | none | Yes: DNS and env, user-run |
+| [E01-W7](E01-W7-local-nonstandard-ports/SPEC.md) | Non-standard local ports (247xx block) | none | No (local and CI only) |
 
 Order: W1 is done. W2 and W4 run in parallel; W3 follows W2 (an explicit password check without per-caller lockout invites brute force); W5 follows W2 (validates `TRUSTED_PROXY_CIDRS`). W2 to W5 ship in a single deploy, after user approval. W6 is optional and run by the user.
 

@@ -2,9 +2,9 @@
 
 PgBouncer notes
 ---------------
-* Local docker-compose exposes a ``pgbouncer`` sidecar on 6432 -> postgres:5432
+* Local docker-compose exposes a ``pgbouncer`` sidecar on 24733 -> postgres:5432
   (``POOL_MODE=transaction``). Set ``PGBOUNCER_ENABLED=true`` and point
-  ``DATABASE_URL`` at ``...@localhost:6432/...`` to route through it.
+  ``DATABASE_URL`` at ``...@localhost:24733/...`` to route through it.
 * Railway production runs a dedicated ``pgbouncer`` service
   (``edoburu/pgbouncer``, 6432) in front of the Postgres plugin — every
   backend/cron connection goes through it, and ``alembic/env.py`` applies the

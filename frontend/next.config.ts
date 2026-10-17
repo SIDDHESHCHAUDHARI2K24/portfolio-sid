@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 // Media is served by the backend: prod mounts /media on the admin custom domain
-// (NEXT_PUBLIC_API_BASE_URL), dev serves it from MinIO at localhost:9000.
+// (NEXT_PUBLIC_API_BASE_URL), dev serves it from MinIO at localhost:24790.
 // Derive the allowed image host from the API base URL so remotePatterns tracks
 // the same origin that returns media URLs in API payloads.
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
@@ -22,8 +22,8 @@ type RemotePattern = {
 };
 
 const remotePatterns: RemotePattern[] = [
-  { protocol: "http", hostname: "localhost", port: "9000", pathname: "/**" },
-  { protocol: "http", hostname: "localhost", port: "3000", pathname: "/**" },
+  { protocol: "http", hostname: "localhost", port: "24790", pathname: "/**" },
+  { protocol: "http", hostname: "localhost", port: "24730", pathname: "/**" },
   // Admin host serves /media via proxy to the private backend — allow it
   { protocol: "https", hostname: "admin.siddhesh-chaudhari.com", pathname: "/**" },
   // Railway internal backend also appears in MEDIA_BASE_URL during migration

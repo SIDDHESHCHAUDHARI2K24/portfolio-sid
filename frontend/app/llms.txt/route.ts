@@ -7,7 +7,7 @@ type Resume = paths["/api/v1/resumes"]["get"]["responses"]["200"]["content"]["ap
 type ProsePage = paths["/api/v1/prose"]["get"]["responses"]["200"]["content"]["application/json"][number];
 type Project = paths["/api/v1/projects"]["get"]["responses"]["200"]["content"]["application/json"][number];
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:24730";
 const PERSON_NAME = "Siddhesh Chaudhari";
 
 export async function GET() {

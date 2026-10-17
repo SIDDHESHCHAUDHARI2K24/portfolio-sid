@@ -17,11 +17,11 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", hide_input_in_errors=True)
 
     environment: str = "development"
-    database_url: str = "postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio"
+    database_url: str = "postgresql+asyncpg://portfolio:portfolio@localhost:24732/portfolio"
     # QueuePool tuning for asyncpg. When PGBOUNCER_ENABLED=true, point
     # DATABASE_URL at the pgbouncer endpoint instead of postgres directly:
-    #   local:  postgresql+asyncpg://portfolio:portfolio@localhost:6432/portfolio
-    #           (docker-compose pgbouncer sidecar on 6432 -> postgres:5432)
+    #   local:  postgresql+asyncpg://portfolio:portfolio@localhost:24733/portfolio
+    #           (docker-compose pgbouncer sidecar on 24733 -> postgres:5432)
     #   Railway production: dedicated `pgbouncer` service
     #           (edoburu/pgbouncer) on pgbouncer.railway.internal:6432 ->
     #           postgres.railway.internal:5432. Keep PGBOUNCER_ENABLED=true so
@@ -80,7 +80,7 @@ class Settings(BaseSettings):
     cf_access_aud: str | None = None
 
     revalidation_secret: str | None = None
-    next_public_base_url: str = "http://localhost:3000"
+    next_public_base_url: str = "http://localhost:24730"
 
     admin_static_dir: str = "static"
 
