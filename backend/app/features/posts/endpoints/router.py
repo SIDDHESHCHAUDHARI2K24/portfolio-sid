@@ -12,7 +12,8 @@ from app.core.deps import admin_auth
 from app.core.revalidation import revalidate
 from app.features.posts import service
 from app.features.posts.models import PostCollection
-from app.features.posts.schemas import PostAdmin, PostCreate, PostPublic, PostUpdate
+from app.features.posts.schemas import PostAdmin, PostCreate, PostDetail, PostPublic, PostUpdate
+from app.features.posts.service import PostRuleError
 
 public_router = APIRouter(prefix="/api/v1/posts", tags=["posts"])
 admin_router = APIRouter(
@@ -22,6 +23,11 @@ admin_router = APIRouter(
 )
 
 DbSession = Annotated[AsyncSession, Depends(get_session)]
+
+
+def _rule_error(exc: PostRuleError) -> HTTPException:
+    detail = [{"loc": ["body", f], "msg": m, "type": "value_error"} for f, m in exc.errors]
+    return HTTPException(status_code=422, detail=detail)
 
 
 @public_router.get("", response_model=list[PostPublic])
@@ -40,6 +46,15 @@ async def list_public(
     else:
         items = await service.list_public_dicts(session)
     return [PostPublic(**d) for d in items]
+
+
+@public_router.get("/slug/{slug}", response_model=PostDetail)
+async def get_by_slug(slug: str, session: DbSession) -> PostDetail:
+    """Published internal post with its markdown body; 404 for anything else."""
+    post_dict = await service.get_internal_by_slug_dict(session, slug)
+    if post_dict is None:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return PostDetail(**post_dict)
 
 
 @public_router.get("/{post_id}", response_model=PostPublic)
@@ -70,6 +85,8 @@ async def create(body: PostCreate, session: DbSession) -> PostAdmin:
         post_dict = await service.create_dict(session, body)
         await revalidate([POSTS])
         return PostAdmin(**post_dict)
+    except PostRuleError as exc:
+        raise _rule_error(exc) from exc
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -80,6 +97,8 @@ async def update(post_id: UUID, body: PostUpdate, session: DbSession) -> PostAdm
         post_dict = await service.update_dict(session, post_id, body)
         await revalidate([POSTS])
         return PostAdmin(**post_dict)
+    except PostRuleError as exc:
+        raise _rule_error(exc) from exc
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 

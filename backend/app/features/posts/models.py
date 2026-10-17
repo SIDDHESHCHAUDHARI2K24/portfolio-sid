@@ -3,7 +3,7 @@
 import enum
 from datetime import date
 
-from sqlalchemy import CheckConstraint, Column, Date, ForeignKey, String, Table, Text
+from sqlalchemy import CheckConstraint, Column, Date, ForeignKey, Index, String, Table, Text
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -60,7 +60,9 @@ post_topic_tags = Table(
 
 class Post(UUIDMixin, TimestampMixin, SortableMixin, PublishableMixin, Base):
     __tablename__ = "posts"
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
+        # Declaring __table_args__ replaces PublishableMixin's, so re-declare its index.
+        Index("ix_posts_status_publish_at", "status", "publish_at"),
         # internal posts live on this site (slug + markdown body); every other
         # platform is an outbound link and needs a url. Labels are the enum
         # member NAMES (SQLAlchemy default), hence 'INTERNAL'.

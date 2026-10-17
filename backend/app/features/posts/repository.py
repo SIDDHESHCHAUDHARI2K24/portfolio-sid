@@ -12,7 +12,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.models import TopicTag
 from app.core.queries import public_filter
-from app.features.posts.models import Post, PostCollection
+from app.features.posts.models import Post, PostCollection, PostPlatform
 
 
 async def list_public(session: AsyncSession) -> list[Post]:
@@ -42,6 +42,23 @@ async def list_admin(session: AsyncSession) -> list[Post]:
         .order_by(Post.published_date.desc().nullslast(), Post.sort_order.asc())
     )
     return list((await session.scalars(stmt)).unique().all())
+
+
+async def get_internal_by_slug(session: AsyncSession, slug: str) -> Post | None:
+    """Public read: published internal post by slug (``public_filter`` applies)."""
+    stmt = (
+        select(Post)
+        .where(public_filter(Post), Post.platform == PostPlatform.INTERNAL, Post.slug == slug)
+        .options(selectinload(Post.topic_tags))
+    )
+    return (await session.scalars(stmt)).unique().one_or_none()
+
+
+async def slug_taken(session: AsyncSession, slug: str, exclude_id: UUID | None = None) -> bool:
+    stmt = select(Post.id).where(Post.slug == slug)
+    if exclude_id is not None:
+        stmt = stmt.where(Post.id != exclude_id)
+    return (await session.scalars(stmt)).first() is not None
 
 
 async def get(session: AsyncSession, post_id: UUID) -> Post | None:
