@@ -36,7 +36,7 @@ The CI admin job builds the bundle. CI and E2E run migrations and tests on the p
 ## Acceptance criteria
 
 - [x] CI admin job runs `npm run build` and passes.
-- [ ] `ci.yml` and `e2e.yml` use `postgres:18-alpine`; backend tests, alembic single-head and E2E pass.
+- [x] `ci.yml` and `e2e.yml` use `postgres:18-alpine`; backend tests, alembic single-head and E2E pass.
 - [x] `docs/DEPLOYMENT.md` CI section lists the admin build and Postgres 18.
 
 ## Rollback
