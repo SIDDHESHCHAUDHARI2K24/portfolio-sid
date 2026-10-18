@@ -45,7 +45,7 @@ Every production deploy is followed by an automatic, read-only check of backend 
 
 ## Acceptance criteria
 
-- [ ] `scripts/smoke.sh` passes against production and the local stack, and fails on a bad host.
+- [x] `scripts/smoke.sh` passes against production and the local stack, and fails on a bad host.
 - [ ] `smoke.yml` runs automatically after a production deploy and reports pass or fail.
 - [x] `deploy.yml` uses the script.
 - [x] `docs/DEPLOYMENT.md` documents the smoke check and how to run it by hand.
