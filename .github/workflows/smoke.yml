@@ -1,0 +1,47 @@
+name: Smoke
+
+# Read-only post-deploy check of production (scripts/smoke.sh).
+# Railway posts a GitHub deployment status per deploy; run on success only.
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: "Public site URL"
+        required: true
+        default: "https://siddhesh-chaudhari.com"
+      admin_url:
+        description: "Admin URL"
+        required: true
+        default: "https://admin.siddhesh-chaudhari.com"
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Job-level, so the skipped runs from in_progress/failure statuses never
+    # cancel a running check; one run covers a burst of per-service deploys.
+    concurrency:
+      group: smoke
+      cancel-in-progress: true
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment_status.environment == 'portfolio-sid-v2 / production')
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Let the last service finish rolling
+        if: github.event_name == 'deployment_status'
+        run: sleep 60
+
+      - name: Smoke check
+        env:
+          SITE_URL: ${{ inputs.site_url || 'https://siddhesh-chaudhari.com' }}
+          ADMIN_URL: ${{ inputs.admin_url || 'https://admin.siddhesh-chaudhari.com' }}
+        run: ./scripts/smoke.sh "$SITE_URL" "$ADMIN_URL"
