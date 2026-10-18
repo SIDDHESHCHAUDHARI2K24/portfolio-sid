@@ -45,10 +45,34 @@ These values live in `.railway/railway.ts` (IaC, committed). `railway config pla
 
 ## 4. Deploy paths
 
-1. **Normal:** push to `main` → native triggers deploy backend/cron/frontend/admin from the pushed commit. Verify: `railway status` / per-service deployments show the commit hash + SUCCESS.
-2. **CI fallback:** `gh workflow run deploy.yml -f service=all` (or per service). Waits per-service for SUCCESS and runs a health gate. Token = gh `production` secret `RAILWAY_TOKEN` (account-level).
+1. **Normal:** push to `main` → native triggers deploy the services whose code changed, once CI is green. Verify: `railway status` / per-service deployments show the commit hash + SUCCESS.
+   - **CI gate (E04-W3):** every GitHub source has `checkSuites: true`, so Railway shows "Waiting for CI" and deploys only after every check suite on the commit passes. A red CI deploys nothing: fix forward, or use the CI fallback below, which bypasses the gate on purpose.
+   - **Watch paths (E04-W4):** backend and cron rebuild on `/backend/**` or `/Dockerfile`; frontend on `/frontend/**`; admin on `/admin/**`. Patterns match from the repo root even with a root directory. A docs- or workflow-only push deploys nothing. When backend and frontend change together they still deploy in parallel; the frontend build retries the API for about 90 seconds (`frontend/lib/api.ts`, `staticPageGenerationTimeout: 180`) to ride out the backend restart.
+   - **Consequence:** a backend-only change no longer rebuilds the frontend, so prerendered pages refresh on their ISR window (up to an hour) or on tag revalidation from the admin.
+   - **Cancelled runs:** CI and E2E never cancel runs on `main`, because a cancelled run would leave that commit undeployed when the next push matches no watch path.
+2. **CI fallback:** `gh workflow run deploy.yml -f service=all` (or per service). Waits per-service for SUCCESS and runs the smoke check (`scripts/smoke.sh`) as its health gate. Token = gh `production` secret `RAILWAY_TOKEN` (account-level).
 3. **Infra:** edit `.railway/railway.ts` → `railway config plan` (review!) → `railway config apply`. Omit = delete; secrets via `preserve()`; never `--include-variables`.
 4. **One-off code deploy:** `railway up -y -d -s <service> -e production -p <project-id>` from repo root (uploads the git repo root; per-service configs select the build context). `railway redeploy -s <service> --from-source` rebuilds from the connected GitHub source's latest commit.
+
+## Post-deploy smoke check
+
+After every production deploy, `.github/workflows/smoke.yml` runs `scripts/smoke.sh` against the public domains. Railway posts a GitHub deployment status for the `portfolio-sid-v2 / production` environment; the workflow runs when that status is `success`, waits 60 seconds, then checks. Each service posts its own `success`, so an early run (after the backend) can check the old frontend; the run after the last service is the one that counts. A `failure` status starts no run; Railway shows that failure itself. A job-level concurrency group cancels older runs (skipped runs from other statuses never cancel it), so a burst of per-service deploys produces one result. Read the outcome in the repository's Actions tab.
+
+The script makes read-only GET requests and exits non-zero on the first failure: admin `/api/v1/health` must return 200; the site's `/`, `/books`, `/anime-manga`, `/how-i-use-ai` and `/sitemap.xml` must return 200; and `/writing/does-not-exist` must return 404, which proves the app rather than an error page answered. Connection errors and transient 5xx responses are retried (8 times, 10 seconds apart; override with `SMOKE_RETRIES` and `SMOKE_RETRY_DELAY`).
+
+To run it by hand:
+
+```bash
+scripts/smoke.sh https://siddhesh-chaudhari.com https://admin.siddhesh-chaudhari.com
+scripts/smoke.sh http://localhost:24730 http://localhost:24752   # local stack
+gh workflow run smoke.yml                                       # from GitHub
+```
+
+## CI checks (GitHub Actions)
+
+- `ci.yml` (PRs and `main`): backend (ruff, mypy, pytest, alembic single head) against a `postgres:18-alpine` service, matching production; frontend (tsc, eslint, vitest); admin (`npm run lint` then `npm run build`, i.e. `tsc -b` + `vite build`, so a bundle failure is caught before Railway); contract (OpenAPI drift, feature registries).
+- `e2e.yml` (PRs touching `frontend/` or `backend/`, and `main`): Playwright against a production frontend build, backend on `postgres:18-alpine`.
+- `react-doctor.yml` (PRs only): advisory React diagnostics; never fails the check.
 
 ## 5. Troubleshooting (symptom → cause → fix)
 

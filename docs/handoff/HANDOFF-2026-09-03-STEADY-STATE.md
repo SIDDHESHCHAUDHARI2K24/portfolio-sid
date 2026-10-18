@@ -13,7 +13,7 @@
 
 ## Deploy mechanisms (all three verified)
 
-1. **Push to `main`** → native Railway GitHub triggers deploy all 4 code services (Postgres/pgbouncer never deploy from repo).
+1. **Push to `main`** → native Railway GitHub triggers deploy the code services whose watch paths changed, after CI is green (E04; pending `railway config apply`; Postgres/pgbouncer never deploy from repo).
 2. **CI fallback** — `gh workflow run deploy.yml -f service=all` (dispatch-only; uses the `production` environment secret `RAILWAY_TOKEN`, injected as `RAILWAY_API_TOKEN`).
 3. **Infra changes** — `.railway/railway.ts` IaC (single source of truth; secrets stay on Railway via `preserve()`). Edit → `railway config plan` → `railway config apply`.
 
@@ -43,6 +43,14 @@ See `docs/epics/E01-auth/EPIC.md`. Production login was failing on a password mi
 - graphify removed; CodeGraph is the navigation tool. `AGENTS.md` holds the agent workflow; `CLAUDE.md` imports it.
 - Pre-deploy check: `docs/epics/E01-auth/transcripts/checks.sh` (gitignored, local).
 - Open: optional E01-W6 (verify the Resend domain; the sandbox sender only delivers to the account owner).
+
+## CI/CD hardening — Epic E04 (2026-10-18)
+
+See `docs/epics/E04-cicd/EPIC.md` and `docs/DEPLOYMENT.md` §4.
+- Railway waits for green CI (`checkSuites: true`) and rebuilds only services whose watch paths changed.
+- The frontend build retries the API for about 90 seconds through a backend restart.
+- `.github/workflows/smoke.yml` runs `scripts/smoke.sh` after each successful production deploy.
+- CI builds admin; CI and E2E run on Postgres 18. `react-doctor.yml` runs advisory on pull requests.
 
 ## Secrets
 

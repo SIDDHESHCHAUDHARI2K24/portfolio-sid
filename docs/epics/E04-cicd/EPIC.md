@@ -1,6 +1,6 @@
 # Epic E04: CI/CD hardening — gated, ordered, verified deploys
 
-**Status:** Plan approved 2026-10-18; in progress
+**Status:** Implemented on the branch 2026-10-18; awaiting `railway config apply` and merge approval
 **Coordinator:** Coordinator 1 (session `fd08bb3a-b07e-4a18-a7f4-032a1fb0a404`)
 **Opened:** 2026-10-18 · **Branch:** `epic/E04-cicd` in worktree `Portfolio/.worktrees/E04-cicd`
 
