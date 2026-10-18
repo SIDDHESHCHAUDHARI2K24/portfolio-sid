@@ -22,6 +22,8 @@ During `next build`, transient API failures are retried long enough to cover a b
 - At build time only, retry a fetch on network errors and on HTTP 502, 503 and 504. Backoff: 2 s, 4 s, 8 s, 16 s, 30 s, 30 s (about 90 s total). Each retry logs `[apiFetch] build retry n/6 <path> <reason>`.
 - Retries apply to whichever base is in use (the public proxy on Railway, the configured URL elsewhere).
 - 4xx responses are never retried; 404 still flows to `notFound()` through `isNotFoundError`.
+- `next.config.ts` sets `staticPageGenerationTimeout: 180`. Next's default 60 s per-page limit aborted pages mid-retry in the manual test (decision made during implementation).
+- When the private host is unresolvable and a public proxy exists, the private host is not retried; the proxy gets the retries.
 - Runtime (ISR revalidation, SSR) behaviour is unchanged: no added retries or latency for visitors.
 - No empty-content fallback: a page that cannot get its data after the retries fails the build rather than caching an empty page for an hour.
 
@@ -39,10 +41,10 @@ During `next build`, transient API failures are retried long enough to cover a b
 
 ## Acceptance criteria
 
-- [ ] Build-phase fetches retry 502/503/504 and network errors with the stated backoff.
-- [ ] Runtime fetches make the same calls as before.
-- [ ] Unit tests above pass; `npm run lint && npm test && npm run build` pass.
-- [ ] The manual stop-and-restart build succeeds.
+- [x] Build-phase fetches retry 502/503/504 and network errors with the stated backoff.
+- [x] Runtime fetches make the same calls as before.
+- [x] Unit tests above pass; `npm run lint && npm test && npm run build` pass.
+- [x] The manual stop-and-restart build succeeds.
 
 ## Rollback
 

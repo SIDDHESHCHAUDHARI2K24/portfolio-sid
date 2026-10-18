@@ -38,6 +38,9 @@ if (apiHost) {
 }
 
 const nextConfig: NextConfig = {
+  // lib/api.ts retries build-time fetches for ~90 s while the backend restarts
+  // (E04-W2); Next's default 60 s per-page limit would abort them first.
+  staticPageGenerationTimeout: 180,
   images: {
     remotePatterns,
   },

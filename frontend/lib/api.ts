@@ -70,6 +70,24 @@ export function isNotFoundError(err: unknown): boolean {
   return err instanceof ApiError && err.status === 404;
 }
 
+const BUILD_RETRY_DELAYS_MS = [2000, 4000, 8000, 16000, 30000, 30000];
+
+function isBuildPhase(): boolean {
+  return process.env.NEXT_PHASE === "phase-production-build";
+}
+
+// Network failures and 502/503/504 are restart symptoms; 4xx and 500 are not.
+function isTransientError(err: unknown): boolean {
+  if (err instanceof ApiError) return [502, 503, 504].includes(err.status);
+  return true;
+}
+
+function describeError(err: unknown): string {
+  if (err instanceof ApiError) return String(err.status);
+  const code = (err as { cause?: { code?: string } })?.cause?.code;
+  return code ?? String(err);
+}
+
 interface ApiFetchOptions extends Omit<RequestInit, "next"> {
   tags?: CacheTag[];
   revalidate?: number | false;
@@ -96,15 +114,35 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
     return res.json() as Promise<T>;
   };
 
+  // During `next build` the backend may be restarting (it runs migrations at
+  // start); retry transient failures on the same base so prerender survives it.
+  const withBuildRetry = async (base: string, canRetry: (err: unknown) => boolean = () => true): Promise<T> => {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await doFetch(base);
+      } catch (err) {
+        if (!isBuildPhase() || attempt >= BUILD_RETRY_DELAYS_MS.length || !isTransientError(err) || !canRetry(err)) {
+          throw err;
+        }
+        console.warn(`[apiFetch] build retry ${attempt + 1}/${BUILD_RETRY_DELAYS_MS.length} ${path} ${describeError(err)}`);
+        await new Promise((resolve) => setTimeout(resolve, BUILD_RETRY_DELAYS_MS[attempt]));
+      }
+    }
+  };
+
   try {
-    return await doFetch(API_BASE);
+    // An unreachable private host goes straight to the public proxy, which is retried instead.
+    return await withBuildRetry(
+      API_BASE,
+      (err) => !(typeof window === "undefined" && isPrivateNetworkError(err, API_BASE) && getFallbackServerBase(API_BASE)),
+    );
   } catch (err) {
     // At build time the private backend is unreachable (ENOTFOUND); retry via public proxy.
     if (typeof window === "undefined" && isPrivateNetworkError(err, API_BASE)) {
       const fallback = getFallbackServerBase(API_BASE);
       if (fallback) {
         console.warn(`[apiFetch] ${API_BASE}${path} failed (${String(err)}), retrying via ${fallback}${path}`);
-        return await doFetch(fallback);
+        return await withBuildRetry(fallback);
       }
     }
     throw err;
