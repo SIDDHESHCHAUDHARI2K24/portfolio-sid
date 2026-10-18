@@ -7,7 +7,8 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel main: with watch paths, a cancelled run can leave a commit undeployed.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   backend:
@@ -18,7 +19,7 @@ jobs:
         working-directory: backend
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_USER: portfolio
           POSTGRES_PASSWORD: portfolio
@@ -33,8 +34,8 @@ jobs:
     env:
       DATABASE_URL: postgresql+asyncpg://portfolio:portfolio@localhost:24732/portfolio
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.13"
       - name: Sync dependencies
@@ -60,8 +61,8 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -80,32 +81,32 @@ jobs:
         run: npm test
 
   admin:
-    name: Admin — tsc · oxlint
+    name: Admin — lint · build (tsc -b + vite)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: admin
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: admin/package-lock.json
       - name: Install
         run: npm ci
-      - name: Type check
-        run: npx tsc --noEmit
       - name: Lint
         run: npm run lint
+      - name: Build (tsc -b + vite build)
+        run: npm run build
 
   contract:
     name: Contract — OpenAPI drift · registries
     runs-on: ubuntu-latest
     needs: [backend]
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.13"
       - name: Sync backend deps

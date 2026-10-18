@@ -39,7 +39,7 @@ Every action is on its current major. `react-doctor.yml` is either committed in 
 ## Acceptance criteria
 
 - [ ] No workflow uses a deprecated action major; runs show no Node deprecation annotations.
-- [ ] `react-doctor.yml` is committed: pull-request only, pinned, advisory.
+- [x] `react-doctor.yml` is committed: pull-request only, pinned, advisory.
 - [ ] CI and E2E pass on the epic pull request.
 
 ## Rollback

@@ -11,7 +11,8 @@ on:
 
 concurrency:
   group: e2e-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel main: with watch paths, a cancelled run can leave a commit undeployed.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   e2e:
@@ -19,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_USER: portfolio
           POSTGRES_PASSWORD: portfolio
@@ -38,9 +39,9 @@ jobs:
       # Turnstile is mocked/absent in tests; forms render without a site key.
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.13"
 
@@ -54,7 +55,7 @@ jobs:
           for i in $(seq 1 30); do curl -sf http://localhost:24780/api/v1/overview >/dev/null && break; sleep 1; done
           curl -sf http://localhost:24780/api/v1/overview >/dev/null || { echo "::error::backend did not become ready"; exit 1; }
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -80,7 +81,7 @@ jobs:
 
       - name: Upload trace artifacts on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-traces
           path: frontend/test-results/

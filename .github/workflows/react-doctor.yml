@@ -1,0 +1,34 @@
+# React Doctor — advisory only: posts a PR summary comment and inline notes,
+# never fails the check. Pull requests only, so deploy gating never waits on it.
+# Action and tool version are pinned; bump both together. Docs: https://www.react.doctor/ci
+
+name: React Doctor
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  statuses: write
+
+concurrency:
+  group: react-doctor-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  react-doctor:
+    runs-on: ubuntu-latest
+    steps:
+      # Full history so the action can find the merge base and report only new issues.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # millionco/react-doctor v2.4.0
+      - uses: millionco/react-doctor@695e46eee203a5d1855020191aa7e9c010a1250e
+        with:
+          blocking: none
+          version: "0.9.18"
