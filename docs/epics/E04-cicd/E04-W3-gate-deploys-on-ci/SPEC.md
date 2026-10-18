@@ -24,7 +24,7 @@ Railway waits for the commit's GitHub check suites and deploys only when they pa
 ## Edge cases
 
 - Railway waits on every check suite on the commit, including E2E (several minutes) and `react-doctor` if it runs on push. Deploys start later; W6 decides whether react-doctor runs on push.
-- A cancelled run (concurrency `cancel-in-progress` on a fast follow-up push) leaves the older commit undeployed; the newer commit deploys when green. Expected.
+- A cancelled run would leave a commit undeployed, and with W4's watch paths a later docs-only push would not redeploy it. CI and E2E therefore never cancel runs on `main` (`cancel-in-progress` is false for `refs/heads/main`; review finding, 2026-10-18).
 - `pgbouncer` and `Postgres` are image sources and are unaffected.
 - The manual `deploy.yml` uses `railway up` and bypasses the gate by design (emergency path).
 
@@ -35,9 +35,9 @@ Railway waits for the commit's GitHub check suites and deploys only when they pa
 
 ## Acceptance criteria
 
-- [ ] `railway.ts` has `checkSuites: true` on every GitHub source; the plan shows no other change.
+- [x] `railway.ts` has `checkSuites: true` on every GitHub source; the plan shows no other change.
 - [ ] Applied with user approval; Railway shows the services waiting for checks on the next push.
-- [ ] `docs/DEPLOYMENT.md` documents the gate and the manual bypass.
+- [x] `docs/DEPLOYMENT.md` documents the gate and the manual bypass.
 
 ## Rollback
 

@@ -1,7 +1,12 @@
 import { defineRailway, github, image, postgres, preserve, project, service, volume } from "railway/iac";
 
+// Watch paths (E04-W4): each service rebuilds only when its own code changes,
+// so a frontend-only push never races a backend restart. Patterns are
+// gitignore-style and evaluated from the repo root, even with rootDirectory.
+const BACKEND_WATCH = ["/backend/**", "/Dockerfile"];
+
 export default defineRailway(() => {
-  const portfolioSid = github("SIDDHESHCHAUDHARI2K24/portfolio-sid", { checkSuites: false });
+  const portfolioSid = github("SIDDHESHCHAUDHARI2K24/portfolio-sid", { checkSuites: true });
 
   const Postgres = postgres("Postgres", { region: "sfo" });
   const backendVolume = volume("backend-volume", { alerts: { usage: { "100": {}, "80": {}, "95": {} } }, allowOnlineResize: true, region: "sfo", sizeMB: 50000 });
@@ -29,7 +34,7 @@ export default defineRailway(() => {
 
   const backend = service("backend", {
     source: portfolioSid,
-    build: { buildEnvironment: "V3", builder: "DOCKERFILE", dockerfilePath: "/Dockerfile" },
+    build: { buildEnvironment: "V3", builder: "DOCKERFILE", dockerfilePath: "/Dockerfile", watchPatterns: BACKEND_WATCH },
     healthcheck: "/api/v1/health",
     replicas: { "sfo": 1 },
     volumeMounts: { "/data": backendVolume },
@@ -58,7 +63,7 @@ export default defineRailway(() => {
 
   const cron = service("cron", {
     source: portfolioSid,
-    build: { buildEnvironment: "V3", builder: "DOCKERFILE", dockerfilePath: "/Dockerfile" },
+    build: { buildEnvironment: "V3", builder: "DOCKERFILE", dockerfilePath: "/Dockerfile", watchPatterns: BACKEND_WATCH },
     start: "python -m app.jobs.scheduler",
     replicas: { "sfo": 1 },
     deploy: { cronSchedule: "*/5 * * * *", restartPolicyType: "NEVER" },
@@ -75,7 +80,8 @@ export default defineRailway(() => {
   });
 
   const frontend = service("frontend", {
-    source: github("SIDDHESHCHAUDHARI2K24/portfolio-sid", { checkSuites: false, rootDirectory: "/frontend" }),
+    source: github("SIDDHESHCHAUDHARI2K24/portfolio-sid", { checkSuites: true, rootDirectory: "/frontend" }),
+    build: { watchPatterns: ["/frontend/**"] },
     start: "npm run start",
     healthcheck: "/",
     replicas: { "sfo": 1 },
@@ -90,8 +96,8 @@ export default defineRailway(() => {
   });
 
   const admin = service("admin", {
-    source: github("SIDDHESHCHAUDHARI2K24/portfolio-sid", { checkSuites: false, rootDirectory: "admin" }),
-    build: { buildEnvironment: "V3", builder: "DOCKERFILE", dockerfilePath: "admin/Dockerfile" },
+    source: github("SIDDHESHCHAUDHARI2K24/portfolio-sid", { checkSuites: true, rootDirectory: "admin" }),
+    build: { buildEnvironment: "V3", builder: "DOCKERFILE", dockerfilePath: "admin/Dockerfile", watchPatterns: ["/admin/**"] },
     replicas: { "sfo": 1 },
     domains: ["admin.siddhesh-chaudhari.com"],
     env: {

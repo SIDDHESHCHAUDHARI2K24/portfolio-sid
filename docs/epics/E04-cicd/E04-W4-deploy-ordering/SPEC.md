@@ -50,7 +50,7 @@ The frontend never builds against a backend that is mid-restart, or survives it 
 - [x] The user has chosen A (2026-10-18).
 - [ ] (A) Watch patterns applied with approval; the two pushes above behave as stated.
 - [ ] (B) `deploy.yml` deploys in order after CI; native triggers disabled; one full ordered deploy succeeds.
-- [ ] `docs/DEPLOYMENT.md` describes the chosen flow.
+- [x] `docs/DEPLOYMENT.md` describes the chosen flow.
 
 ## Rollback
 
